@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SocialSidebar from "@/components/SocialSidebar";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 const oxanium = Oxanium({
@@ -29,12 +30,14 @@ export default function RootLayout({
         minHeight: '100vh',
         color: 'white',
       }}>
-        <Navbar />
-        <main style={{background: 'transparent'}}>
-          {children}
-        </main>
-        <SocialSidebar />
-        <Footer />
+        <AuthProvider>
+          <Navbar />
+          <main style={{background: 'transparent'}}>
+            {children}
+          </main>
+          <SocialSidebar />
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

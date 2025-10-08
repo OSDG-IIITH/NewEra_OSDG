@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IIIT-H OSDG VPN Setup - Fedora/RHEL</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%); color: #e0e0e0; line-height: 1.6; padding: 20px; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; padding: 40px 20px; border-bottom: 2px solid #22d3ee; margin-bottom: 40px; }
+        h1 { color: #22d3ee; font-size: 2.5rem; margin-bottom: 10px; }
+        .subtitle { color: #a0a0a0; font-size: 1.1rem; }
+        .button-group { display: flex; gap: 20px; justify-content: center; margin: 30px 0; flex-wrap: wrap; }
+        button { padding: 15px 30px; font-size: 1rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 10px; }
+        .copy-btn { background: #10b981; color: white; }
+        .copy-btn:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4); }
+        .download-btn { background: #3b82f6; color: white; }
+        .download-btn:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4); }
+        .copied { background: #22d3ee !important; }
+        .code-container { background: #1e1e1e; border-radius: 12px; padding: 20px; margin: 30px 0; border: 1px solid #333; position: relative; }
+        .code-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #333; }
+        .code-title { color: #22d3ee; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.9rem; }
+        .line-count { color: #666; font-size: 0.85rem; }
+        pre { margin: 0; overflow-x: auto; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.9rem; line-height: 1.5; max-height: 500px; overflow-y: auto; }
+        code { color: #e0e0e0; }
+        .instructions { background: #2a2a3e; border-left: 4px solid #22d3ee; padding: 25px; border-radius: 8px; margin: 30px 0; }
+        .instructions h2 { color: #22d3ee; margin-bottom: 15px; font-size: 1.5rem; }
+        .instructions ol { margin-left: 20px; }
+        .instructions li { margin: 10px 0; padding-left: 10px; }
+        .warning { background: #3a2a1a; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .warning-title { color: #f59e0b; font-weight: bold; margin-bottom: 10px; }
+        .requirements { background: #1a2a3a; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .requirements h3 { color: #22d3ee; margin-bottom: 15px; }
+        .requirements ul { list-style: none; margin-left: 0; }
+        .requirements li:before { content: "✓ "; color: #10b981; font-weight: bold; margin-right: 8px; }
+        footer { text-align: center; margin-top: 50px; padding-top: 30px; border-top: 1px solid #333; color: #666; }
+        footer a { color: #22d3ee; text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+        @media (max-width: 768px) { h1 { font-size: 1.8rem; } .button-group { flex-direction: column; } button { width: 100%; justify-content: center; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 IIIT-H VPN Setup for Fedora/RHEL</h1>
+            <p class="subtitle">Automated script for Fedora 38+, RHEL 8+/9+, CentOS Stream, AlmaLinux, Rocky Linux</p>
+        </header>
+
+        <div class="button-group">
+            <button class="copy-btn" onclick="copyScript()">
+                <span id="copy-icon">📋</span>
+                <span id="copy-text">Copy Script</span>
+            </button>
+            <button class="download-btn" onclick="downloadScript()">
+                💾 Download Script (.sh)
+            </button>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="code-title">setup-vpn-fedora.sh</span>
+                <span class="line-count">Lines: 1-165</span>
+            </div>
+            <pre><code id="script-content">#!/bin/bash
+
+# IIIT Hyderabad VPN Setup Script for Fedora/RHEL/CentOS
+# Compatible with: Fedora 38+, RHEL 8+/9+, CentOS Stream, AlmaLinux, Rocky Linux
+# Author: OSDG Club, IIIT Hyderabad
+# Last Updated: October 2025
+
+set -e
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+# Configuration
+OVPN_CONFIG_PATH="$HOME/Downloads/linux.ovpn"
+CONFIG_NAME="IIITH-VPN"
+
+echo -e "${CYAN}=========================================${NC}"
+echo -e "${CYAN}  IIIT Hyderabad VPN Setup - Fedora/RHEL${NC}"
+echo -e "${CYAN}=========================================${NC}"
+echo ""
+
+# Check if running as root
+if [ "$EUID" -eq 0 ]; then 
+    echo -e "${RED}ERROR: Please do NOT run this script as root${NC}"
+    echo -e "${YELLOW}Run without 'sudo' - you'll be prompted for password when needed${NC}"
+    exit 1
+fi
+
+# Detect distribution
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    DISTRO_ID=$ID
+    VERSION_ID_MAJOR=${VERSION_ID%%.*}
+else
+    echo -e "${RED}ERROR: Cannot detect distribution${NC}"
+    exit 1
+fi
+
+# Function to check internet connectivity
+check_internet() {
+    if ! ping -c 1 openvpn.net &> /dev/null; then
+        echo -e "${RED}ERROR: No internet connection detected${NC}"
+        echo -e "${YELLOW}Please connect to the internet and try again${NC}"
+        exit 1
+    fi
+}
+
+# Check internet connection
+echo -e "${YELLOW}[1/6] Checking internet connection...${NC}"
+check_internet
+echo -e "${GREEN}✓ Internet connection verified${NC}"
+echo ""
+
+# Check if config file exists
+echo -e "${YELLOW}[2/6] Checking for VPN configuration file...${NC}"
+if [ ! -f "$OVPN_CONFIG_PATH" ]; then
+    echo -e "${RED}ERROR: Configuration file not found!${NC}"
+    echo -e "${RED}Expected location: $OVPN_CONFIG_PATH${NC}"
+    echo ""
+    echo -e "${YELLOW}Please:${NC}"
+    echo -e "${YELLOW}  1. Download 'linux.ovpn' from the OSDG website${NC}"
+    echo -e "${YELLOW}  2. Save it to your Downloads folder${NC}"
+    echo -e "${YELLOW}  3. Run this script again${NC}"
+    exit 2
+fi
+echo -e "${GREEN}✓ Configuration file found${NC}"
+echo ""
+
+# Determine package manager
+if command -v dnf &> /dev/null; then
+    PKG_MANAGER="dnf"
+elif command -v yum &> /dev/null; then
+    PKG_MANAGER="yum"
+else
+    echo -e "${RED}ERROR: Neither dnf nor yum found${NC}"
+    exit 1
+fi
+
+# Check if OpenVPN 3 is installed
+echo -e "${YELLOW}[3/6] Checking OpenVPN 3 installation...${NC}"
+if command -v openvpn3 &> /dev/null; then
+    echo -e "${GREEN}✓ OpenVPN 3 is already installed${NC}"
+else
+    echo -e "${YELLOW}OpenVPN 3 not found. Installing...${NC}"
+    echo ""
+    
+    # Install EPEL for RHEL/CentOS/AlmaLinux/Rocky
+    if [[ "$DISTRO_ID" =~ ^(rhel|centos|almalinux|rocky)$ ]]; then
+        echo -e "${CYAN}  Installing EPEL repository...${NC}"
+        
+        if [ "$VERSION_ID_MAJOR" == "8" ]; then
+            sudo $PKG_MANAGER install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+            # Enable PowerTools/CodeReady Builder
+            sudo $PKG_MANAGER config-manager --set-enabled powertools 2>/dev/null || \
+            sudo $PKG_MANAGER config-manager --set-enabled crb 2>/dev/null || \
+            echo -e "${YELLOW}  Note: Could not enable PowerTools (may not be needed)${NC}"
+        elif [ "$VERSION_ID_MAJOR" == "9" ]; then
+            sudo $PKG_MANAGER install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
+            sudo $PKG_MANAGER config-manager --set-enabled crb 2>/dev/null || \
+            echo -e "${YELLOW}  Note: Could not enable CRB (may not be needed)${NC}"
+        fi
+        
+        echo -e "${CYAN}  Installing OpenVPN repository...${NC}"
+        sudo $PKG_MANAGER install -y https://packages.openvpn.net/packages-repo-1-1.noarch.rpm 2>/dev/null || true
+    fi
+    
+    # For Fedora, use Copr repository
+    if [[ "$DISTRO_ID" == "fedora" ]]; then
+        echo -e "${CYAN}  Enabling Copr repository for OpenVPN 3...${NC}"
+        sudo $PKG_MANAGER install -y 'dnf-command(copr)' 2>/dev/null || true
+        sudo $PKG_MANAGER copr enable -y dsommers/openvpn3 2>/dev/null || true
+    fi
+    
+    echo -e "${CYAN}  Installing OpenVPN 3 client (this may take 1-2 minutes)...${NC}"
+    sudo $PKG_MANAGER install -y openvpn3-client
+    
+    # Verify installation
+    if ! command -v openvpn3 &> /dev/null; then
+        echo -e "${RED}ERROR: OpenVPN 3 installation failed${NC}"
+        exit 1
+    fi
+    
+    echo -e "${GREEN}  ✓ OpenVPN 3 installed successfully${NC}"
+fi
+echo ""
+
+# Remove existing configuration if present
+echo -e "${YELLOW}[4/6] Checking for existing VPN configurations...${NC}"
+if openvpn3 configs-list 2>/dev/null | grep -q "$CONFIG_NAME"; then
+    echo -e "${YELLOW}  Removing existing configuration...${NC}"
+    openvpn3 config-remove --config "$CONFIG_NAME" --force 2>/dev/null || true
+    echo -e "${GREEN}  ✓ Old configuration removed${NC}"
+else
+    echo -e "${GREEN}✓ No existing configuration found${NC}"
+fi
+echo ""
+
+# Import VPN configuration
+echo -e "${YELLOW}[5/6] Importing VPN configuration...${NC}"
+openvpn3 config-import --config "$OVPN_CONFIG_PATH" --name "$CONFIG_NAME" --persistent
+echo -e "${GREEN}✓ VPN configuration imported successfully${NC}"
+echo ""
+
+# Start VPN session
+echo -e "${YELLOW}[6/6] Starting VPN session...${NC}"
+echo -e "${CYAN}You will be prompted for your IIIT Hyderabad credentials${NC}"
+echo ""
+openvpn3 session-start --config "$CONFIG_NAME"
+
+echo ""
+echo -e "${GREEN}=========================================${NC}"
+echo -e "${GREEN}  ✓ VPN SETUP COMPLETE!${NC}"
+echo -e "${GREEN}=========================================${NC}"
+echo ""
+echo -e "${CYAN}USEFUL COMMANDS:${NC}"
+echo -e "${NC}  Check VPN status:    ${YELLOW}openvpn3 sessions-list${NC}"
+echo -e "${NC}  Disconnect VPN:      ${YELLOW}openvpn3 session-manage --config $CONFIG_NAME --disconnect${NC}"
+echo -e "${NC}  Reconnect VPN:       ${YELLOW}openvpn3 session-start --config $CONFIG_NAME${NC}"
+echo -e "${NC}  View VPN logs:       ${YELLOW}openvpn3 log --config $CONFIG_NAME${NC}"
+echo -e "${NC}  Remove config:       ${YELLOW}openvpn3 config-remove --config $CONFIG_NAME${NC}"
+echo ""
+echo -e "${CYAN}Need help? Visit the OSDG website or use our AI chatbot!${NC}"
+echo ""</code></pre>
+        </div>
+
+        <div class="instructions">
+            <h2>📖 Installation Instructions</h2>
+            <ol>
+                <li><strong>Download your config file:</strong> Download <code>linux.ovpn</code> from the OSDG VPN page and save it to your Downloads folder</li>
+                <li><strong>Copy the script:</strong> Click the "Copy Script" button above</li>
+                <li><strong>Open Terminal:</strong> Press <kbd>Ctrl + Alt + T</kbd> or search for "Terminal"</li>
+                <li><strong>Paste and run:</strong> Right-click to paste the script, then press <kbd>Enter</kbd></li>
+                <li><strong>Enter sudo password:</strong> You'll be prompted for your system password (for sudo access)</li>
+                <li><strong>Enter IIIT-H credentials:</strong> When prompted, enter your IIIT-H email and password</li>
+            </ol>
+        </div>
+
+        <div class="warning">
+            <div class="warning-title">⚠️ Important Notes</div>
+            <ul>
+                <li>Do NOT run the script with sudo - run it normally, it will ask for password when needed</li>
+                <li>Ensure <code>linux.ovpn</code> is in your Downloads folder before running</li>
+                <li>Internet connection is required for installation</li>
+                <li>Script will automatically configure EPEL repository for RHEL/CentOS variants</li>
+            </ul>
+        </div>
+
+        <div class="requirements">
+            <h3>✅ Requirements</h3>
+            <ul>
+                <li>Fedora 38+ / RHEL 8+/9+ / CentOS Stream / AlmaLinux / Rocky Linux</li>
+                <li>Sudo privileges</li>
+                <li>Active internet connection</li>
+                <li>Downloaded <code>linux.ovpn</code> config file</li>
+                <li>IIIT Hyderabad student credentials</li>
+            </ul>
+        </div>
+
+        <footer>
+            <p>Having trouble? <a href="/vpn-setup">Use our AI-powered troubleshooting chatbot</a></p>
+            <p>© 2025 OSDG Club, IIIT Hyderabad</p>
+        </footer>
+    </div>
+
+    <script>
+        function copyScript() {
+            const scriptContent = document.getElementById('script-content').textContent;
+            const copyBtn = document.querySelector('.copy-btn');
+            const copyIcon = document.getElementById('copy-icon');
+            const copyText = document.getElementById('copy-text');
+            
+            navigator.clipboard.writeText(scriptContent).then(() => {
+                copyBtn.classList.add('copied');
+                copyIcon.textContent = '✓';
+                copyText.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    copyIcon.textContent = '📋';
+                    copyText.textContent = 'Copy Script';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy script. Please try again or copy manually.');
+            });
+        }
+
+        function downloadScript() {
+            const scriptContent = document.getElementById('script-content').textContent;
+            const blob = new Blob([scriptContent], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'setup-vpn-fedora.sh';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+</html>

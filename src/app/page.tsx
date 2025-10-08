@@ -1,9 +1,22 @@
 "use client";
-
 import React, { useEffect, useState, useRef } from "react";
+
+const FULL_FORM_LINES = [
+  { letter: "O", word: "pen" },
+  { letter: "S", word: "ource" },
+  { letter: "D", word: "evelopers" },
+  { letter: "G", word: "roup" },
+];
+
+const OSDG_TEXT = "OSDG";
 
 export default function HomePage() {
   const [scrollY, setScrollY] = useState(0);
+  const [animationPhase, setAnimationPhase] = useState(0);
+  const [typedText, setTypedText] = useState("");
+  const [expandedText, setExpandedText] = useState<string[]>(["", "", "", ""]);
+  const [currentExpandingIndex, setCurrentExpandingIndex] = useState(0);
+  const [showSplit, setShowSplit] = useState(false);
   const [typedCommand, setTypedCommand] = useState("");
   const [showAbout, setShowAbout] = useState(false);
   const [consoleVisible, setConsoleVisible] = useState(false);
@@ -15,20 +28,104 @@ export default function HomePage() {
 
   const aboutLines = [
     "",
-    "NAME",
+    "ABOUT",
     "    OSDG - Open Source Developers Group, IIIT Hyderabad",
     "-------------------------------------------------------------------",
     "",
     "DESCRIPTION",
-    "    The Open Source Developers Group (OSDG) at IIIT Hyderabad is the premier student-run organization for mastering open-source development.",
+    "    The Open Source Developers Group (OSDG) is the premier club at IIIT Hyderabad.",
     " ",
-    
-    "    As a distinguished arm of the Center for Open Source, IIIT-H, OSDG empowers passionate contributors to grow into confident, visionary tech leaders.",
+    "    And as a distinguished arm of the Center for Open Source, IIIT-H, OSDG empowers passionate contributors for mastering open-source development.",
     " ",
-    
     "    Through competitive programs like Google Summer of Code, impactful projects, and dynamic events, we set the benchmark for open-source excellence.",
     "-------------------------------------------------------------------"
   ];
+
+  // Main animation sequence
+  useEffect(() => {
+    let typeInterval: NodeJS.Timeout;
+    let expandCharInterval: NodeJS.Timeout;
+
+    // Phase 0: Blank screen (1.2 seconds)
+    // Phase 0.5: Pre-expand frame for corners (start at 1s)
+    const preCornerTimer = setTimeout(() => {
+      setAnimationPhase(0.5); // Frame prepares for corners
+    }, 1000);
+
+    // Phase 1: Corners forming (appears in pre-expanded space)
+    const cornersTimer = setTimeout(() => {
+      setAnimationPhase(1);
+    }, 2200);
+
+    // Phase 1.5: Expand frame for OSDG text (before typing)
+    const preTextTimer = setTimeout(() => {
+      setAnimationPhase(1.5); // Frame expands for OSDG
+    }, 3000);
+
+    // Phase 2: Type OSDG (character by character)
+    const typingTimer = setTimeout(() => {
+      setAnimationPhase(2);
+      let charIndex = 0;
+      typeInterval = setInterval(() => {
+        if (charIndex <= OSDG_TEXT.length) {
+          setTypedText(OSDG_TEXT.slice(0, charIndex));
+          charIndex++;
+        } else {
+          clearInterval(typeInterval);
+          // First expand the frame for full form
+          setTimeout(() => {
+            setAnimationPhase(2.5); // Trigger frame expansion to final size
+            // Then show split transition
+            setTimeout(() => {
+              setShowSplit(true);
+              // After split animation, start word expansion
+              setTimeout(() => {
+                setAnimationPhase(3);
+                // Start typing each word character by character
+                let wordIndex = 0;
+                let charIndex = 0;
+                
+                const typeNextChar = () => {
+              if (wordIndex < FULL_FORM_LINES.length) {
+                const currentWord = FULL_FORM_LINES[wordIndex].word;
+                
+                if (charIndex <= currentWord.length) {
+                  setExpandedText((prev) => {
+                    const newText = [...prev];
+                    newText[wordIndex] = currentWord.slice(0, charIndex);
+                    return newText;
+                  });
+                  charIndex++;
+                } else {
+                  // Move to next word
+                  wordIndex++;
+                  charIndex = 0;
+                  if (wordIndex >= FULL_FORM_LINES.length) {
+                    clearInterval(expandCharInterval);
+                    return;
+                  }
+                }
+              }
+            };
+            
+            expandCharInterval = setInterval(typeNextChar, 50);
+              }, 1000); // Time for split animation
+            }, 1200); // Frame expansion time (smooth & elegant)
+          }, 1200); // Pause before frame expansion
+        }
+      }, 250);
+    }, 4200);
+
+    return () => {
+      clearTimeout(preCornerTimer);
+      clearTimeout(cornersTimer);
+      clearTimeout(preTextTimer);
+      clearTimeout(typingTimer);
+      if (typeInterval) clearInterval(typeInterval);
+      if (expandCharInterval) clearInterval(expandCharInterval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -39,11 +136,9 @@ export default function HomePage() {
   useEffect(() => {
     if (!aboutRef.current || hasAnimated) return;
 
-    // Use a higher threshold to delay animation until more of the section is visible
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          // Only trigger when the element is more visible (higher threshold)
           if (entry.isIntersecting && !hasAnimated) {
             setConsoleVisible(true);
             setHasAnimated(true);
@@ -54,7 +149,6 @@ export default function HomePage() {
               if (i === command.length) {
                 clearInterval(interval);
                 setTimeout(() => {
-                  // Start typing lines one by one
                   let lineIndex = 0;
                   const lineInterval = setInterval(() => {
                     setTypedLines((prev) => [...prev, aboutLines[lineIndex]]);
@@ -72,110 +166,204 @@ export default function HomePage() {
           }
         });
       },
-      { threshold: 0.5 } // Increased threshold to delay animation start
+      { threshold: 0.5 }
     );
 
     observer.observe(aboutRef.current);
     return () => observer.disconnect();
-  }, [hasAnimated]);
-
-  // Improved transition factor using cubic ease function for smoother transition
-  const rawFactor = Math.min(scrollY / (window.innerHeight * 0.6), 1);
-
-  // Apply easing function for smoother transition
-  const factor = easeInOutCubic(rawFactor);
-
-  // Easing function for smoother transitions
-  function easeInOutCubic(x: number): number {
-    return x < 0.5
-      ? 4 * x * x * x
-      : 1 - Math.pow(-2 * x + 2, 3) / 2;
-  }
-
-  const fullForm = "Open Source Developers Group".split(" ");
-  const acronym = "OSDG".split("");
-
-  // Improved interpolated morph with smoother transitions
-  const transitionTitle = fullForm
-    .map((word, idx) => {
-      // Calculate individual transition points for each word to stagger the effect
-      const individualThreshold = idx / fullForm.length;
-      const individualFactor = Math.max(
-        0,
-        (factor - individualThreshold) * fullForm.length
-      );
-
-      // Fade between word and acronym letter
-      if (individualFactor >= 1) {
-        return acronym[idx] || "";
-      } else if (individualFactor > 0) {
-        // For partial transitions, create a mixed representation
-        const letterProgress = individualFactor % 1;
-        return letterProgress > 0.5 ? acronym[idx] || "" : word;
-      }
-      return word;
-    })
-    .join(" ");
-
-  const isFinalAcronym = factor >= 1;
-
-  // Format the words to have larger first letters
-  const formatText = (text: string) => {
-    return text.split(" ").map((word) => {
-      if (word.length === 0) return word;
-      return (
-        <span key={word} className="inline-block">
-          <span className="text-125percent">{word.charAt(0)}</span>
-          {word.substring(1)}
-          &nbsp;
-        </span>
-      );
-    });
-  };
+  }, [hasAnimated, command, aboutLines]);
 
   return (
     <div className="min-h-screen bg-black bg-gradient-to-b from-black to-blue-900/30 text-white font-sans scroll-smooth">
       {/* Hero Section */}
       <section className="flex flex-col justify-center items-center min-h-screen text-center relative overflow-hidden px-4">
         <div className="flex flex-col items-center justify-center">
-        <style jsx global>{`
-          .text-125percent {
-            font-size: 125%;
-          }
-        `}</style>
+          {/* Tech Frame Animation Container */}
+          <div className="relative inline-block">
+            {/* Top Left Corner SVG */}
+            <svg
+              className={`absolute transition-all duration-[1200ms] ease-in-out ${
+                animationPhase >= 0.5 ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{
+                top: animationPhase >= 2.5 ? '-40px' : animationPhase >= 1.5 ? '-15px' : '-5px',
+                left: animationPhase >= 2.5 ? '-40px' : animationPhase >= 1.5 ? '-15px' : '-5px',
+                width: '80px',
+                height: '80px',
+              }}
+              viewBox="0 0 100 100"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M 20,0 L 0,0 L 0,20 L 0,100 L 2,100 L 2,2 L 100,2 L 100,0 L 20,0 Z"
+                fill="#22d3ee"
+                className="transition-all duration-700"
+              />
+              <rect x="0" y="25" width="2" height="8" fill="#22d3ee" opacity="0.6" />
+              <rect x="0" y="40" width="2" height="5" fill="#22d3ee" opacity="0.4" />
+              <rect x="0" y="50" width="2" height="3" fill="#22d3ee" opacity="0.3" />
+              <path d="M 8,8 L 8,92" stroke="#22d3ee" strokeWidth="1" opacity="0.3" />
+              <path d="M 8,8 L 92,8" stroke="#22d3ee" strokeWidth="1" opacity="0.3" />
+            </svg>
 
-        <h1
-          className={`font-bold transition-all duration-500 ease-in-out font-oxanium mx-auto text-center max-w-5xl leading-tight ${
-            isFinalAcronym ? "text-7xl tracking-widest" : ""
-          }`}
-          style={{
-            fontSize: isFinalAcronym
-              ? "5rem"
-              : `${3 + (1 - factor) * 3}rem`,
-            letterSpacing: isFinalAcronym ? "0.5rem" : `${factor * 0.3}rem`,
-            lineHeight: isFinalAcronym ? "1.1" : "0.9",
-          }}
-        >
-          {isFinalAcronym ? (
-            acronym.map((letter, idx) => (
-              <span key={idx} className={idx === 0 ? "text-125percent" : ""}>
-                {letter}
-              </span>
-            ))
-          ) : (
-            formatText(transitionTitle)
+            {/* Bottom Right Corner SVG */}
+            <svg
+              className={`absolute transition-all duration-[1200ms] ease-in-out ${
+                animationPhase >= 0.5 ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{
+                bottom: animationPhase >= 2.5 ? '-40px' : animationPhase >= 1.5 ? '-15px' : '-5px',
+                right: animationPhase >= 2.5 ? '-40px' : animationPhase >= 1.5 ? '-15px' : '-5px',
+                width: '80px',
+                height: '80px',
+              }}
+              viewBox="0 0 100 100"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M 80,100 L 100,100 L 100,80 L 100,0 L 98,0 L 98,98 L 0,98 L 0,100 L 80,100 Z"
+                fill="#22d3ee"
+                className="transition-all duration-700"
+              />
+              <rect x="98" y="65" width="2" height="8" fill="#22d3ee" opacity="0.6" />
+              <rect x="98" y="50" width="2" height="5" fill="#22d3ee" opacity="0.4" />
+              <rect x="98" y="40" width="2" height="3" fill="#22d3ee" opacity="0.3" />
+              <path d="M 92,92 L 92,8" stroke="#22d3ee" strokeWidth="1" opacity="0.3" />
+              <path d="M 92,92 L 8,92" stroke="#22d3ee" strokeWidth="1" opacity="0.3" />
+            </svg>
+
+            {/* Main Title Container */}
+            <div
+              className={`font-bold font-oxanium transition-all duration-[1200ms] ease-in-out ${
+                animationPhase >= 2 ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{
+                padding: animationPhase >= 2.5 ? '3rem 4rem' : animationPhase >= 1.5 ? '2rem 3rem' : '1.5rem 2rem',
+              }}
+            >
+              {/* Phase 2: Type out OSDG */}
+              {animationPhase >= 2 && animationPhase < 3 && !showSplit && (
+                <div 
+                  className="text-cyan-400 font-bold tracking-wider"
+                  style={{
+                    fontSize: 'clamp(3.5rem, 10vw, 7rem)',
+                  }}
+                >
+                  {typedText}
+                </div>
+              )}
+
+              {/* Phase 2.5: Split OSDG into two lines with smooth transition */}
+              {showSplit && animationPhase < 3 && (
+                <div className="flex flex-col items-center justify-center gap-0.1 transition-all duration-700 ease-out">
+                  <div 
+                    className="text-cyan-400 font-bold tracking-wider transition-all duration-700"
+                    style={{
+                      fontSize: 'clamp(3.5rem, 10vw, 7rem)',
+                    }}
+                  >
+                    OS
+                  </div>
+                  <div 
+                    className="text-cyan-400 font-bold tracking-wider transition-all duration-700"
+                    style={{
+                      fontSize: 'clamp(3.5rem, 10vw, 7rem)',
+                    }}
+                  >
+                    DG
+                  </div>
+                </div>
+              )}
+              
+              {/* Phase 3: Expand each letter inline to full word */}
+              {animationPhase >= 3 && (
+                <div className="flex flex-col items-center justify-center gap-0.1">
+                  {/* First Line: Open Source */}
+                  <div className="flex items-baseline justify-center">
+                    {FULL_FORM_LINES.slice(0, 2).map((line, idx) => (
+                      <div
+                        key={line.letter}
+                        className="inline-flex items-baseline"
+                        style={{
+                          fontSize: 'clamp(3.5rem, 10vw, 7rem)',
+                        }}
+                      >
+                        <span className="text-cyan-400 font-bold">{line.letter}</span>
+                        <span 
+                          className="text-white transition-all duration-300"
+                          style={{
+                            fontSize: 'clamp(3.5rem, 10vw, 7rem)',
+                            lineHeight: '0.1',
+                          }}
+                        >
+                          {expandedText[idx]}
+                        </span>
+                        {idx === 0 && (
+                          <span className="mx-3 md:mx-4"></span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Second Line: Developers Group */}
+                  <div className="flex items-baseline justify-center mt-[-40px]">
+                    {FULL_FORM_LINES.slice(2, 4).map((line, idx) => (
+                      <div
+                        key={line.letter}
+                        className="inline-flex items-baseline"
+                        style={{
+                          fontSize: 'clamp(3.5rem, 10vw, 7rem)',
+                        }}
+                      >
+                        <span className="text-cyan-400 font-bold">{line.letter}</span>
+                        <span 
+                          className="text-white transition-all duration-300"
+                          style={{
+                            fontSize: 'clamp(3.5rem, 10vw, 7rem)',
+                          }}
+                        >
+                          {expandedText[idx + 2]}
+                        </span>
+                        {idx === 0 && (
+                          <span className="mx-3 md:mx-4"></span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Tagline - Show after animation completes */}
+          {animationPhase >= 3 && expandedText.length === 4 && (
+            <p className="mt-8 md:mt-12 text-base md:text-xl text-gray-400 max-w-2xl px-4 transition-all duration-1000 opacity-0 animate-fadeIn">
+              Where elite minds meet open source — to build, disrupt, and lead the future - openly.
+            </p>
           )}
-        </h1>
-
-        {!isFinalAcronym && factor < 0.3 && (
-          <p className="mt-6 text-lg md:text-xl text-gray-400 max-w-2xl transition-opacity duration-300">
-            Where elite minds meet open source — to build, disrupt, and lead the future - openly.
-          </p>
-        )}
         </div>
       </section>
 
-      {/* About Section - Moved slightly higher in the layout */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 1s ease-out forwards;
+          animation-delay: 0.5s;
+        }
+      `}</style>
+
+      {/* About Section */}
       <section
         id="about"
         ref={aboutRef}
@@ -207,10 +395,10 @@ export default function HomePage() {
                   (safeLine.trim() !== "" && safeLine === safeLine.toUpperCase()) || isKnownHeader;
                 const isSeparator = /^[-]+$/.test(safeLine.trim());
 
-                let lineClass = "ml-4 mt-2 text-gray-200"; // default normal text
+                let lineClass = "ml-4 mt-2 text-gray-200";
 
                 if (safeLine.trim() === "") {
-                  lineClass = "my-6"; // blank line with bigger vertical spacing
+                  lineClass = "my-6";
                 } else if (isSectionHeader) {
                   lineClass = "font-bold mt-4 text-cyan-400 uppercase";
                 } else if (isSeparator) {
@@ -224,7 +412,6 @@ export default function HomePage() {
                   </p>
                 );
               })}
-
             </div>
           )}
         </div>

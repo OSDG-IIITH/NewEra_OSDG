@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import brandLogo from "@/assets/BrandLogo.png";
+import AuthWidget from "@/components/AuthWidget";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,6 +46,9 @@ export default function Navbar() {
             <Link className={linkClass} href="/linux-installation">
               Linux Installation Guide
             </Link>
+            <Link className={linkClass} href="/vpn-setup">
+              VPN Setup
+            </Link>
             <Link
               className={linkClass}
               href="/team"
@@ -57,6 +61,7 @@ export default function Navbar() {
             >
               HackIIIT
             </Link> */}
+            <AuthWidget className="ml-4" />
           </div>
 
           {/* Mobile menu button */}
@@ -134,6 +139,12 @@ export default function Navbar() {
               Linux Installation Guide
             </Link>
             <Link
+              href="/vpn-setup"
+              className="block px-3 py-2 text-base font-medium rounded-md hover:bg-[#3E4050] transition duration-300"
+            >
+              VPN Setup
+            </Link>
+            <Link
               href="/team"
               className="block px-3 py-2 text-base font-medium rounded-md hover:bg-[#3E4050] transition duration-300"
             >
@@ -145,6 +156,9 @@ export default function Navbar() {
             >
               HackIIIT
             </Link> */}
+            <div className="px-3 py-2">
+              <AuthWidget />
+            </div>
           </div>
         </div>
       )}
