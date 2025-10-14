@@ -28,6 +28,13 @@ const PROJECTS: Project[] = [
     repo: 'https://github.com/OSDG-IIITH/forms-portal',
     website: 'https://osdg.iiit.ac.in/forms',
   },
+  {
+    name: 'Discord CAS',
+    image: '/discord.png',
+    description: 'User verification on Discord via CAS',
+    repo: 'https://github.com/OSDG-IIITH/Discord-CAS',
+    website: 'https://osdg.iiit.ac.in/casbot/discord/invite',
+  },
 ];
 
 export default function ProjectCarousel() {

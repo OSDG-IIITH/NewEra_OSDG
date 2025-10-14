@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useVPNWizard } from '@/contexts/VPNWizardContext';
-import { detectOS, getOSIcon, getOSLogo, getVPNDownloadURL } from '@/utils/osDetection';
+import { detectOS, getOSLogo, getVPNDownloadURL } from '@/utils/osDetection';
 import Image from 'next/image';
 import { Download, ExternalLink, CheckCircle } from 'lucide-react';
 

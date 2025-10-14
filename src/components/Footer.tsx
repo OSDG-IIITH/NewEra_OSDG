@@ -7,7 +7,7 @@ import iiitLogo from "@/assets/iiit-logo-white.png";
 
 export default function Footer() {
   return (
-    <footer className="w-full text-gray-200" style={{ background: 'transparent' }}>
+    <footer className="w-full text-gray-200 font-oxanium" style={{ background: 'transparent' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-6 md:mb-0">

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Send } from "lucide-react";
 
 interface ChatModalProps {
   isOpen: boolean;
@@ -15,19 +15,26 @@ interface ChatModalProps {
 }
 
 export default function ChatModal({ isOpen, onClose, mode = "general", vpnContext }: ChatModalProps) {
-  const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>([
+  // Initialize messages with default message based on mode
+  const getInitialMessages = () => [
     { 
-      role: "assistant", 
+      role: "assistant" as const, 
       content: mode === "vpn-troubleshooting" 
-        ? "I'm WISP. I will solve VPN setup errors that ur dumb ass can't. Describe the issue or upload a screenshot."
-        : "I'm WISP. What do you want?" 
+        ? "I'm Vetal. I will solve VPN setup errors that ur dumb ass can't. Describe the issue or upload a screenshot."
+        : "I'm Vetal. What do you want?" 
     }
-  ]);
+  ];
+
+  const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>(getInitialMessages());
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [streamingMessage, setStreamingMessage] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasInitialized = useRef(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -35,21 +42,22 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, streamingMessage]);
 
   useEffect(() => {
-    // Reset messages when mode changes or modal opens
-    if (isOpen) {
-      setMessages([
-        { 
-          role: "assistant", 
-          content: mode === "vpn-troubleshooting" 
-            ? "I'm WISP. I can solve VPN setup errors that ur dumb ass can't. Describe the issue or upload a screenshot."
-            : "I'm WISP. What do you want?" 
-        }
-      ]);
-      setUploadedImage(null);
-      setInputValue("");
+    // Cleanup typing animation on unmount
+    return () => {
+      if (typingIntervalRef.current) {
+        clearInterval(typingIntervalRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    // Reset messages ONLY on first open, not on subsequent opens
+    if (isOpen && !hasInitialized.current) {
+      hasInitialized.current = true;
+      setMessages(getInitialMessages());
     }
   }, [isOpen, mode]);
 
@@ -78,66 +86,103 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
     setInputValue("");
     setMessages(prev => [...prev, { role: "user", content: userMessage }]);
     setIsLoading(true);
+    setStreamingMessage("");
+    setIsTyping(false);
 
-    if (mode === "vpn-troubleshooting") {
-      // Call Gemini API for VPN troubleshooting
-      try {
-        const response = await fetch("/api/vpn/gemini", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "diagnose-error",
-            errorText: userMessage,
-            os: vpnContext?.osInfo?.name,
-            command: vpnContext?.commandData?.command,
-            hasImage: !!uploadedImage,
-          }),
-        });
+    // Clear any existing typing animation
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+      typingIntervalRef.current = null;
+    }
 
-        if (!response.ok) throw new Error("Failed to diagnose error");
+    try {
+      // Call appropriate Vetal AI API based on mode
+      const apiEndpoint = mode === "vpn-troubleshooting" 
+        ? "/api/chat/vetal" 
+        : "/api/chat/vetal-general";
 
-        const diagnosis = await response.json();
-        
-        const assistantMessage = `**Diagnosis:** ${diagnosis.diagnosis}
+      const response = await fetch(apiEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [...messages, { role: "user", content: userMessage }],
+          vpnContext: mode === "vpn-troubleshooting" ? {
+            osInfo: vpnContext?.osInfo,
+            commandData: vpnContext?.commandData,
+            errorText: vpnContext?.errorText
+          } : undefined,
+        }),
+      });
 
-**Solution:**
-${diagnosis.solution}
+      if (!response.ok) throw new Error("Failed to get response from Vetal");
 
-${diagnosis.alternativeCommand ? `**Try this command instead:**
-\`\`\`
-${diagnosis.alternativeCommand}
-\`\`\`` : ""}
+      // Handle streaming response with letter-by-letter animation
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = "";
+      let displayedText = "";
+      const typingSpeed = 20; // milliseconds per character
 
-**Common Cause:** ${diagnosis.commonCause}
+      setIsTyping(true);
 
-**Prevention Tip:** ${diagnosis.preventionTip}`;
+      if (reader) {
+        // Collect all chunks first
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
 
-        setMessages(prev => [...prev, { role: "assistant", content: assistantMessage }]);
-        setUploadedImage(null);
-      } catch (error) {
-        console.error("Error diagnosing:", error);
-        setMessages(prev => [
-          ...prev,
-          {
-            role: "assistant",
-            content: "Sorry, I encountered an error while analyzing your problem. Please try again or consult the manual installation guide.",
-          },
-        ]);
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      // Placeholder for future RAG API call (general IIIT knowledge)
-      setTimeout(() => {
-        setMessages(prev => [
-          ...prev,
-          { 
-            role: "assistant", 
-            content: "I'm currently in development mode. Once integrated with the institute's internal files, I'll be able to answer your questions!" 
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') {
+                break;
+              }
+              try {
+                const parsed = JSON.parse(data);
+                accumulatedText += parsed.text;
+              } catch (e) {
+                // Skip invalid JSON
+              }
+            }
           }
-        ]);
-        setIsLoading(false);
-      }, 1000);
+        }
+
+        // Now animate the text letter by letter
+        let charIndex = 0;
+        typingIntervalRef.current = setInterval(() => {
+          if (charIndex < accumulatedText.length) {
+            displayedText += accumulatedText[charIndex];
+            setStreamingMessage(displayedText);
+            charIndex++;
+          } else {
+            if (typingIntervalRef.current) {
+              clearInterval(typingIntervalRef.current);
+              typingIntervalRef.current = null;
+            }
+            setMessages(prev => [...prev, { role: "assistant", content: accumulatedText }]);
+            setStreamingMessage("");
+            setIsTyping(false);
+          }
+        }, typingSpeed);
+      }
+      
+      setUploadedImage(null);
+    } catch (error) {
+      console.error("Error chatting with Vetal:", error);
+      setMessages(prev => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Ugh, something broke on my end. Try again, will ya?",
+        },
+      ]);
+      setStreamingMessage("");
+      setIsTyping(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -161,11 +206,11 @@ ${diagnosis.alternativeCommand}
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
         <div
-          className="bg-black border-2 border-green-500 rounded-lg w-full max-w-2xl h-[600px] flex flex-col shadow-2xl shadow-green-500/20 animate-fade-in pointer-events-auto"
+          className="bg-black border-2 border-green-500 rounded-3xl w-full max-w-2xl h-[600px] flex flex-col shadow-2xl shadow-green-500/20 animate-fade-in pointer-events-auto font-oxanium"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-green-500/30">
+          <div className="flex items-center justify-between p-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8">
                 <svg viewBox="0 0 200 200" className="w-full h-full">
@@ -179,7 +224,7 @@ ${diagnosis.alternativeCommand}
                   <circle cx="125" cy="75" r="12" fill="#4ade80" />
                 </svg>
               </div>
-              <h2 className="text-green-500 font-bold text-xl">WISP AI</h2>
+              <h2 className="text-green-500 font-bold text-xl">Vetal AI</h2>
             </div>
             <button
               onClick={onClose}
@@ -191,14 +236,14 @@ ${diagnosis.alternativeCommand}
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-4">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
+                  className={`max-w-[80%] rounded-2xl p-3 ${
                     msg.role === "user"
                       ? "bg-green-500/20 text-green-100 border border-green-500/30"
                       : "bg-gray-900 text-gray-100 border border-green-500/20"
@@ -208,9 +253,28 @@ ${diagnosis.alternativeCommand}
                 </div>
               </div>
             ))}
-            {isLoading && (
+            {streamingMessage && (
               <div className="flex justify-start">
-                <div className="bg-gray-900 text-gray-100 border border-green-500/20 rounded-lg p-3">
+                <div className="bg-gray-900 text-gray-100 border border-green-500/20 rounded-2xl p-3">
+                  {streamingMessage}
+                  <span className="inline-block ml-1 align-middle w-4 h-4 animate-pulse">
+                    <svg viewBox="0 0 200 200" className="w-full h-full">
+                      <path
+                        d="M 100 30 C 60 30, 40 50, 40 90 L 40 150 C 40 155, 45 160, 50 160 L 50 145 C 50 140, 55 135, 60 135 C 65 135, 70 140, 70 145 L 70 160 C 70 165, 75 170, 80 170 L 80 150 C 80 145, 85 140, 90 140 C 95 140, 100 145, 100 150 L 100 170 C 100 175, 105 180, 110 180 L 110 150 C 110 145, 115 140, 120 140 C 125 140, 130 145, 130 150 L 130 170 C 130 175, 135 170, 140 170 L 140 145 C 140 140, 145 135, 150 135 C 155 135, 160 140, 160 145 L 160 160 C 160 155, 160 150, 160 150 L 160 90 C 160 50, 140 30, 100 30 Z"
+                        fill="none"
+                        stroke="#4ade80"
+                        strokeWidth="8"
+                      />
+                      <circle cx="75" cy="75" r="12" fill="#4ade80" />
+                      <circle cx="125" cy="75" r="12" fill="#4ade80" />
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            )}
+            {isLoading && !streamingMessage && (
+              <div className="flex justify-start">
+                <div className="bg-gray-900 text-gray-100 border border-green-500/20 rounded-2xl p-3">
                   <div className="flex gap-1">
                     <span className="w-2 h-2 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></span>
                     <span className="w-2 h-2 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></span>
@@ -223,7 +287,7 @@ ${diagnosis.alternativeCommand}
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t border-green-500/30">
+          <div className="p-4">
             {/* Image upload preview (VPN mode only) */}
             {mode === "vpn-troubleshooting" && uploadedImage && (
               <div className="mb-3 relative inline-block">
@@ -268,15 +332,16 @@ ${diagnosis.alternativeCommand}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder={mode === "vpn-troubleshooting" ? "Describe the error or upload screenshot..." : "Disturb me and u will see me in ur evals :P"}
-                className="flex-1 bg-gray-900 text-gray-100 border border-green-500/30 rounded-lg px-4 py-2 focus:outline-none focus:border-green-500 placeholder-gray-500"
+                className="flex-1 bg-gray-900 text-gray-100 border border-green-500/30 rounded-2xl px-4 py-2 focus:outline-none focus:border-green-500 placeholder-gray-500"
                 disabled={isLoading}
               />
               <button
                 onClick={handleSend}
                 disabled={isLoading || (!inputValue.trim() && !uploadedImage)}
-                className="bg-green-500 hover:bg-green-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-black font-semibold px-6 py-2 rounded-lg transition-colors"
+                className="bg-green-500 hover:bg-green-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-black p-3 rounded-2xl transition-colors"
+                aria-label="Send message"
               >
-                Send
+                <Send className="w-5 h-5" />
               </button>
             </div>
           </div>

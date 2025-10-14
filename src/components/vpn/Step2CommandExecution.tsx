@@ -73,7 +73,7 @@ export default function Step2CommandExecution({ onError }: Step2CommandExecution
   };
 
   const handleError = () => {
-    // Trigger WISP bot to open with VPN troubleshooting context
+    // Trigger Vetal bot to open with VPN troubleshooting context
     if (onError) {
       onError();
     }

@@ -180,5 +180,5 @@ echo -e "  Disconnect:      ${YELLOW}openvpn3 session-manage --config $VPN_PROFI
 echo -e "  Reconnect:       ${YELLOW}openvpn3 session-start --config $VPN_PROFILE_NAME${NC}"
 echo -e "  View logs:       ${YELLOW}openvpn3 log --config $VPN_PROFILE_NAME${NC}"
 echo ""
-echo -e "${CYAN}Need help? Visit the OSDG website or use WISPR AI!${NC}"
+echo -e "${CYAN}Need help? Visit the OSDG website or use Vetal AI!${NC}"
 echo ""

@@ -68,17 +68,6 @@ export function detectOS(): OSInfo {
   return { name: osName, version: osVersion, architecture };
 }
 
-export function getOSIcon(osName: string): string {
-  const name = osName.toLowerCase();
-  // Backwards-compatible: return emoji if called elsewhere
-  if (name.includes('windows')) return '🪟';
-  if (name.includes('mac')) return '🍎';
-  if (name.includes('ios') || name.includes('ipad')) return '🍎';
-  if (name.includes('android')) return '🤖';
-  if (name.includes('linux') || name.includes('ubuntu') || name.includes('debian') || name.includes('fedora')) return '🐧';
-  return '💻';
-}
-
 // New: return a public path to an OS logo image. Images are expected in /public
 export function getOSLogo(osName: string): string {
   const name = osName.toLowerCase();

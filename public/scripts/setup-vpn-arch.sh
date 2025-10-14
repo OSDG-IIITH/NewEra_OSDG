@@ -120,7 +120,7 @@ if sudo systemctl is-active --quiet openvpn-client@${CONFIG_NAME}; then
     echo -e "  Start VPN:     ${YELLOW}sudo systemctl start openvpn-client@${CONFIG_NAME}${NC}"
     echo -e "  Enable boot:   ${YELLOW}sudo systemctl enable openvpn-client@${CONFIG_NAME}${NC}"
     echo ""
-    echo -e "${CYAN}Need help? Visit the OSDG website or use WISPR AI!${NC}"
+    echo -e "${CYAN}Need help? Visit the OSDG website or use Vetal AI!${NC}"
     echo ""
 else
     echo -e "${RED}ERROR: VPN connection failed${NC}"

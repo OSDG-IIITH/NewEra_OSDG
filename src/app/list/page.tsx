@@ -149,15 +149,15 @@ export default function ListPage() {
 
         {/* Add Project Form Modal */}
         {showAddForm && user && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-black border border-cyan-500/50 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b border-cyan-500/30">
-                <h2 className="text-2xl font-oxanium text-cyan-400">Add New Project</h2>
+          <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+            <div className="bg-black/80 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl shadow-green-500/20">
+              <div className="p-8">
+                <h2 className="text-3xl font-oxanium font-bold text-green-400 mb-8">Add New Project</h2>
               </div>
               
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <form onSubmit={handleSubmit} className="px-8 pb-8 space-y-6">
                 <div>
-                  <label className="block text-sm font-mono text-gray-400 mb-2">
+                  <label className="block text-sm font-oxanium text-gray-400 mb-3">
                     Project Title *
                   </label>
                   <input
@@ -165,13 +165,13 @@ export default function ListPage() {
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-4 py-2 bg-black border border-cyan-500/30 rounded-md text-white focus:border-cyan-500 focus:outline-none font-mono"
+                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:outline-none font-oxanium placeholder-gray-600"
                     placeholder="Enter project name"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-mono text-gray-400 mb-2">
+                  <label className="block text-sm font-oxanium text-gray-400 mb-3">
                     Description *
                   </label>
                   <textarea
@@ -179,13 +179,13 @@ export default function ListPage() {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={4}
-                    className="w-full px-4 py-2 bg-black border border-cyan-500/30 rounded-md text-white focus:border-cyan-500 focus:outline-none font-mono"
+                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:outline-none font-oxanium placeholder-gray-600 resize-none"
                     placeholder="Describe the project..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-mono text-gray-400 mb-2">
+                  <label className="block text-sm font-oxanium text-gray-400 mb-3">
                     Project Site Link *
                   </label>
                   <input
@@ -193,13 +193,13 @@ export default function ListPage() {
                     required
                     value={formData.siteLink}
                     onChange={(e) => setFormData({ ...formData, siteLink: e.target.value })}
-                    className="w-full px-4 py-2 bg-black border border-cyan-500/30 rounded-md text-white focus:border-cyan-500 focus:outline-none font-mono"
+                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:outline-none font-oxanium placeholder-gray-600"
                     placeholder="https://github.com/..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-mono text-gray-400 mb-2">
+                  <label className="block text-sm font-oxanium text-gray-400 mb-3">
                     Date Initiated *
                   </label>
                   <input
@@ -207,47 +207,47 @@ export default function ListPage() {
                     required
                     value={formData.dateInitiated}
                     onChange={(e) => setFormData({ ...formData, dateInitiated: e.target.value })}
-                    className="w-full px-4 py-2 bg-black border border-cyan-500/30 rounded-md text-white focus:border-cyan-500 focus:outline-none font-mono"
+                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:outline-none font-oxanium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-mono text-gray-400 mb-2">
+                  <label className="block text-sm font-oxanium text-gray-400 mb-3">
                     Instruction Book / Documentation Link
                   </label>
                   <input
                     type="url"
                     value={formData.instructionBook}
                     onChange={(e) => setFormData({ ...formData, instructionBook: e.target.value })}
-                    className="w-full px-4 py-2 bg-black border border-cyan-500/30 rounded-md text-white focus:border-cyan-500 focus:outline-none font-mono"
+                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:outline-none font-oxanium placeholder-gray-600"
                     placeholder="https://docs.project.com"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-mono text-gray-400 mb-2">
+                  <label className="block text-sm font-oxanium text-gray-400 mb-3">
                     Project Image URL
                   </label>
                   <input
                     type="url"
                     value={formData.imageUrl}
                     onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    className="w-full px-4 py-2 bg-black border border-cyan-500/30 rounded-md text-white focus:border-cyan-500 focus:outline-none font-mono"
+                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:outline-none font-oxanium placeholder-gray-600"
                     placeholder="https://example.com/image.png"
                   />
                 </div>
 
-                <div className="flex gap-3 pt-4">
+                <div className="flex gap-4 pt-6">
                   <button
                     type="submit"
-                    className="flex-1 px-4 py-2 bg-cyan-500/20 border border-cyan-500/50 text-cyan-400 rounded-md hover:bg-cyan-500/30 transition-all duration-300 font-mono"
+                    className="flex-1 px-6 py-3 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-all duration-300 font-oxanium font-semibold"
                   >
                     Add Project
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowAddForm(false)}
-                    className="px-4 py-2 bg-red-500/20 border border-red-500/50 text-red-400 rounded-md hover:bg-red-500/30 transition-all duration-300 font-mono"
+                    className="px-6 py-3 bg-gray-500/20 text-gray-400 rounded-lg hover:bg-gray-500/30 transition-all duration-300 font-oxanium font-semibold"
                   >
                     Cancel
                   </button>

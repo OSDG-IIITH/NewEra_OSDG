@@ -206,7 +206,7 @@ Write-Host "  3. Enter your IIIT Hyderabad credentials:"
 Write-Host "     Username: your-email@students.iiit.ac.in" -ForegroundColor Yellow
 Write-Host "     Password: your IIIT-H password" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "Need help? Visit the OSDG website or use WISPR AI!" -ForegroundColor Cyan
+Write-Host "Need help? Visit the OSDG website or use Vetal AI!" -ForegroundColor Cyan
 Write-Host ""
 
 Read-Host "Press Enter to exit"

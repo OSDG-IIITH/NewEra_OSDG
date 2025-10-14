@@ -62,7 +62,7 @@ function WizardContent({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-  {/* VPN troubleshooting is handled by the global/ page-specific WISP bot now */}
+  {/* VPN troubleshooting is handled by the global/ page-specific Vetal bot now */}
     </div>
   );
 }

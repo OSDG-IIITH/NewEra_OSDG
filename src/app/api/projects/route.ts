@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// In-memory storage for now (replace with database in production)
+// In-memory storage for now
+// For Docker persistent storage, you can:
+// 1. Use a volume-mounted JSON file: const fs = require('fs'); const path = '/data/projects.json';
+// 2. Connect to a database (MongoDB, PostgreSQL, etc.) via environment variables
+// 3. Use Docker volumes: docker run -v /path/on/host:/data your-image
 let projects: any[] = [];
 
 export async function GET() {

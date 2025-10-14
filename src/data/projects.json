@@ -22,8 +22,9 @@
     "maintainers": ["Ankith Raghupathi Pai", "Udith Krishna M Nair"],
     "technologies": ["Python", "discord.py", "MongoDB", "JavaScript", "Express"],
     "description": "Tool for user verification via CAS on IIIT-related discord servers",
-    "image": "",
+    "image": "/discord.png",
     "link": "https://github.com/OSDG-IIITH/Discord-CAS",
+    "inviteLink": "https://osdg.iiit.ac.in/casbot/discord/invite",
     "category": "OSDG"
   },
   {

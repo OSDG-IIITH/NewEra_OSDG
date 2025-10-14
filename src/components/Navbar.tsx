@@ -14,7 +14,7 @@ export default function Navbar() {
   };
 
   const linkClass =
-    "py-2 px-3 rounded-md font-medium text-lg transition-all duration-300 ease-in-out hover:bg-white/5 focus:bg-white/5 outline-none";
+    "py-2 px-3 rounded-md font-medium text-lg transition-all duration-300 ease-in-out hover:bg-white/5 focus:bg-white/5 outline-none font-oxanium";
 
   return (
   <nav className="sticky top-0 z-50 bg-transparent backdrop-blur-lg text-gray-200 pt-4" style={{boxShadow: '0 4px 32px 0 rgba(0,0,0,0.1)', WebkitBackdropFilter: 'blur(16px)', backdropFilter: 'blur(16px)'}}>
@@ -52,12 +52,12 @@ export default function Navbar() {
             <Link className={linkClass} href="/vpn-setup">
               VPN Setup
             </Link>
-            {/* <Link
+            <Link
               className={linkClass}
               href="/team"
             >
               Team
-            </Link> */}
+            </Link>
             {/* <Link
               className={`${linkClass} bg-indigo-600/70 hover:bg-indigo-500 px-4 py-2 rounded-lg hover:after:w-0`}
               href="/hackiiit"

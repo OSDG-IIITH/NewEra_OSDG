@@ -1,52 +1,62 @@
-// CAS Authentication callback route
+// CAS Authentication callback route - Updated from forms-portal implementation
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { SignJWT } from 'jose';
 
-const CAS_BASE_URL = process.env.CAS_BASE_URL || 'https://cas.iiit.ac.in';
-const SITE_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+const CAS_BASE_URL = process.env.CAS_BASE_URL || 'https://login.iiit.ac.in/cas';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key');
+
+interface CASResponse {
+  serviceResponse: {
+    authenticationSuccess?: {
+      attributes: {
+        uid: string[];
+        Name: string[];
+        'E-Mail': string[];
+      };
+    };
+    authenticationFailure?: {
+      code: string;
+      description: string;
+    };
+  };
+}
 
 interface CASUser {
   username: string;
   name: string;
   email: string;
-  rollno?: string;
 }
 
 async function validateCASTicket(ticket: string, service: string): Promise<CASUser | null> {
   try {
-    const validateUrl = `${CAS_BASE_URL}/serviceValidate?ticket=${ticket}&service=${encodeURIComponent(service)}`;
+    // Build validation URL with JSON format
+    const validateUrl = `${CAS_BASE_URL}/serviceValidate?service=${encodeURIComponent(service)}&ticket=${encodeURIComponent(ticket)}&format=JSON`;
+    
     const response = await fetch(validateUrl);
-    const xmlText = await response.text();
+    const data: CASResponse = await response.json();
     
-    console.log('CAS Response:', xmlText); // For debugging
+    console.log('CAS Response:', JSON.stringify(data, null, 2)); // For debugging
     
-    // Parse CAS XML response
-    if (xmlText.includes('<cas:authenticationSuccess>')) {
-      const usernameMatch = xmlText.match(/<cas:user>([^<]+)<\/cas:user>/);
-      
-      // IIIT CAS may return attributes differently
-      const nameMatch = xmlText.match(/<cas:name>([^<]+)<\/cas:name>/) || 
-                       xmlText.match(/<cas:attributes>[\s\S]*?<cas:name>([^<]+)<\/cas:name>/);
-      const emailMatch = xmlText.match(/<cas:e-mail>([^<]+)<\/cas:e-mail>/) ||
-                        xmlText.match(/<cas:email>([^<]+)<\/cas:email>/) ||
-                        xmlText.match(/<cas:attributes>[\s\S]*?<cas:e-mail>([^<]+)<\/cas:e-mail>/);
-      const rollnoMatch = xmlText.match(/<cas:rollno>([^<]+)<\/cas:rollno>/) ||
-                         xmlText.match(/<cas:attributes>[\s\S]*?<cas:rollno>([^<]+)<\/cas:rollno>/);
-      
-      if (usernameMatch) {
-        return {
-          username: usernameMatch[1],
-          name: nameMatch?.[1] || usernameMatch[1],
-          email: emailMatch?.[1] || `${usernameMatch[1]}@students.iiit.ac.in`,
-          rollno: rollnoMatch?.[1]
-        };
-      }
+    // Check for authentication failure
+    if (data.serviceResponse.authenticationFailure) {
+      console.error('CAS Authentication failed:', data.serviceResponse.authenticationFailure);
+      return null;
     }
     
-    console.error('CAS Authentication failed:', xmlText);
-    return null;
+    // Extract user attributes
+    const attributes = data.serviceResponse.authenticationSuccess?.attributes;
+    if (!attributes || !attributes.uid || !attributes.uid[0]) {
+      console.error('No user ID in CAS response');
+      return null;
+    }
+    
+    return {
+      username: attributes.uid[0],
+      name: attributes.Name?.[0] || attributes.uid[0],
+      email: attributes['E-Mail']?.[0] || `${attributes.uid[0]}@students.iiit.ac.in`,
+    };
   } catch (error) {
     console.error('CAS validation error:', error);
     return null;
@@ -59,14 +69,15 @@ export async function GET(request: NextRequest) {
   const returnTo = searchParams.get('returnTo') || '/';
   
   if (!ticket) {
-    return NextResponse.redirect(`${SITE_URL}/login?error=no-ticket`);
+    return NextResponse.redirect(`${SITE_URL}/?error=no-ticket`);
   }
   
-  const serviceUrl = `${SITE_URL}/api/auth/cas/callback`;
+  // Build service URL matching what we sent to CAS login
+  const serviceUrl = `${SITE_URL}/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
   const user = await validateCASTicket(ticket, serviceUrl);
   
   if (!user) {
-    return NextResponse.redirect(`${SITE_URL}/login?error=validation-failed`);
+    return NextResponse.redirect(`${SITE_URL}/?error=validation-failed`);
   }
   
   try {
@@ -75,7 +86,6 @@ export async function GET(request: NextRequest) {
       username: user.username,
       name: user.name,
       email: user.email,
-      rollno: user.rollno
     })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -94,6 +104,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${SITE_URL}${returnTo}`);
   } catch (error) {
     console.error('JWT signing error:', error);
-    return NextResponse.redirect(`${SITE_URL}/login?error=auth-failed`);
+    return NextResponse.redirect(`${SITE_URL}/?error=auth-failed`);
   }
 }

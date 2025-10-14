@@ -5,14 +5,14 @@ import StepTracker from '@/components/vpn/StepTracker';
 import Step1Authentication from '@/components/vpn/Step1Authentication';
 import Step2CommandExecution from '@/components/vpn/Step2CommandExecution';
 import Step3Success from '@/components/vpn/Step3Success';
-import WispBotDelayed from '@/components/WispBotDelayed';
+import VetalBotDelayed from '@/components/VetalBotDelayed';
 import { Terminal } from 'lucide-react';
 import { useState } from 'react';
 import { useEffect } from 'react';
 
 function VPNSetupContent() {
   const { currentStep, hasStarted, setHasStarted, osInfo, commandData, errorText } = useVPNWizard();
-  const [openWispChat, setOpenWispChat] = useState(false);
+  const [openVetalChat, setOpenVetalChat] = useState(false);
   
   const tagline = 'Automated configuration for internal network access - outside';
   const [typedTagline, setTypedTagline] = useState('');
@@ -83,19 +83,19 @@ function VPNSetupContent() {
           {/* Step Content */}
           <div className="min-h-[400px]">
             {currentStep === 1 && <Step1Authentication />}
-            {currentStep === 2 && <Step2CommandExecution onError={() => setOpenWispChat(true)} />}
+            {currentStep === 2 && <Step2CommandExecution onError={() => setOpenVetalChat(true)} />}
             {currentStep === 3 && <Step3Success />}
           </div>
         </div>
       </div>
 
-      {/* VPN Troubleshooting WISP Bot */}
-      <WispBotDelayed 
+      {/* VPN Troubleshooting Vetal Bot */}
+      <VetalBotDelayed 
         mode="vpn-troubleshooting"
         vpnContext={{ osInfo, commandData, errorText }}
-        forceOpen={openWispChat}
-        onForceHandled={() => setOpenWispChat(false)}
-        onOpenChat={() => setOpenWispChat(false)}
+        forceOpen={openVetalChat}
+        onForceHandled={() => setOpenVetalChat(false)}
+        onOpenChat={() => setOpenVetalChat(false)}
       />
     </div>
   );

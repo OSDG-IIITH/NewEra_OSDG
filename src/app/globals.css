@@ -35,7 +35,7 @@
   font-weight: 700;
 }
 
-/* WISP Bot Animations */
+/* Vetal Bot Animations */
 @keyframes crawl-in {
   0% {
     transform: translateX(200px);
@@ -82,19 +82,19 @@
   transition: width 0.5s cubic-bezier(0.4,0,0.2,1), height 0.5s cubic-bezier(0.4,0,0.2,1), padding 0.5s cubic-bezier(0.4,0,0.2,1), border-radius 0.5s cubic-bezier(0.4,0,0.2,1);
 }
 
-/* WISP hover tray */
-.wisp-tray {
+/* Vetal hover tray */
+.vetal-tray {
   transition: width 0.28s ease-out, opacity 0.28s ease-out, padding 0.28s ease-out, box-shadow 0.28s ease-out;
 }
 
-.wisp-tray > div {
+.vetal-tray > div {
   min-width: 220px;
 }
 
 /* Thin cylindrical tray styling */
-.wisp-tray .rounded-l-full {
+.vetal-tray .rounded-l-full {
   border-radius: 9999px 0 0 9999px;
 }
-.wisp-tray .text-xs {
+.vetal-tray .text-xs {
   font-size: 11px;
 }
