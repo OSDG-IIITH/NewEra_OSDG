@@ -20,9 +20,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { action, ...data } = body;
 
-    if (action === 'generate-command') {
-      return await generateVPNCommand(data as CommandGenerationRequest);
-    } else if (action === 'diagnose-error') {
+    if (action === 'diagnose-error') {
       return await diagnoseError(data as ErrorDiagnosisRequest);
     } else {
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
@@ -37,83 +35,7 @@ export async function POST(request: NextRequest) {
 }
 
 async function generateVPNCommand(data: CommandGenerationRequest) {
-  // Generate one-line copy-paste commands that auto-download and execute scripts
-  const osLower = data.os.toLowerCase();
-  
-  // Use localhost for development, production URL for deployment
-  const baseUrl = process.env.NODE_ENV === 'production' 
-    ? 'https://osdg.iiit.ac.in' 
-    : 'http://localhost:3000';
-  
-  let command = '';
-  let scriptName = '';
-  let platform = '';
-  let requiresAdmin = true;
-  let instructions = '';
-  let expectedOutput = '';
-  let notes = '';
-  
-  if (osLower.includes('windows')) {
-    // Windows: PowerShell one-liner that downloads and executes
-    command = `irm ${baseUrl}/scripts/setup-vpn.ps1 | iex`;
-    scriptName = 'Windows PowerShell';
-    platform = 'Windows';
-    instructions = `1. Download your .ovpn config file to Downloads folder (save as 'windows.ovpn')\n2. Right-click PowerShell and select "Run as Administrator"\n3. Copy and paste the command above\n4. Press Enter and follow the prompts`;
-    expectedOutput = 'OpenVPN Connect will be installed, your config imported, and VPN connected automatically';
-    notes = 'Ensure your .ovpn file is named "windows.ovpn" and saved in Downloads folder';
-  } else if (osLower.includes('ubuntu') || osLower.includes('debian') || osLower.includes('mint') || osLower.includes('pop')) {
-    // Debian/Ubuntu: curl one-liner
-    command = `curl -fsSL ${baseUrl}/scripts/setup-vpn-debian.sh | bash`;
-    scriptName = 'Debian/Ubuntu';
-    platform = 'Ubuntu/Debian';
-    instructions = `1. Download your .ovpn config file to Downloads folder (save as 'linux.ovpn')\n2. Open terminal (Ctrl+Alt+T)\n3. Copy and paste the command above\n4. Press Enter (you'll be prompted for sudo password)`;
-    expectedOutput = 'OpenVPN 3 will be installed, your config imported, and VPN session started automatically';
-    notes = 'Ensure your .ovpn file is named "linux.ovpn" and saved in ~/Downloads folder';
-  } else if (osLower.includes('fedora') || osLower.includes('rhel') || osLower.includes('centos') || osLower.includes('alma') || osLower.includes('rocky')) {
-    // Fedora/RHEL: curl one-liner
-    command = `curl -fsSL ${baseUrl}/scripts/setup-vpn-fedora.sh | bash`;
-    scriptName = 'Fedora/RHEL';
-    platform = 'Fedora/RHEL';
-    instructions = `1. Download your .ovpn config file to Downloads folder (save as 'linux.ovpn')\n2. Open terminal\n3. Copy and paste the command above\n4. Press Enter (you'll be prompted for sudo password)`;
-    expectedOutput = 'OpenVPN 3 will be installed via DNF/YUM, config imported, and VPN connected automatically';
-    notes = 'Ensure your .ovpn file is named "linux.ovpn" and saved in ~/Downloads folder';
-  } else if (osLower.includes('arch') || osLower.includes('manjaro') || osLower.includes('endeavour')) {
-    // Arch Linux: curl one-liner
-    command = `curl -fsSL ${baseUrl}/scripts/setup-vpn-arch.sh | bash`;
-    scriptName = 'Arch Linux';
-    platform = 'Arch Linux';
-    instructions = `1. Download your .ovpn config file to Downloads folder (save as 'linux.ovpn')\n2. Open terminal\n3. Copy and paste the command above\n4. Press Enter (you'll be prompted for sudo password)`;
-    expectedOutput = 'OpenVPN will be installed via pacman, config imported, and VPN started with systemd';
-    notes = 'Ensure your .ovpn file is named "linux.ovpn" and saved in ~/Downloads folder';
-  } else if (osLower.includes('mac') || osLower.includes('darwin')) {
-    // macOS: curl one-liner
-    command = `curl -fsSL ${baseUrl}/scripts/setup-vpn-macos.sh | bash`;
-    scriptName = 'macOS';
-    platform = 'macOS';
-    instructions = `1. Download your .ovpn config file to Downloads folder (save as 'macos.ovpn')\n2. Open Terminal (Cmd+Space, type "Terminal")\n3. Copy and paste the command above\n4. Press Enter and follow the prompts`;
-    expectedOutput = 'OpenVPN Connect will be installed (via Homebrew or direct download), config imported, and GUI will open automatically';
-    notes = 'Ensure your .ovpn file is named "macos.ovpn" and saved in Downloads folder';
-  } else {
-    // Default to general Linux
-    command = `curl -fsSL ${baseUrl}/scripts/setup-vpn-debian.sh | bash`;
-    scriptName = 'Linux';
-    platform = 'Linux';
-    instructions = `1. Download your .ovpn config file to Downloads folder (save as 'linux.ovpn')\n2. Open terminal\n3. Copy and paste the command above\n4. Press Enter (you'll be prompted for sudo password)`;
-    expectedOutput = 'OpenVPN 3 will be installed, your config imported, and VPN session started automatically';
-    notes = 'Ensure your .ovpn file is named "linux.ovpn" and saved in ~/Downloads folder';
-  }
-
-  const response = {
-    command: command,
-    requiresAdmin: requiresAdmin,
-    instructions: instructions,
-    expectedOutput: expectedOutput,
-    notes: `✅ ONE-LINE SETUP: Just copy, paste in terminal, and press Enter!\n\n${notes}\n\nThis command automatically downloads and executes our tested setup script. No manual downloads or multiple steps needed.`,
-    scriptName: scriptName,
-    platform: platform
-  };
-
-  return NextResponse.json(response);
+  // generate-command moved to local utility. This route only performs error diagnosis via Gemini.
 }
 
 async function diagnoseError(data: ErrorDiagnosisRequest) {

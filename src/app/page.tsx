@@ -1,5 +1,7 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import ProjectCarousel from "@/components/ProjectCarousel";
 
 const FULL_FORM_LINES = [
   { letter: "O", word: "pen" },
@@ -9,6 +11,21 @@ const FULL_FORM_LINES = [
 ];
 
 const OSDG_TEXT = "OSDG";
+
+const ABOUT_LINES = [
+  "",
+  "ABOUT",
+  "    OSDG - Open Source Developers Group, IIIT Hyderabad",
+  "-------------------------------------------------------------------",
+  "",
+  "DESCRIPTION",
+  "    The Open Source Developers Group (OSDG) is the premier club at IIIT Hyderabad.",
+  " ",
+  "    And as a distinguished arm of the Center for Open Source, IIIT-H, OSDG empowers passionate contributors for mastering open-source development.",
+  " ",
+  "    Through competitive programs like Google Summer of Code, impactful projects & dynamic events, we set the benchmark for open-source excellence.",
+  "-------------------------------------------------------------------"
+];
 
 export default function HomePage() {
   const [scrollY, setScrollY] = useState(0);
@@ -23,46 +40,99 @@ export default function HomePage() {
   const [typedLines, setTypedLines] = useState<string[]>([]);
   const [activeLine, setActiveLine] = useState(-1);
   const [hasAnimated, setHasAnimated] = useState(false);
+  const [welcomeText, setWelcomeText] = useState("");
+  const [showCursor, setShowCursor] = useState(true);
+  const [welcomeComplete, setWelcomeComplete] = useState(false);
+  const [hideWelcome, setHideWelcome] = useState(false);
+  const [hasSeenAnimation, setHasSeenAnimation] = useState(false);
+  const [skipAnimation, setSkipAnimation] = useState(false);
   const command = "osdg@iiith:~$ sudo man osdg";
   const aboutRef = useRef<HTMLDivElement>(null);
+  const welcomeString = "Welcome to";
 
-  const aboutLines = [
-    "",
-    "ABOUT",
-    "    OSDG - Open Source Developers Group, IIIT Hyderabad",
-    "-------------------------------------------------------------------",
-    "",
-    "DESCRIPTION",
-    "    The Open Source Developers Group (OSDG) is the premier club at IIIT Hyderabad.",
-    " ",
-    "    And as a distinguished arm of the Center for Open Source, IIIT-H, OSDG empowers passionate contributors for mastering open-source development.",
-    " ",
-    "    Through competitive programs like Google Summer of Code, impactful projects, and dynamic events, we set the benchmark for open-source excellence.",
-    "-------------------------------------------------------------------"
-  ];
-
-  // Main animation sequence
+  // Check if this is a navigation (not a fresh load/reload)
   useEffect(() => {
+    // Check if we arrived via client-side navigation
+    const navigationEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+    const isReload = navigationEntry?.type === 'reload';
+    const isBackForward = navigationEntry?.type === 'back_forward';
+    
+    // Check if there's a navigation flag (set by client-side routing)
+    const hasNavigated = window.history.state?.hasNavigated;
+    
+    if (hasNavigated && !isReload && !isBackForward) {
+      // This is a client-side navigation, skip animation
+      setSkipAnimation(true);
+      // Set final state immediately
+      setWelcomeText(welcomeString);
+      setHideWelcome(true);
+      setWelcomeComplete(true);
+      setAnimationPhase(3);
+      setTypedText(OSDG_TEXT);
+      setShowSplit(true);
+      setExpandedText(FULL_FORM_LINES.map(line => line.word));
+    } else {
+      // This is a fresh load or reload, play animation
+      setSkipAnimation(false);
+      // Mark that user has navigated at least once
+      window.history.replaceState({ ...window.history.state, hasNavigated: true }, '');
+    }
+  }, []);
+
+  // Welcome animation (runs first, only if not skipped) - No longer sets welcomeComplete
+  useEffect(() => {
+    if (skipAnimation) return;
+
+    let charIndex = 0;
+    let cursorBlink: NodeJS.Timeout;
+    
+    const typeWelcome = setInterval(() => {
+      if (charIndex <= welcomeString.length) {
+        setWelcomeText(welcomeString.slice(0, charIndex));
+        charIndex++;
+      } else {
+        clearInterval(typeWelcome);
+        // Stop cursor blinking and hide it after typing completes
+        setTimeout(() => {
+          setShowCursor(false);
+        }, 500);
+      }
+    }, 100);
+
+    // Cursor blink animation - only while typing
+    cursorBlink = setInterval(() => {
+      if (charIndex <= welcomeString.length) {
+        setShowCursor((prev) => !prev);
+      }
+    }, 530);
+
+    return () => {
+      clearInterval(typeWelcome);
+      clearInterval(cursorBlink);
+    };
+  }, [welcomeString, skipAnimation]);
+
+  // Main animation sequence (starts with welcome, only if not skipped)
+  useEffect(() => {
+    if (skipAnimation) return;
+
     let typeInterval: NodeJS.Timeout;
     let expandCharInterval: NodeJS.Timeout;
 
-    // Phase 0: Blank screen (1.2 seconds)
-    // Phase 0.5: Pre-expand frame for corners (start at 1s)
-    const preCornerTimer = setTimeout(() => {
-      setAnimationPhase(0.5); // Frame prepares for corners
-    }, 1000);
+    // Phase 0.5 & Welcome: Show corners AND welcome text simultaneously
+    setAnimationPhase(0.5);
 
-    // Phase 1: Corners forming (appears in pre-expanded space)
+    // Phase 1: Corners fully visible (while welcome is still typing)
     const cornersTimer = setTimeout(() => {
       setAnimationPhase(1);
-    }, 2200);
+    }, 200);
 
-    // Phase 1.5: Expand frame for OSDG text (before typing)
+    // Phase 1.5: Expand frame for OSDG text (while welcome is still typing)
     const preTextTimer = setTimeout(() => {
       setAnimationPhase(1.5); // Frame expands for OSDG
-    }, 3000);
+    }, 500);
 
-    // Phase 2: Type OSDG (character by character)
+    // Phase 2: Type OSDG (starts right after welcome completes at ~1.5s)
     const typingTimer = setTimeout(() => {
       setAnimationPhase(2);
       let charIndex = 0;
@@ -72,20 +142,19 @@ export default function HomePage() {
           charIndex++;
         } else {
           clearInterval(typeInterval);
-          // First expand the frame for full form
+          // Immediately start fade out and split - NO WAITING
+          setAnimationPhase(2.7); // Start fade out immediately
+          setHideWelcome(true); // Fade out welcome text
+          setShowSplit(true); // Start split transition immediately
+          
+          // Start word expansion while fade-out is happening
           setTimeout(() => {
-            setAnimationPhase(2.5); // Trigger frame expansion to final size
-            // Then show split transition
-            setTimeout(() => {
-              setShowSplit(true);
-              // After split animation, start word expansion
-              setTimeout(() => {
-                setAnimationPhase(3);
-                // Start typing each word character by character
-                let wordIndex = 0;
-                let charIndex = 0;
-                
-                const typeNextChar = () => {
+            setAnimationPhase(3);
+            // Start typing each word character by character
+            let wordIndex = 0;
+            let charIndex = 0;
+            
+            const typeNextChar = () => {
               if (wordIndex < FULL_FORM_LINES.length) {
                 const currentWord = FULL_FORM_LINES[wordIndex].word;
                 
@@ -109,15 +178,12 @@ export default function HomePage() {
             };
             
             expandCharInterval = setInterval(typeNextChar, 50);
-              }, 1000); // Time for split animation
-            }, 1200); // Frame expansion time (smooth & elegant)
-          }, 1200); // Pause before frame expansion
+          }, 400); // Minimal delay for split animation to start
         }
       }, 250);
-    }, 4200);
+    }, 1600); // Start OSDG typing right after welcome completes (~1.5s + 100ms)
 
     return () => {
-      clearTimeout(preCornerTimer);
       clearTimeout(cornersTimer);
       clearTimeout(preTextTimer);
       clearTimeout(typingTimer);
@@ -125,7 +191,7 @@ export default function HomePage() {
       if (expandCharInterval) clearInterval(expandCharInterval);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [welcomeComplete, skipAnimation]);
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -151,10 +217,10 @@ export default function HomePage() {
                 setTimeout(() => {
                   let lineIndex = 0;
                   const lineInterval = setInterval(() => {
-                    setTypedLines((prev) => [...prev, aboutLines[lineIndex]]);
+                    setTypedLines((prev) => [...prev, ABOUT_LINES[lineIndex]]);
                     setActiveLine(lineIndex);
                     lineIndex++;
-                    if (lineIndex === aboutLines.length) {
+                    if (lineIndex === ABOUT_LINES.length) {
                       clearInterval(lineInterval);
                       setShowAbout(true);
                       setActiveLine(-1);
@@ -171,10 +237,16 @@ export default function HomePage() {
 
     observer.observe(aboutRef.current);
     return () => observer.disconnect();
-  }, [hasAnimated, command, aboutLines]);
+  }, [hasAnimated, command, ABOUT_LINES]);
 
   return (
     <div className="min-h-screen bg-black bg-gradient-to-b from-black to-blue-900/30 text-white font-sans scroll-smooth">
+      {/* Welcome to typing animation - top left below navbar */}
+      <div className={`fixed top-40 left-28 z-30 font-oxanium text-white text-4xl tracking-wide transition-opacity duration-700 ${hideWelcome ? 'opacity-0' : 'opacity-100'}`}>
+        <span>{welcomeText}</span>
+        {showCursor && <span className="inline-block w-2 h-6 bg-white ml-1"></span>}
+      </div>
+
       {/* Hero Section */}
       <section className="flex flex-col justify-center items-center min-h-screen text-center relative overflow-hidden px-4">
         <div className="flex flex-col items-center justify-center">
@@ -182,12 +254,12 @@ export default function HomePage() {
           <div className="relative inline-block">
             {/* Top Left Corner SVG */}
             <svg
-              className={`absolute transition-all duration-[1200ms] ease-in-out ${
-                animationPhase >= 0.5 ? 'opacity-100' : 'opacity-0'
+              className={`absolute transition-all duration-700 ease-in-out ${
+                animationPhase >= 2.7 ? 'opacity-0' : animationPhase >= 0.5 ? 'opacity-100' : 'opacity-0'
               }`}
               style={{
-                top: animationPhase >= 2.5 ? '-40px' : animationPhase >= 1.5 ? '-15px' : '-5px',
-                left: animationPhase >= 2.5 ? '-40px' : animationPhase >= 1.5 ? '-15px' : '-5px',
+                top: animationPhase >= 2.5 ? '-40px' : animationPhase >= 1.5 ? '-15px' : '0px',
+                left: animationPhase >= 2.5 ? '-40px' : animationPhase >= 1.5 ? '-15px' : '0px',
                 width: '80px',
                 height: '80px',
               }}
@@ -209,12 +281,12 @@ export default function HomePage() {
 
             {/* Bottom Right Corner SVG */}
             <svg
-              className={`absolute transition-all duration-[1200ms] ease-in-out ${
-                animationPhase >= 0.5 ? 'opacity-100' : 'opacity-0'
+              className={`absolute transition-all duration-700 ease-in-out ${
+                animationPhase >= 2.7 ? 'opacity-0' : animationPhase >= 0.5 ? 'opacity-100' : 'opacity-0'
               }`}
               style={{
-                bottom: animationPhase >= 2.5 ? '-40px' : animationPhase >= 1.5 ? '-15px' : '-5px',
-                right: animationPhase >= 2.5 ? '-40px' : animationPhase >= 1.5 ? '-15px' : '-5px',
+                bottom: animationPhase >= 2.5 ? '-40px' : animationPhase >= 1.5 ? '-15px' : '-30px',
+                right: animationPhase >= 2.5 ? '-40px' : animationPhase >= 1.5 ? '-15px' : '-15px',
                 width: '80px',
                 height: '80px',
               }}
@@ -257,7 +329,7 @@ export default function HomePage() {
 
               {/* Phase 2.5: Split OSDG into two lines with smooth transition */}
               {showSplit && animationPhase < 3 && (
-                <div className="flex flex-col items-center justify-center gap-0.1 transition-all duration-700 ease-out">
+                <div className="flex flex-col items-center justify-center gap-0 transition-all duration-700 ease-out">
                   <div 
                     className="text-cyan-400 font-bold tracking-wider transition-all duration-700"
                     style={{
@@ -267,7 +339,7 @@ export default function HomePage() {
                     OS
                   </div>
                   <div 
-                    className="text-cyan-400 font-bold tracking-wider transition-all duration-700"
+                    className="text-cyan-400 font-bold tracking-wider transition-all duration-700 mt-[-40px]"
                     style={{
                       fontSize: 'clamp(3.5rem, 10vw, 7rem)',
                     }}
@@ -279,7 +351,7 @@ export default function HomePage() {
               
               {/* Phase 3: Expand each letter inline to full word */}
               {animationPhase >= 3 && (
-                <div className="flex flex-col items-center justify-center gap-0.1">
+                <div className="flex flex-col items-center justify-center gap-0">
                   {/* First Line: Open Source */}
                   <div className="flex items-baseline justify-center">
                     {FULL_FORM_LINES.slice(0, 2).map((line, idx) => (
@@ -339,30 +411,14 @@ export default function HomePage() {
 
           {/* Tagline - Show after animation completes */}
           {animationPhase >= 3 && expandedText.length === 4 && (
-            <p className="mt-8 md:mt-12 text-base md:text-xl text-gray-400 max-w-2xl px-4 transition-all duration-1000 opacity-0 animate-fadeIn">
+            <p className="mt-8 md:mt-12 font-oxanium text-base md:text-xl text-gray-400 max-w-2xl px-4 transition-all duration-1000 opacity-0 animate-fadeIn">
               Where elite minds meet open source — to build, disrupt, and lead the future - openly.
             </p>
           )}
         </div>
       </section>
 
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 1s ease-out forwards;
-          animation-delay: 0.5s;
-        }
-      `}</style>
-
+      
       {/* About Section */}
       <section
         id="about"
@@ -416,6 +472,28 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+
+      {/* Project Carousel Section */}
+      <ProjectCarousel />
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 1s ease-out forwards;
+          animation-delay: 0.5s;
+        }
+      `}</style>
+
     </div>
   );
 }

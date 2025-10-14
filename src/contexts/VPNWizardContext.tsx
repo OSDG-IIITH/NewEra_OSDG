@@ -14,6 +14,8 @@ interface CommandData {
   instructions: string;
   expectedOutput: string;
   notes: string;
+  scriptName: string;
+  platform: string;
 }
 
 interface VPNWizardContextType {

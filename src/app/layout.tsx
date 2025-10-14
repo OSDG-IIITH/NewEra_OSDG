@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SocialSidebar from "@/components/SocialSidebar";
+import WispBotDelayed from "@/components/WispBotDelayed";
 import { AuthProvider } from "@/contexts/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -36,6 +37,7 @@ export default function RootLayout({
             {children}
           </main>
           <SocialSidebar />
+          <WispBotDelayed />
           <Footer />
         </AuthProvider>
       </body>

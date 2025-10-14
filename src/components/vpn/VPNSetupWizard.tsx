@@ -5,7 +5,6 @@ import StepTracker from './StepTracker';
 import Step1Authentication from './Step1Authentication';
 import Step2CommandExecution from './Step2CommandExecution';
 import Step3Success from './Step3Success';
-import ErrorTroubleshootingChat from './ErrorTroubleshootingChat';
 import { X } from 'lucide-react';
 
 function WizardContent({ onClose }: { onClose: () => void }) {
@@ -63,8 +62,7 @@ function WizardContent({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      {/* Error Troubleshooting Modal */}
-      <ErrorTroubleshootingChat />
+  {/* VPN troubleshooting is handled by the global/ page-specific WISP bot now */}
     </div>
   );
 }

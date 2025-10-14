@@ -43,18 +43,21 @@ export default function Navbar() {
             <Link className={linkClass} href="/events">
               Events
             </Link> */}
-            <Link className={linkClass} href="/linux-installation">
+            {/* <Link className={linkClass} href="/linux-installation">
               Linux Installation Guide
+            </Link> */}
+            <Link className={linkClass} href="/list">
+              /List
             </Link>
             <Link className={linkClass} href="/vpn-setup">
               VPN Setup
             </Link>
-            <Link
+            {/* <Link
               className={linkClass}
               href="/team"
             >
               Team
-            </Link>
+            </Link> */}
             {/* <Link
               className={`${linkClass} bg-indigo-600/70 hover:bg-indigo-500 px-4 py-2 rounded-lg hover:after:w-0`}
               href="/hackiiit"
@@ -132,11 +135,17 @@ export default function Navbar() {
             >
               Events
             </Link> */}
-            <Link
+            {/* <Link
               href="/linux-installation"
               className="block px-3 py-2 text-base font-medium rounded-md hover:bg-[#3E4050] transition duration-300"
             >
               Linux Installation Guide
+            </Link> */}
+            <Link
+              href="/list"
+              className="block px-3 py-2 text-base font-medium rounded-md hover:bg-[#3E4050] transition duration-300"
+            >
+              /list
             </Link>
             <Link
               href="/vpn-setup"

@@ -4,9 +4,9 @@ import { useVPNWizard } from '@/contexts/VPNWizardContext';
 import { CheckCircle2, Circle } from 'lucide-react';
 
 const STEPS = [
-  { number: 1, title: 'Authenticate', description: 'Download VPN config' },
-  { number: 2, title: 'Setup', description: 'Run the command' },
-  { number: 3, title: 'Done', description: 'Connect to VPN' },
+  { number: 1, title: 'Authenticate'},
+  { number: 2, title: 'Paste in Terminal'},
+  { number: 3, title: 'Done'},
 ];
 
 export default function StepTracker() {
@@ -14,60 +14,55 @@ export default function StepTracker() {
 
   return (
     <div className="w-full py-6 bg-black">
-      <div className="flex items-center justify-between max-w-3xl mx-auto">
-        {STEPS.map((step, index) => (
-          <div key={step.number} className="flex items-center flex-1">
-            {/* Step Circle */}
-            <div className="flex flex-col items-center">
-              <div
-                className={`
-                  flex items-center justify-center w-10 h-10 border transition-all duration-300 font-mono
-                  ${
-                    currentStep > step.number
-                      ? 'bg-black border-green-500 text-green-400'
-                      : currentStep === step.number
-                      ? 'bg-black border-blue-400 text-blue-400'
-                      : 'bg-black border-gray-700 text-gray-600'
-                  }
-                `}
-              >
-                {currentStep > step.number ? (
-                  <CheckCircle2 className="w-5 h-5" />
-                ) : (
-                  <span className="text-sm font-bold">{step.number}</span>
-                )}
-              </div>
-              <div className="mt-2 text-center">
+      {/* Use a centered container and evenly spaced items */}
+      <div className="max-w-3xl mx-auto px-4">
+        <div className="flex items-center justify-center space-x-6">
+          {STEPS.map((step, index) => (
+            <div key={step.number} className="flex items-center">
+              {/* Step Circle */}
+              <div className="flex flex-col items-center">
                 <div
                   className={`
-                    text-xs font-mono
-                    ${currentStep >= step.number ? 'text-white' : 'text-gray-600'}
+                    flex items-center justify-center w-10 h-10 border rounded-md transition-all duration-300 font-mono
+                    ${
+                      currentStep > step.number
+                        ? 'bg-black border-green-500 text-green-400'
+                        : currentStep === step.number
+                        ? 'bg-black border-blue-400 text-blue-400'
+                        : 'bg-black border-gray-700 text-gray-600'
+                    }
                   `}
                 >
-                  {step.title}
+                  {currentStep > step.number ? (
+                    <CheckCircle2 className="w-5 h-5" />
+                  ) : (
+                    <span className="text-sm font-bold">{step.number}</span>
+                  )}
                 </div>
-                <div
-                  className={`
-                    text-xs font-mono
-                    ${currentStep >= step.number ? 'text-gray-500' : 'text-gray-700'}
-                  `}
-                >
-                  {step.description}
+                <div className="mt-2 text-center">
+                  <div
+                    className={`
+                      text-xs font-mono
+                      ${currentStep >= step.number ? 'text-white' : 'text-gray-600'}
+                    `}
+                  >
+                    {step.title}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Connector Line */}
-            {index < STEPS.length - 1 && (
-              <div
-                className={`
-                  flex-1 h-px mx-4 transition-all duration-300
-                  ${currentStep > step.number ? 'bg-green-500/50' : 'bg-blue-500/30'}
-                `}
-              />
-            )}
-          </div>
-        ))}
+              {/* Connector Line (fixed width so centering works) */}
+              {index < STEPS.length - 1 && (
+                <div
+                  className={`
+                    w-16 h-px mx-4 transition-all duration-300 self-center
+                    ${currentStep > step.number ? 'bg-green-500/50' : 'bg-blue-500/30'}
+                  `}
+                />
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

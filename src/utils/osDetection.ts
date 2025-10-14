@@ -16,8 +16,26 @@ export function detectOS(): OSInfo {
   let osVersion = 'Unknown';
   let architecture = 'Unknown';
 
-  // Detect OS
-  if (userAgent.indexOf('Win') !== -1) {
+  // Detect mobile OS first
+  if (/iPad|iPad Simulator/i.test(userAgent) || (platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+    osName = 'iPadOS';
+    const match = userAgent.match(/OS (\d+)[._](\d+)[._]?(\d+)?/);
+    if (match) {
+      osVersion = `${match[1]}.${match[2]}${match[3] ? '.' + match[3] : ''}`;
+    }
+  } else if (/iPhone|iPod/i.test(userAgent)) {
+    osName = 'iOS';
+    const match = userAgent.match(/OS (\d+)[._](\d+)[._]?(\d+)?/);
+    if (match) {
+      osVersion = `${match[1]}.${match[2]}${match[3] ? '.' + match[3] : ''}`;
+    }
+  } else if (/Android/i.test(userAgent)) {
+    osName = 'Android';
+    const match = userAgent.match(/Android (\d+\.?\d*)/);
+    if (match) {
+      osVersion = match[1];
+    }
+  } else if (userAgent.indexOf('Win') !== -1) {
     osName = 'Windows';
     // Try to detect Windows version
     if (userAgent.indexOf('Windows NT 10.0') !== -1) osVersion = '10/11';
@@ -52,10 +70,30 @@ export function detectOS(): OSInfo {
 
 export function getOSIcon(osName: string): string {
   const name = osName.toLowerCase();
+  // Backwards-compatible: return emoji if called elsewhere
   if (name.includes('windows')) return '🪟';
   if (name.includes('mac')) return '🍎';
+  if (name.includes('ios') || name.includes('ipad')) return '🍎';
+  if (name.includes('android')) return '🤖';
   if (name.includes('linux') || name.includes('ubuntu') || name.includes('debian') || name.includes('fedora')) return '🐧';
   return '💻';
+}
+
+// New: return a public path to an OS logo image. Images are expected in /public
+export function getOSLogo(osName: string): string {
+  const name = osName.toLowerCase();
+  if (name.includes('windows')) return '/win11.png';
+  if (name.includes('ubuntu')) return '/ubuntu.png';
+  if (name.includes('debian')) return '/debian.png';
+  if (name.includes('fedora')) return '/fedora.png';
+  if (name.includes('arch')) return '/arch.png';
+  if (name.includes('ipad')) return '/iPadOS.png';
+  if (name.includes('ios') || name.includes('iphone')) return '/iOS.png';
+  if (name.includes('android')) return '/android.png';
+  if (name.includes('mac') || name.includes('darwin') || name.includes('macos')) return '/mac.png';
+  if (name.includes('linux')) return '/linux.png';
+  // default fallback
+  return '/linux.png';
 }
 
 export function getVPNDownloadURL(osName: string): string {

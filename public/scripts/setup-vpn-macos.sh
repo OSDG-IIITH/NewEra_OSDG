@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# IIIT Hyderabad VPN Setup Script for macOS
+# IIIT Hyderabad VPN Setup Script for macOS (Tunnelblick)
 # Compatible with: macOS 10.15+ (Catalina and later), Intel & Apple Silicon
 # Author: OSDG Club, IIIT Hyderabad
 # Last Updated: October 2025
 
 set -e
 
-# Colors for clean output
+# Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -15,20 +15,19 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Configuration
-OVPN_CONFIG_PATH="$HOME/Downloads/macos.ovpn"
-OPENVPN_APP="/Applications/OpenVPN Connect.app"
-OPENVPN_CLI="$OPENVPN_APP/Contents/MacOS/OpenVPN Connect"
-OPENVPN_DMG_URL="https://openvpn.net/downloads/openvpn-connect-v3-macos.dmg"
-TEMP_DMG="$HOME/Downloads/openvpn-connect-temp.dmg"
+OVPN_CONFIG_PATH="$HOME/Downloads/generic.ovpn"
+TUNNELBLICK_APP="/Applications/Tunnelblick.app"
+TUNNELBLICK_CONFIGS="$HOME/Library/Application Support/Tunnelblick/Configurations"
+CONFIG_NAME="IIITH-VPN"
 
-echo -e "${CYAN}==========================================${NC}"
+echo -e "${CYAN}=========================================${NC}"
 echo -e "${CYAN}  IIIT Hyderabad VPN Setup - macOS${NC}"
-echo -e "${CYAN}==========================================${NC}"
+echo -e "${CYAN}=========================================${NC}"
 echo ""
 
 # Function to check internet connectivity
 check_internet() {
-    if ! ping -c 1 openvpn.net &> /dev/null; then
+    if ! ping -c 1 google.com &> /dev/null; then
         echo -e "${RED}ERROR: No internet connection detected${NC}"
         echo -e "${YELLOW}Please connect to the internet and try again${NC}"
         exit 1
@@ -38,7 +37,7 @@ check_internet() {
 # Check internet connection
 echo -e "${YELLOW}[1/5] Checking internet connection...${NC}"
 check_internet
-echo -e "${GREEN}[OK] Internet connection verified${NC}"
+echo -e "${GREEN}✓ Internet connection verified${NC}"
 echo ""
 
 # Check if config file exists
@@ -53,7 +52,7 @@ if [ ! -f "$OVPN_CONFIG_PATH" ]; then
     echo -e "${YELLOW}  3. Run this script again${NC}"
     exit 2
 fi
-echo -e "${GREEN}[OK] Configuration file found${NC}"
+echo -e "${GREEN}✓ Configuration file found${NC}"
 echo ""
 
 # Check if Homebrew is installed
@@ -79,42 +78,44 @@ install_homebrew() {
 
 # Install via Homebrew
 install_via_homebrew() {
-    echo -e "${CYAN}  Installing via Homebrew...${NC}"
-    brew install --cask openvpn-connect 2>&1 > /dev/null
+    echo -e "${CYAN}  Installing Tunnelblick via Homebrew...${NC}"
+    brew install --cask tunnelblick
 }
 
 # Install via direct download
 install_via_download() {
-    echo -e "${CYAN}  Downloading installer...${NC}"
-    # Download with progress bar
-    curl -L --progress-bar -o "$TEMP_DMG" "$OPENVPN_DMG_URL" 2>&1 | while IFS= read -r line; do
-        if [[ $line =~ ([0-9]+\.[0-9]+)% ]]; then
-            percent="${BASH_REMATCH[1]%%.*}"
-            # Create progress bar [####------]
-            bar_length=20
-            filled_length=$((percent * bar_length / 100))
-            bar=$(printf '%*s' "$filled_length" | tr ' ' '#')
-            bar=$(printf '%-*s' "$bar_length" "$bar" | tr ' ' '-')
-            echo -ne "\r  [$bar] ${percent}%"
-        fi
-    done
-    echo ""
+    TUNNELBLICK_DMG_URL="https://tunnelblick.net/release/Latest_Tunnelblick_Stable.dmg"
+    TEMP_DMG="$HOME/Downloads/tunnelblick-temp.dmg"
     
-    echo -e "${CYAN}  Installing...${NC}"
-    MOUNT_POINT=$(hdiutil attach "$TEMP_DMG" -nobrowse 2>/dev/null | grep Volumes | awk '{print $3}')
+    echo -e "${CYAN}  Downloading Tunnelblick...${NC}"
+    curl -L -o "$TEMP_DMG" "$TUNNELBLICK_DMG_URL"
     
-    cp -R "$MOUNT_POINT/OpenVPN Connect.app" /Applications/ 2>/dev/null
+    echo -e "${CYAN}  Mounting installer...${NC}"
+    MOUNT_POINT=$(hdiutil attach "$TEMP_DMG" -nobrowse 2>/dev/null | grep Volumes | sed 's/.*\/Volumes/\/Volumes/' | head -1 | xargs)
     
+    echo -e "${CYAN}  Installing Tunnelblick...${NC}"
+    # Find the .app in the mounted volume
+    APP_PATH=$(find "$MOUNT_POINT" -maxdepth 2 -name "Tunnelblick.app" | head -1)
+    
+    if [ -n "$APP_PATH" ]; then
+        cp -R "$APP_PATH" /Applications/
+    else
+        echo -e "${RED}ERROR: Could not find Tunnelblick.app in DMG${NC}"
+        hdiutil detach "$MOUNT_POINT" -quiet 2>/dev/null
+        exit 1
+    fi
+    
+    echo -e "${CYAN}  Cleaning up...${NC}"
     hdiutil detach "$MOUNT_POINT" -quiet 2>/dev/null
     rm "$TEMP_DMG"
 }
 
-# Check if OpenVPN Connect is installed
-echo -e "${YELLOW}[3/5] Checking OpenVPN Connect installation...${NC}"
-if [ -d "$OPENVPN_APP" ]; then
-    echo -e "${GREEN}[OK] OpenVPN Connect is already installed${NC}"
+# Check if Tunnelblick is installed
+echo -e "${YELLOW}[3/5] Checking Tunnelblick installation...${NC}"
+if [ -d "$TUNNELBLICK_APP" ]; then
+    echo -e "${GREEN}✓ Tunnelblick is already installed${NC}"
 else
-    echo -e "${YELLOW}OpenVPN Connect not found. Installing...${NC}"
+    echo -e "${YELLOW}Tunnelblick not found. Installing...${NC}"
     echo ""
     
     if check_homebrew; then
@@ -122,9 +123,9 @@ else
         install_via_homebrew
     else
         # Ask user preference
-        echo -e "${CYAN}Choose installation method:${NC}"
-        echo -e "  1) Install Homebrew + OpenVPN (recommended)"
-        echo -e "  2) Direct download (no Homebrew needed)"
+        echo -e "${CYAN}Homebrew not found. Choose installation method:${NC}"
+        echo -e "${NC}  1) Install Homebrew first, then install Tunnelblick (recommended)${NC}"
+        echo -e "${NC}  2) Direct download from Tunnelblick.net (no Homebrew needed)${NC}"
         echo ""
         read -p "Enter choice (1 or 2): " choice
         
@@ -144,76 +145,75 @@ else
     fi
     
     # Verify installation
-    if [ ! -d "$OPENVPN_APP" ]; then
-        echo -e "${RED}ERROR: OpenVPN Connect installation failed${NC}"
+    if [ ! -d "$TUNNELBLICK_APP" ]; then
+        echo -e "${RED}ERROR: Tunnelblick installation failed${NC}"
         exit 1
     fi
     
-    echo -e "${GREEN}  [OK] Installation complete${NC}"
+    echo -e "${GREEN}  ✓ Tunnelblick installed successfully${NC}"
 fi
 echo ""
 
-# Verify CLI executable
-if [ ! -f "$OPENVPN_CLI" ]; then
-    echo -e "${RED}ERROR: OpenVPN Connect CLI not found${NC}"
-    echo -e "${YELLOW}Please install manually from: https://openvpn.net/client-connect-vpn-for-mac-os/${NC}"
-    exit 1
-fi
-
-# Check if this is the first time launching OpenVPN Connect
-FIRST_LAUNCH=false
-if [ ! -d "$HOME/Library/Application Support/OpenVPN Connect" ]; then
-    FIRST_LAUNCH=true
-fi
-
-# Accept GDPR consent
-echo -e "${YELLOW}[4/5] Configuring OpenVPN Connect...${NC}"
-
-if [ "$FIRST_LAUNCH" = true ]; then
-    echo -e "${CYAN}OpenVPN Connect will now open for the first time.${NC}"
-    echo -e "${CYAN}Please click the 'Agree' button to accept the terms.${NC}"
-    echo -e "${YELLOW}Press ENTER after you've clicked Agree...${NC}"
+# Launch Tunnelblick for first-time setup if needed
+echo -e "${YELLOW}[4/5] Configuring Tunnelblick...${NC}"
+if [ ! -d "$HOME/Library/Application Support/Tunnelblick" ]; then
+    echo -e "${CYAN}Launching Tunnelblick for first-time setup...${NC}"
+    echo -e "${CYAN}Please allow any system extensions if prompted.${NC}"
+    echo ""
+    open -a Tunnelblick
     
-    open -a "OpenVPN Connect" 2>/dev/null
+    echo -e "${YELLOW}Waiting for Tunnelblick to complete initial setup...${NC}"
+    echo -e "${YELLOW}Press ENTER after Tunnelblick appears in menu bar...${NC}"
     read -r
     
-    # Close OpenVPN Connect
-    sleep 2
-    osascript -e 'quit app "OpenVPN Connect"' 2>/dev/null || killall "OpenVPN Connect" 2>/dev/null
-    sleep 1
-    
-    echo -e "${GREEN}[OK] GDPR terms accepted${NC}"
+    # Give it time to create directories
+    sleep 3
 else
-    "$OPENVPN_CLI" --accept-gdpr 2>&1 > /dev/null || echo -e "${YELLOW}[SKIP] GDPR already accepted${NC}"
-    echo -e "${GREEN}[OK] Configuration accepted${NC}"
+    echo -e "${GREEN}✓ Tunnelblick already configured${NC}"
 fi
 echo ""
 
-# Import VPN profile using CLI
+# Import VPN configuration
 echo -e "${YELLOW}[5/5] Importing VPN configuration...${NC}"
-"$OPENVPN_CLI" --import-profile="$OVPN_CONFIG_PATH" 2>&1 > /dev/null
+
+# Create config directory structure
+mkdir -p "$TUNNELBLICK_CONFIGS/${CONFIG_NAME}.tblk"
+
+# Copy the ovpn file
+cp "$OVPN_CONFIG_PATH" "$TUNNELBLICK_CONFIGS/${CONFIG_NAME}.tblk/${CONFIG_NAME}.ovpn"
+
+# Set proper permissions
+chmod 600 "$TUNNELBLICK_CONFIGS/${CONFIG_NAME}.tblk/${CONFIG_NAME}.ovpn"
+chmod 700 "$TUNNELBLICK_CONFIGS/${CONFIG_NAME}.tblk"
+
+echo -e "${GREEN}✓ VPN configuration imported successfully${NC}"
+echo ""
+
+# Tell Tunnelblick to reload configurations
+osascript -e 'tell application "Tunnelblick" to quit' 2>/dev/null || killall Tunnelblick 2>/dev/null || true
 sleep 2
-echo -e "${GREEN}[OK] VPN profile imported${NC}"
-echo ""
-
-# Configure auto-connect
-echo -e "${CYAN}Configuring auto-connect...${NC}"
-"$OPENVPN_CLI" --set-setting=launch-options --value=connect-latest 2>&1 > /dev/null || true
+open -a Tunnelblick
 
 echo ""
-echo -e "${GREEN}==========================================${NC}"
-echo -e "${GREEN}  SETUP COMPLETE!${NC}"
-echo -e "${GREEN}==========================================${NC}"
+echo -e "${GREEN}=========================================${NC}"
+echo -e "${GREEN}  ✓ VPN SETUP COMPLETE!${NC}"
+echo -e "${GREEN}=========================================${NC}"
 echo ""
 echo -e "${CYAN}NEXT STEPS:${NC}"
-echo -e "  1. OpenVPN Connect will open automatically"
-echo -e "  2. Click on the IIITH-VPN profile to connect"
-echo -e "  3. Enter your IIIT Hyderabad credentials:"
-echo -e "     Username: ${YELLOW}your-email@students.iiit.ac.in${NC}"
-echo -e "     Password: ${YELLOW}your IIIT-H password${NC}"
+echo -e "${NC}  1. Tunnelblick will open automatically${NC}"
+echo -e "${NC}  2. Click the Tunnelblick icon in your menu bar${NC}"
+echo -e "${NC}  3. Select 'Connect ${CONFIG_NAME}'${NC}"
+echo -e "${NC}  4. Enter your IIIT Hyderabad credentials:${NC}"
+echo -e "${YELLOW}     Username: your-iiith-email@students.iiit.ac.in${NC}"
+echo -e "${YELLOW}     Password: your IIIT-H password${NC}"
 echo ""
-echo -e "${CYAN}Need help? Visit the OSDG website or use WISPR AI!${NC}"
+echo -e "${CYAN}USEFUL COMMANDS:${NC}"
+echo -e "${NC}  Open Tunnelblick:       ${YELLOW}open -a Tunnelblick${NC}"
+echo -e "${NC}  Config location:        ${YELLOW}~/Library/Application Support/Tunnelblick/Configurations/${NC}"
+echo -e "${NC}  View logs:              ${YELLOW}Check Tunnelblick menu > VPN Details > Log${NC}"
+echo ""
+echo -e "${CYAN}Need help? Visit the OSDG website or use our AI chatbot!${NC}"
 echo ""
 
-# Open OpenVPN Connect GUI
-open -a "OpenVPN Connect" 2>/dev/null || echo -e "${YELLOW}Please open OpenVPN Connect from Applications${NC}"
+# Wait a moment before finishing
+sleep 2
