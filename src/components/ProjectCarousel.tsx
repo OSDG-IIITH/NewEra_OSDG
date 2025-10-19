@@ -53,7 +53,7 @@ export default function ProjectCarousel() {
         if (prev <= -totalWidth) {
           return 0;
         }
-        return prev - 0.5; // move left by 0.5px per tick
+        return prev - 1.5; // move left by 0.5px per tick
       });
     }, 20); // ~50fps
 

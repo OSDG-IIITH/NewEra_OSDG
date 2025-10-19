@@ -150,9 +150,9 @@ export default function ListPage() {
         {/* Add Project Form Modal */}
         {showAddForm && user && (
           <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-            <div className="bg-black/80 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl shadow-green-500/20">
+            <div className="bg-black/80 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl shadow-cyan-500/20">
               <div className="p-8">
-                <h2 className="text-3xl font-oxanium font-bold text-green-400 mb-8">Add New Project</h2>
+                <h2 className="text-3xl font-oxanium font-bold text-cyan-400 mb-8">Add New Project</h2>
               </div>
               
               <form onSubmit={handleSubmit} className="px-8 pb-8 space-y-6">
@@ -165,7 +165,7 @@ export default function ListPage() {
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:outline-none font-oxanium placeholder-gray-600"
+                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-cyan-500/50 focus:outline-none font-oxanium placeholder-gray-600"
                     placeholder="Enter project name"
                   />
                 </div>
@@ -179,7 +179,7 @@ export default function ListPage() {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={4}
-                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:outline-none font-oxanium placeholder-gray-600 resize-none"
+                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-cyan-500/50 focus:outline-none font-oxanium placeholder-gray-600 resize-none"
                     placeholder="Describe the project..."
                   />
                 </div>
@@ -193,7 +193,7 @@ export default function ListPage() {
                     required
                     value={formData.siteLink}
                     onChange={(e) => setFormData({ ...formData, siteLink: e.target.value })}
-                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:outline-none font-oxanium placeholder-gray-600"
+                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-cyan-500/50 focus:outline-none font-oxanium placeholder-gray-600"
                     placeholder="https://github.com/..."
                   />
                 </div>
@@ -207,7 +207,7 @@ export default function ListPage() {
                     required
                     value={formData.dateInitiated}
                     onChange={(e) => setFormData({ ...formData, dateInitiated: e.target.value })}
-                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:outline-none font-oxanium"
+                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-cyan-500/50 focus:outline-none font-oxanium"
                   />
                 </div>
 
@@ -219,7 +219,7 @@ export default function ListPage() {
                     type="url"
                     value={formData.instructionBook}
                     onChange={(e) => setFormData({ ...formData, instructionBook: e.target.value })}
-                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:outline-none font-oxanium placeholder-gray-600"
+                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-cyan-500/50 focus:outline-none font-oxanium placeholder-gray-600"
                     placeholder="https://docs.project.com"
                   />
                 </div>
@@ -232,7 +232,7 @@ export default function ListPage() {
                     type="url"
                     value={formData.imageUrl}
                     onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-green-500/50 focus:outline-none font-oxanium placeholder-gray-600"
+                    className="w-full px-4 py-3 bg-black/50 rounded-lg text-white focus:ring-2 focus:ring-cyan-500/50 focus:outline-none font-oxanium placeholder-gray-600"
                     placeholder="https://example.com/image.png"
                   />
                 </div>
@@ -240,7 +240,7 @@ export default function ListPage() {
                 <div className="flex gap-4 pt-6">
                   <button
                     type="submit"
-                    className="flex-1 px-6 py-3 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-all duration-300 font-oxanium font-semibold"
+                    className="flex-1 px-6 py-3 bg-cyan-500/20 text-cyan-400 rounded-lg hover:bg-cyan-500/30 transition-all duration-300 font-oxanium font-semibold"
                   >
                     Add Project
                   </button>

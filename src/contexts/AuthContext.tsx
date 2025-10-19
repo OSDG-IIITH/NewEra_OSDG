@@ -46,6 +46,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = async () => {
     try {
+      // Clear localStorage to reset homepage animation on next visit after logout
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('homepage-animation-seen');
+        sessionStorage.removeItem('homepage-animation-played'); // Clean up old key too
+      }
+      
       const response = await fetch('/api/auth/logout', {
         method: 'POST',
       });

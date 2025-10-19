@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { Upload, X, Send } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ChatModalProps {
   isOpen: boolean;
@@ -15,6 +16,8 @@ interface ChatModalProps {
 }
 
 export default function ChatModal({ isOpen, onClose, mode = "general", vpnContext }: ChatModalProps) {
+  const { user } = useAuth();
+  
   // Initialize messages with default message based on mode
   const getInitialMessages = () => [
     { 
@@ -59,6 +62,7 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
       hasInitialized.current = true;
       setMessages(getInitialMessages());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, mode]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,6 +110,7 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: [...messages, { role: "user", content: userMessage }],
+          image: uploadedImage, // Include uploaded image (base64 data URL)
           vpnContext: mode === "vpn-troubleshooting" ? {
             osInfo: vpnContext?.osInfo,
             commandData: vpnContext?.commandData,
@@ -176,7 +181,7 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
         ...prev,
         {
           role: "assistant",
-          content: "Ugh, something broke on my end. Try again, will ya?",
+          content: "Something broke on my end. Try again, will ya?",
         },
       ]);
       setStreamingMessage("");
@@ -186,6 +191,8 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
     }
   };
 
+  //I am yet to be trained on docs containing those information - now dare u spread messages that I don't know on insta & the whatsapp groups - I will ensure that something is gonna be destroyed.
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -194,6 +201,66 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
   };
 
   if (!isOpen) return null;
+
+  // Show auth required screen for general mode if not logged in
+  if (mode === "general" && !user) {
+    return (
+      <>
+        {/* Backdrop */}
+        <div
+          className="fixed inset-0 bg-black/80 z-50 animate-fade-in"
+          onClick={onClose}
+        />
+
+        {/* Auth Required Modal */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+          <div
+            className="bg-black border-2 border-green-500 rounded-3xl w-full max-w-md p-8 flex flex-col items-center shadow-2xl shadow-green-500/20 animate-fade-in pointer-events-auto font-oxanium"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 text-green-500 hover:text-green-400 transition-colors text-2xl font-bold"
+              aria-label="Close"
+            >
+              ×
+            </button>
+
+            {/* Vetal Icon */}
+            <div className="w-24 h-24 mb-6">
+              <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-[0_0_15px_rgba(74,222,128,0.6)]">
+                <path
+                  d="M 100 30 C 60 30, 40 50, 40 90 L 40 150 C 40 155, 45 160, 50 160 L 50 145 C 50 140, 55 135, 60 135 C 65 135, 70 140, 70 145 L 70 160 C 70 165, 75 170, 80 170 L 80 150 C 80 145, 85 140, 90 140 C 95 140, 100 145, 100 150 L 100 170 C 100 175, 105 180, 110 180 L 110 150 C 110 145, 115 140, 120 140 C 125 140, 130 145, 130 150 L 130 170 C 130 175, 135 170, 140 170 L 140 145 C 140 140, 145 135, 150 135 C 155 135, 160 140, 160 145 L 160 160 C 160 155, 160 150, 160 150 L 160 90 C 160 50, 140 30, 100 30 Z"
+                  fill="none"
+                  stroke="#4ade80"
+                  strokeWidth="6"
+                />
+                <circle cx="75" cy="75" r="12" fill="#4ade80" />
+                <circle cx="125" cy="75" r="12" fill="#4ade80" />
+              </svg>
+            </div>
+
+            {/* Sassy Message */}
+            <h2 className="text-green-500 font-bold text-2xl mb-4 text-center">
+              Vetal AI
+            </h2>
+            <p className="text-green-400 text-center text-lg mb-6 leading-relaxed">
+              I don&apos;t waste my wisdom on just <span className="italic">anyone</span>. 
+              There&apos;s a certain <span className="font-bold">authenticated elite</span> I converse with. 
+              You&apos;ll need to log in if you want my attention.
+            </p>
+            <button
+              onClick={onClose}
+              className="bg-green-500/20 border border-green-500 hover:bg-green-500/30 text-green-400 hover:text-green-300 px-6 py-2 rounded-lg transition-all duration-300 font-semibold"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

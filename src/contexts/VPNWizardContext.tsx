@@ -6,6 +6,7 @@ interface OSInfo {
   name: string;
   version: string;
   architecture: string;
+  distro?: string; // For Linux distributions
 }
 
 interface CommandData {

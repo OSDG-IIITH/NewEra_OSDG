@@ -1,100 +1,92 @@
 [
   {
-    "name": "Aarnav Pai",
-    "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3D2dR9qBxrm5rV9ycqj8e5KY_cc_profile_2.jpeg&w=1080&q=75",
-    "full_text": "Aarnav Pai\nTech Team(2025 - present)",
+    "name": "Abhinav P V",
+    "profile_picture_url": "https://media.licdn.com/dms/image/v2/D5603AQFw1fLNLhdHaw/profile-displayphoto-shrink_800_800/B56ZSPBd5PHwAc-/0/1737566320257?e=1763596800&v=beta&t=lXD356yhBkbnde4hD1WLu417sWhT4NM9DBw9aX90Rf0",
+    "team": "Tech Team",
+    "year": "2025-present"
+  },
+  {
+    "name": "Mohit Singh",
+    "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3DKcR8NEBJkwUNgZ9ht25247_mohit_singh.JPG&w=1080&q=75",
     "team": "Tech Team",
     "year": "2025-present"
   },
   {
     "name": "Adithya Kishor",
     "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3D2dR9qBxrm5rV9ycqj8e5KY_cc_profile_2.jpeg&w=1080&q=75",
-    "full_text": "Adithya Kishor\nCorporate & PR(2025 - present)",
     "team": "Corporate & PR",
-    "year": "2025-present"  },
-  {
-    "name": "Advait Dintakurti",
-    "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3DSPv7aM5DNdQ5EKDbw25bPz_profile_advait.dintakurti.jpg&w=1080&q=75",
-    "full_text": "Advait Dintakurti\nEvents & Logistics(2025 - present)",
-    "team": "Events & Logistics",
-    "year": "2025-present"  },
-  {
-    "name": "Animish Sharma",
-    "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3DVieG2DQ8kkBxLAWZQF7Pnu_profile_animish.sharma.jpg&w=1080&q=75",
-    "full_text": "Animish Sharma\nTech Team(2025 - present)",
-    "team": "Tech Team",
-    "year": "2025-present"  },
+    "year": "2025-present"
+  },
   {
     "name": "Ankith Raghupathi Pai",
     "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3DHmXyXP64MG4f7YX7tLZ5ka_me.png&w=1080&q=75",
-    "full_text": "Ankith Raghupathi Pai\nAdvisor(2025 - present)\nCoordinator(2024 - 2025)\nOrganizing Team Member(2023 - 2024)",
-    "team": "Organizing Team Member",
-    "year": "2025-present"  },
+    "team": "Advisors",
+    "year": "2025-present"
+  },
   {
     "name": "Anushka Sharma",
     "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3DcuFyfGQqNKhbfAzaXAj7cm_WhatsApp_Image_2024-07-25_at_9.47.21_PM.jpeg&w=1080&q=75",
-    "full_text": "Anushka Sharma\nSocial Media & Design(2025 - present)\nCorporate & PR(2025 - present)\nTech/Events Team Member(2024 - 2025)",
-    "team": "Tech Team",
-    "year": "2025-present"  },
+    "team": "Social Media & Design",
+    "year": "2025-present"
+  },
   {
     "name": "Arihant Tripathy",
     "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3DdVTEmvribGSMpBtSVucaNe_me.JPG&w=1080&q=75",
-    "full_text": "Arihant Tripathy\nPoint of Contact\nCoordinator(2025 - present)\nTech/Events Team Member(2024 - 2025)",
-    "team": "Tech Team",
-    "year": "2025-present"  },
+    "team": "Coordinators",
+    "year": "2025-present"
+  },
   {
     "name": "Gopal Kataria",
     "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3DDSiwff79QvEH4d8NSxgEiG_pfp.jpg&w=1080&q=75",
-    "full_text": "Gopal Kataria\nPoint of Contact\nCoordinator(2025 - present)\nTech/Events Team Member(2024 - 2025)",
-    "team": "Tech Team",
-    "year": "2025-present"  },
-  
+    "team": "Coordinators",
+    "year": "2025-present"
+  },
   {
     "name": "Madhur Kankane",
     "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3D24unNtKxeBP5UwQwytUjCi_profile_madhur.kankane.jpg&w=1080&q=75",
-    "full_text": "Madhur Kankane\nCorporate & PR(2025 - present)",
     "team": "Corporate & PR",
-    "year": "2025-present"  },
-  
-
+    "year": "2025-present"
+  },
+  {
+    "name": "Advait Dintakurti",
+    "profile_picture_url": "https://media.licdn.com/dms/image/v2/D4E03AQEo5xxyPhqgBQ/profile-displayphoto-shrink_400_400/B4EZPzu62QHAAg-/0/1734960984518?e=1762387200&v=beta&t=YRiCmFbIagqeLRXrwzPH_-jk-9mla50ONY3ZqcEZ4sw",
+    "team": "Corporate & PR",
+    "year": "2025-present"
+  },
+  {
+    "name": "Aryan Patel",
+    "profile_picture_url": "https://media.licdn.com/dms/image/v2/D4E03AQFug90kai0j2Q/profile-displayphoto-scale_400_400/B4EZgnJ4P2GoAg-/0/1753003559920?e=1762387200&v=beta&t=U3jsheBPNeJCGd6uTvENo6KmwqJMEK8Tt9M0st8o9qE",
+    "team": "Social Media & Design",
+    "year": "2025-present"
+  },
   {
     "name": "Moida Praneeth Jain",
     "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3DLLVSWMnWb4K5ZyrN2cXoGY_pfp.jpg&w=1080&q=75",
-    "full_text": "Moida Praneeth Jain\nAdvisor(2025 - present)\nCoordinator(2024 - 2025)\nOrganizing Team Member(2023 - 2024)",
-    "team": "Organizing Team Member",
-    "year": "2025-present"  },
+    "team": "Advisors",
+    "year": "2025-present"
+  },
   {
     "name": "Pragati Prasad",
     "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3DKdAxhnLmApjGgSsinVwGmJ_profile_pragati.prasad.png&w=1080&q=75",
-    "full_text": "Pragati Prasad\nSocial Media & Design(2025 - present)",
     "team": "Social Media & Design",
-    "year": "2025-present"  },
-  
+    "year": "2025-present"
+  },
   {
     "name": "Shaikh Haris Jamal",
     "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3DAF3CdFktzgukBYYYhfZrUm_IMG_3057.jpeg&w=1080&q=75",
-    "full_text": "Shaikh Haris Jamal\nEvents & Logistics(2025 - present)",
     "team": "Events & Logistics",
-    "year": "2025-present"  },
-  
+    "year": "2025-present"
+  },
   {
     "name": "Shravani K",
     "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3DYX4JKsfC92uE7z3rKf88G8_profile_shravani.k.jpeg&w=1080&q=75",
-    "full_text": "Shravani K\nCorporate & PR(2025 - present)",
     "team": "Corporate & PR",
-    "year": "2025-present"  },
-  
-  {
-    "name": "Shreyas Deb",
-    "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3DXWqu3ZhTKfxAeiZgwjuxqB_profile_shreyas.deb.png&w=1080&q=75",
-    "full_text": "Shreyas Deb\nTech Team(2025 - present)",
-    "team": "Tech Team",
-    "year": "2025-present"  },
-  
+    "year": "2025-present"
+  },
   {
     "name": "Yajat Rahul Rangnekar",
     "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3DFGVWanTfnRuyadWzEbNsnv_ProfileImage.png&w=1080&q=75",
-    "full_text": "Yajat Rahul Rangnekar\nPoint of Contact\nCoordinator(2025 - present)\nCorporate/Outreach Team Member(2024 - 2025)",
-    "team": "Corporate & PR",
-    "year": "2025-present"  }
+    "team": "Coordinators",
+    "year": "2025-present"
+  }
 ]

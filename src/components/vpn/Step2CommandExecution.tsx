@@ -27,7 +27,12 @@ export default function Step2CommandExecution({ onError }: Step2CommandExecution
     if (osInfo && !commandData) {
       setIsLoading(true);
       try {
-        const data = generateVPNCommand({ os: osInfo.name, osVersion: osInfo.version, architecture: osInfo.architecture });
+        const data = generateVPNCommand({ 
+          os: osInfo.name, 
+          osVersion: osInfo.version, 
+          architecture: osInfo.architecture,
+          distro: osInfo.distro 
+        });
         setCommandData(data as any);
       } catch (err) {
         console.error('Error generating command:', err);

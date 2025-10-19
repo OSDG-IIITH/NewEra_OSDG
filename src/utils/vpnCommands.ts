@@ -8,8 +8,9 @@ export interface GeneratedCommand {
   platform: string;
 }
 
-export function generateVPNCommand(data: { os: string; osVersion?: string; architecture?: string }): GeneratedCommand {
+export function generateVPNCommand(data: { os: string; osVersion?: string; architecture?: string; distro?: string }): GeneratedCommand {
   const osLower = data.os.toLowerCase();
+  const distro = data.distro?.toLowerCase();
 
   // Dynamic base URL that works with both localhost and LAN IPs
   let baseUrl: string;

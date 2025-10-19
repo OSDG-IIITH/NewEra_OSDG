@@ -5,15 +5,30 @@ import { motion } from "framer-motion";
 import "/styles/projects.css";
 import projectsData from "@/data/projects.json";
 import carouselProjectNames from "@/data/carouselProjects.json";
-import membersData from "@/data/members.json";
 import brandLogo from "@/assets/BrandLogo.png";
 import Image from "next/image";
+
+interface TeamMember {
+  name: string;
+  profile_picture_url: string;
+  team: string;
+  year: string;
+}
 
 export default function Projects({ searchParams }: { searchParams: any }) {
   const [activeTab, setActiveTab] = useState(searchParams.activeTab || "All");
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [membersData, setMembersData] = useState<TeamMember[]>([]);
   const carouselRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Load team members from JSON
+    fetch('/osdg_members_2025.json')
+      .then(res => res.json())
+      .then(data => setMembersData(data))
+      .catch(err => console.error('Error loading team members:', err));
+  }, []);
 
   const filteredProjects =
     activeTab === "All"
@@ -128,7 +143,7 @@ export default function Projects({ searchParams }: { searchParams: any }) {
                         height="80"
                         src={
                           membersData.find(({ name }) => name === maintainer)!
-                            .imageURL
+                            .profile_picture_url
                         }
                         alt={maintainer}
                         className="object-cover h-16 w-16 rounded-full m-3 border-2 border-purple-400 shadow-md shadow-purple-500/50"
@@ -203,7 +218,7 @@ export default function Projects({ searchParams }: { searchParams: any }) {
                     key={index}
                     src={
                       membersData.find(({ name }) => name === maintainer)!
-                        .imageURL
+                        .profile_picture_url
                     }
                     alt={maintainer}
                     className="object-cover h-12 w-12 rounded-full m-3 border-2 border-purple-400 shadow-md"
@@ -416,7 +431,7 @@ export default function Projects({ searchParams }: { searchParams: any }) {
                             src={
                               membersData.find(
                                 ({ name }) => name === project.maintainers[0]
-                              )!.imageURL
+                              )!.profile_picture_url
                             }
                             alt={project.maintainers[0]}
                             className="object-cover h-14 w-14 rounded-full shrink-0 select-none border-2 border-purple-400"

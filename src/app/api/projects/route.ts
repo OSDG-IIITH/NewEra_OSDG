@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
+
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key');
 
 // In-memory storage for now
 // For Docker persistent storage, you can:
@@ -13,10 +16,24 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication (get user from session/cookie)
-    const userCookie = request.cookies.get('user');
-    if (!userCookie) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Check authentication using JWT token from cas-auth cookie
+    const token = request.cookies.get('cas-auth')?.value;
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized - Please login' }, { status: 401 });
+    }
+
+    // Verify JWT token
+    let user;
+    try {
+      const { payload } = await jwtVerify(token, JWT_SECRET);
+      user = {
+        username: payload.username,
+        name: payload.name,
+        email: payload.email
+      };
+    } catch (jwtError) {
+      console.error('JWT verification failed:', jwtError);
+      return NextResponse.json({ error: 'Invalid or expired session' }, { status: 401 });
     }
 
     const body = await request.json();
@@ -34,7 +51,7 @@ export async function POST(request: NextRequest) {
       dateInitiated,
       instructionBook: instructionBook || '',
       imageUrl: imageUrl || '',
-      addedBy: JSON.parse(userCookie.value).username,
+      addedBy: user.username,
       createdAt: new Date().toISOString(),
     };
 

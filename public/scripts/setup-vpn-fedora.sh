@@ -140,15 +140,44 @@ echo -e "${YELLOW}[5/6] Importing VPN configuration...${NC}"
 
 # Check if profile already exists
 if openvpn3 configs-list 2>/dev/null | grep -q "$VPN_PROFILE_NAME"; then
-    echo -e "${CYAN}  Existing profile found. Removing...${NC}"
-    # Force remove without prompts - use config path instead of name
-    CONFIG_PATH=$(openvpn3 configs-list 2>/dev/null | grep -A2 "$VPN_PROFILE_NAME" | grep "Configuration path" | awk '{print $NF}')
-    if [ -n "$CONFIG_PATH" ]; then
-        openvpn3 config-remove --path "$CONFIG_PATH" --force 2>/dev/null || true
-    fi
+    echo -e "${CYAN}  Existing profile '${VPN_PROFILE_NAME}' found.${NC}"
+    echo ""
+    
+    # Prompt user for confirmation
+    while true; do
+        if [ -t 0 ]; then
+            # Running in terminal - stdin available
+            read -p "$(echo -e ${YELLOW}Do you want to remove the existing profile and import the new one? \(y/n\): ${NC})" yn
+        else
+            # Piped through curl - reopen stdin from terminal
+            read -p "$(echo -e ${YELLOW}Do you want to remove the existing profile and import the new one? \(y/n\): ${NC})" yn < /dev/tty
+        fi
+        
+        case $yn in
+            [Yy]* )
+                echo -e "${CYAN}  Removing existing profile...${NC}"
+                # Get config path and remove
+                CONFIG_PATH=$(openvpn3 configs-list 2>/dev/null | grep -A2 "$VPN_PROFILE_NAME" | grep "Configuration path" | awk '{print $NF}')
+                if [ -n "$CONFIG_PATH" ]; then
+                    openvpn3 config-remove --path "$CONFIG_PATH" --force 2>/dev/null || true
+                    echo -e "${GREEN}  ✓ Existing profile removed${NC}"
+                fi
+                break
+                ;;
+            [Nn]* )
+                echo -e "${YELLOW}Setup cancelled. Keeping existing profile.${NC}"
+                exit 0
+                ;;
+            * )
+                echo -e "${RED}Please answer y (yes) or n (no).${NC}"
+                ;;
+        esac
+    done
+    echo ""
 fi
 
 # Import new profile
+echo -e "${CYAN}  Importing configuration...${NC}"
 openvpn3 config-import --config "$OVPN_CONFIG_PATH" --name "$VPN_PROFILE_NAME" --persistent > /dev/null 2>&1
 echo -e "${GREEN}✓ Configuration imported${NC}"
 echo ""

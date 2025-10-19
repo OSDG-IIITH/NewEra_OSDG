@@ -50,32 +50,44 @@ export default function HomePage() {
   const aboutRef = useRef<HTMLDivElement>(null);
   const welcomeString = "Welcome to";
 
-  // Check if this is a navigation (not a fresh load/reload)
+  // Check if user has already seen the animation
   useEffect(() => {
-    // Check if we arrived via client-side navigation
-    const navigationEntry = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-    const isReload = navigationEntry?.type === 'reload';
-    const isBackForward = navigationEntry?.type === 'back_forward';
-    
-    // Check if there's a navigation flag (set by client-side routing)
-    const hasNavigated = window.history.state?.hasNavigated;
-    
-    if (hasNavigated && !isReload && !isBackForward) {
-      // This is a client-side navigation, skip animation
+    // Persisted flag across sessions/tabs - stored in sessionStorage for current session only
+    const seenFlag = sessionStorage.getItem('homepage-animation-seen') === 'true';
+
+    // Safe access to performance entries (optional chaining for cross-browser)
+    const navEntries = performance?.getEntriesByType?.('navigation') as
+      | PerformanceNavigationTiming[]
+      | undefined;
+    const isReload = Array.isArray(navEntries) && navEntries[0]?.type === 'reload';
+
+    // Skip animation on subsequent navigations within the same session; always allow on hard reload/new session
+    if (seenFlag && !isReload) {
       setSkipAnimation(true);
-      // Set final state immediately
-      setWelcomeText(welcomeString);
+      
+      // Set final state immediately for hero section
+      setWelcomeText('');  // No welcome text needed
       setHideWelcome(true);
       setWelcomeComplete(true);
       setAnimationPhase(3);
       setTypedText(OSDG_TEXT);
       setShowSplit(true);
       setExpandedText(FULL_FORM_LINES.map(line => line.word));
+      setCurrentExpandingIndex(FULL_FORM_LINES.length);
+      setHasSeenAnimation(true);
+      
+      // Set final state immediately for shell section
+      setTypedCommand(command);
+      setTypedLines(ABOUT_LINES);
+      setShowAbout(true);
+      setConsoleVisible(true);
+      setHasAnimated(true);
+      setActiveLine(-1);
     } else {
-      // This is a fresh load or reload, play animation
+      // First visit in session or hard reload — play the animation
       setSkipAnimation(false);
-      // Mark that user has navigated at least once
-      window.history.replaceState({ ...window.history.state, hasNavigated: true }, '');
+      // Mark as seen immediately so subsequent navigations skip
+      sessionStorage.setItem('homepage-animation-seen', 'true');
     }
   }, []);
 
@@ -194,9 +206,19 @@ export default function HomePage() {
   }, [welcomeComplete, skipAnimation]);
 
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    // Throttle scroll updates using requestAnimationFrame to avoid excessive re-renders
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrollY(window.scrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll as EventListener);
   }, []);
 
   useEffect(() => {
@@ -208,25 +230,31 @@ export default function HomePage() {
           if (entry.isIntersecting && !hasAnimated) {
             setConsoleVisible(true);
             setHasAnimated(true);
+            
+            // If animation is skipped, show final state immediately
+            if (skipAnimation) {
+              setTypedCommand(command);
+              setTypedLines(ABOUT_LINES);
+              setShowAbout(true);
+              setActiveLine(-1);
+              return;
+            }
+            
+            // Type the command first
             let i = 0;
             const interval = setInterval(() => {
               setTypedCommand(command.slice(0, i + 1));
               i++;
               if (i === command.length) {
                 clearInterval(interval);
+                
+                // After command is typed, show all output with smooth fade-in
                 setTimeout(() => {
-                  let lineIndex = 0;
-                  const lineInterval = setInterval(() => {
-                    setTypedLines((prev) => [...prev, ABOUT_LINES[lineIndex]]);
-                    setActiveLine(lineIndex);
-                    lineIndex++;
-                    if (lineIndex === ABOUT_LINES.length) {
-                      clearInterval(lineInterval);
-                      setShowAbout(true);
-                      setActiveLine(-1);
-                    }
-                  }, 600);
-                }, 600);
+                  // Set all lines at once
+                  setTypedLines(ABOUT_LINES);
+                  setShowAbout(true);
+                  setActiveLine(-1);
+                }, 800); // Delay before showing content
               }
             }, 100);
           }
@@ -237,7 +265,8 @@ export default function HomePage() {
 
     observer.observe(aboutRef.current);
     return () => observer.disconnect();
-  }, [hasAnimated, command, ABOUT_LINES]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasAnimated, command, skipAnimation]);
 
   return (
     <div className="min-h-screen bg-black bg-gradient-to-b from-black to-blue-900/30 text-white font-sans scroll-smooth">
@@ -253,6 +282,7 @@ export default function HomePage() {
           {/* Tech Frame Animation Container */}
           <div className="relative inline-block">
             {/* Top Left Corner SVG */}
+            {!skipAnimation && (
             <svg
               className={`absolute transition-all duration-700 ease-in-out ${
                 animationPhase >= 2.7 ? 'opacity-0' : animationPhase >= 0.5 ? 'opacity-100' : 'opacity-0'
@@ -278,8 +308,10 @@ export default function HomePage() {
               <path d="M 8,8 L 8,92" stroke="#22d3ee" strokeWidth="1" opacity="0.3" />
               <path d="M 8,8 L 92,8" stroke="#22d3ee" strokeWidth="1" opacity="0.3" />
             </svg>
+            )}
 
             {/* Bottom Right Corner SVG */}
+            {!skipAnimation && (
             <svg
               className={`absolute transition-all duration-700 ease-in-out ${
                 animationPhase >= 2.7 ? 'opacity-0' : animationPhase >= 0.5 ? 'opacity-100' : 'opacity-0'
@@ -305,6 +337,7 @@ export default function HomePage() {
               <path d="M 92,92 L 92,8" stroke="#22d3ee" strokeWidth="1" opacity="0.3" />
               <path d="M 92,92 L 8,92" stroke="#22d3ee" strokeWidth="1" opacity="0.3" />
             </svg>
+            )}
 
             {/* Main Title Container */}
             <div
@@ -315,103 +348,76 @@ export default function HomePage() {
                 padding: animationPhase >= 2.5 ? '3rem 4rem' : animationPhase >= 1.5 ? '2rem 3rem' : '1.5rem 2rem',
               }}
             >
-              {/* Phase 2: Type out OSDG */}
-              {animationPhase >= 2 && animationPhase < 3 && !showSplit && (
-                <div 
-                  className="text-cyan-400 font-bold tracking-wider"
-                  style={{
-                    fontSize: 'clamp(3.5rem, 10vw, 7rem)',
-                  }}
-                >
-                  {typedText}
-                </div>
-              )}
-
-              {/* Phase 2.5: Split OSDG into two lines with smooth transition */}
-              {showSplit && animationPhase < 3 && (
-                <div className="flex flex-col items-center justify-center gap-0 transition-all duration-700 ease-out">
-                  <div 
-                    className="text-cyan-400 font-bold tracking-wider transition-all duration-700"
-                    style={{
-                      fontSize: 'clamp(3.5rem, 10vw, 7rem)',
-                    }}
-                  >
-                    OS
+              {
+                skipAnimation ? (
+                  // Final rendering when skipping animations: always show full form
+                  <div className="flex flex-col items-center justify-center gap-0">
+                    <div className="flex items-baseline justify-center">
+                      {FULL_FORM_LINES.slice(0, 2).map((line, idx) => (
+                        <div key={line.letter} className="inline-flex items-baseline" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>
+                          <span className="text-cyan-400 font-bold">{line.letter}</span>
+                          <span className="text-white" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)', lineHeight: '0.1' }}>{FULL_FORM_LINES[idx].word}</span>
+                          {idx === 0 && <span className="mx-3 md:mx-4"></span>}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex items-baseline justify-center mt-[-40px]">
+                      {FULL_FORM_LINES.slice(2, 4).map((line, idx) => (
+                        <div key={line.letter} className="inline-flex items-baseline" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>
+                          <span className="text-cyan-400 font-bold">{line.letter}</span>
+                          <span className="text-white" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>{FULL_FORM_LINES[idx + 2].word}</span>
+                          {idx === 0 && <span className="mx-3 md:mx-4"></span>}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div 
-                    className="text-cyan-400 font-bold tracking-wider transition-all duration-700 mt-[-40px]"
-                    style={{
-                      fontSize: 'clamp(3.5rem, 10vw, 7rem)',
-                    }}
-                  >
-                    DG
-                  </div>
-                </div>
-              )}
-              
-              {/* Phase 3: Expand each letter inline to full word */}
-              {animationPhase >= 3 && (
-                <div className="flex flex-col items-center justify-center gap-0">
-                  {/* First Line: Open Source */}
-                  <div className="flex items-baseline justify-center">
-                    {FULL_FORM_LINES.slice(0, 2).map((line, idx) => (
-                      <div
-                        key={line.letter}
-                        className="inline-flex items-baseline"
-                        style={{
-                          fontSize: 'clamp(3.5rem, 10vw, 7rem)',
-                        }}
-                      >
-                        <span className="text-cyan-400 font-bold">{line.letter}</span>
-                        <span 
-                          className="text-white transition-all duration-300"
-                          style={{
-                            fontSize: 'clamp(3.5rem, 10vw, 7rem)',
-                            lineHeight: '0.1',
-                          }}
-                        >
-                          {expandedText[idx]}
-                        </span>
-                        {idx === 0 && (
-                          <span className="mx-3 md:mx-4"></span>
-                        )}
+                ) : (
+                  <>
+                    {/* Phase 2: Type out OSDG */}
+                    {animationPhase >= 2 && animationPhase < 3 && !showSplit && (
+                      <div className="text-cyan-400 font-bold tracking-wider" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>
+                        {typedText}
                       </div>
-                    ))}
-                  </div>
-                  
-                  {/* Second Line: Developers Group */}
-                  <div className="flex items-baseline justify-center mt-[-40px]">
-                    {FULL_FORM_LINES.slice(2, 4).map((line, idx) => (
-                      <div
-                        key={line.letter}
-                        className="inline-flex items-baseline"
-                        style={{
-                          fontSize: 'clamp(3.5rem, 10vw, 7rem)',
-                        }}
-                      >
-                        <span className="text-cyan-400 font-bold">{line.letter}</span>
-                        <span 
-                          className="text-white transition-all duration-300"
-                          style={{
-                            fontSize: 'clamp(3.5rem, 10vw, 7rem)',
-                          }}
-                        >
-                          {expandedText[idx + 2]}
-                        </span>
-                        {idx === 0 && (
-                          <span className="mx-3 md:mx-4"></span>
-                        )}
+                    )}
+                    {/* Phase 2.5: Split OSDG into two lines with smooth transition */}
+                    {showSplit && animationPhase < 3 && (
+                      <div className="flex flex-col items-center justify-center gap-0 transition-all duration-700 ease-out">
+                        <div className="text-cyan-400 font-bold tracking-wider transition-all duration-700" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>OS</div>
+                        <div className="text-cyan-400 font-bold tracking-wider transition-all duration-700 mt-[-40px]" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>DG</div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                    )}
+                    {/* Phase 3: Expand each letter inline to full word */}
+                    {animationPhase >= 3 && (
+                      <div className="flex flex-col items-center justify-center gap-0">
+                        <div className="flex items-baseline justify-center">
+                          {FULL_FORM_LINES.slice(0, 2).map((line, idx) => (
+                            <div key={line.letter} className="inline-flex items-baseline" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>
+                              <span className="text-cyan-400 font-bold">{line.letter}</span>
+                              <span className="text-white transition-all duration-300" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)', lineHeight: '0.1' }}>{expandedText[idx]}</span>
+                              {idx === 0 && <span className="mx-3 md:mx-4"></span>}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex items-baseline justify-center mt-[-40px]">
+                          {FULL_FORM_LINES.slice(2, 4).map((line, idx) => (
+                            <div key={line.letter} className="inline-flex items-baseline" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>
+                              <span className="text-cyan-400 font-bold">{line.letter}</span>
+                              <span className="text-white transition-all duration-300" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>{expandedText[idx + 2]}</span>
+                              {idx === 0 && <span className="mx-3 md:mx-4"></span>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )
+              }
             </div>
           </div>
 
-          {/* Tagline - Show after animation completes */}
-          {animationPhase >= 3 && expandedText.length === 4 && (
-            <p className="mt-8 md:mt-12 font-oxanium text-base md:text-xl text-gray-400 max-w-2xl px-4 transition-all duration-1000 opacity-0 animate-fadeIn">
+          {/* Tagline - Show after animation completes or immediately if skipped */}
+          {(skipAnimation || (animationPhase >= 3 && expandedText.length === 4)) && (
+            <p className={`mt-8 md:mt-12 font-oxanium text-base md:text-xl text-gray-400 max-w-2xl px-4 transition-all duration-1000 ${skipAnimation ? 'opacity-100' : 'opacity-0 animate-fadeIn'}`}>
               Where elite minds meet open source — to build, disrupt, and lead the future - openly.
             </p>
           )}
@@ -441,9 +447,9 @@ export default function HomePage() {
             <p className="mt-2">[sudo] password for osdg: ••••••••</p>
           )}
 
-          {/* Output like a man page typed line by line */}
+          {/* Output like a man page with smooth fade-in */}
           {typedLines.length > 0 && (
-            <div className="mt-6 whitespace-pre-line text-gray-200">
+            <div className="mt-6 whitespace-pre-line text-gray-200 animate-fadeInContent">
               {typedLines.map((line, idx) => {
                 const safeLine = line || "";
                 const isKnownHeader = safeLine.trim() === "NAME" || safeLine.trim() === "DESCRIPTION";
@@ -464,7 +470,6 @@ export default function HomePage() {
                 return (
                   <p key={idx} className={lineClass}>
                     {safeLine}
-                    {idx === activeLine && <span className="animate-pulse">|</span>}
                   </p>
                 );
               })}
@@ -491,6 +496,17 @@ export default function HomePage() {
         .animate-fadeIn {
           animation: fadeIn 1s ease-out forwards;
           animation-delay: 0.5s;
+        }
+        @keyframes fadeInContent {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        .animate-fadeInContent {
+          animation: fadeInContent 0.8s ease-out forwards;
         }
       `}</style>
 

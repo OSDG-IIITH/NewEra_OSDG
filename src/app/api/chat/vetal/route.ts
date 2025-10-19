@@ -5,7 +5,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(request: NextRequest) {
   try {
-    const { messages, vpnContext } = await request.json();
+    const { messages, image, vpnContext } = await request.json();
 
     // Get the last user message
     const lastMessage = messages[messages.length - 1];
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     const model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.0-flash',
       generationConfig: {
         temperature: 0.8,
         maxOutputTokens: 1024,
@@ -63,8 +63,31 @@ ${conversationHistory ? `Previous conversation:\n${conversationHistory}\n\n` : '
 
 Vetal:`;
 
+    // Prepare content parts for Gemini
+    const parts: any[] = [{ text: fullPrompt }];
+    
+    // Add image if provided
+    if (image) {
+      // Extract base64 data and mime type from data URL
+      const matches = image.match(/^data:([^;]+);base64,(.+)$/);
+      if (matches) {
+        const mimeType = matches[1];
+        const base64Data = matches[2];
+        
+        parts.push({
+          inlineData: {
+            mimeType,
+            data: base64Data
+          }
+        });
+        
+        // Add instruction to analyze the image
+        parts[0].text += '\n\nThe user has uploaded a screenshot. Please analyze it and provide help based on what you see.';
+      }
+    }
+
     // Generate streaming response
-    const result = await model.generateContentStream(fullPrompt);
+    const result = await model.generateContentStream(parts);
     
     // Create a ReadableStream for SSE
     const encoder = new TextEncoder();
@@ -93,9 +116,25 @@ Vetal:`;
 
   } catch (error) {
     console.error('Vetal AI error:', error);
-    return NextResponse.json(
-      { error: 'Vetal is taking a nap. Try again in a bit.' },
-      { status: 500 }
-    );
+    
+    // Return sassy error message in streaming format
+    const encoder = new TextEncoder();
+    const errorMessage = "I choose not to answer that. Now buzz off!";
+    
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: errorMessage })}\n\n`));
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+        controller.close();
+      }
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
   }
 }
