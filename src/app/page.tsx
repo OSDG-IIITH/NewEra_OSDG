@@ -418,7 +418,7 @@ export default function HomePage() {
           {/* Tagline - Show after animation completes or immediately if skipped */}
           {(skipAnimation || (animationPhase >= 3 && expandedText.length === 4)) && (
             <p className={`mt-8 md:mt-12 font-oxanium text-base md:text-xl text-gray-400 max-w-2xl px-4 transition-all duration-1000 ${skipAnimation ? 'opacity-100' : 'opacity-0 animate-fadeIn'}`}>
-              Where elite minds meet open source — to build, disrupt, and lead the future - openly.
+              Where elite minds meet open source — to build, disrupt, and lead the future — openly.
             </p>
           )}
         </div>

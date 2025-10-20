@@ -47,7 +47,7 @@ export default function Navbar() {
               Linux Installation Guide
             </Link> */}
             <Link className={linkClass} href="/list">
-              /List
+              List
             </Link>
             <Link className={linkClass} href="/vpn-setup">
               VPN Setup
