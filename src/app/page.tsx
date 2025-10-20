@@ -342,10 +342,10 @@ export default function HomePage() {
             {/* Main Title Container */}
             <div
               className={`font-bold font-oxanium transition-all duration-[1200ms] ease-in-out ${
-                animationPhase >= 2 ? 'opacity-100' : 'opacity-0'
+                skipAnimation || animationPhase >= 2 ? 'opacity-100' : 'opacity-0'
               }`}
               style={{
-                padding: animationPhase >= 2.5 ? '3rem 4rem' : animationPhase >= 1.5 ? '2rem 3rem' : '1.5rem 2rem',
+                padding: skipAnimation || animationPhase >= 2.5 ? '3rem 4rem' : animationPhase >= 1.5 ? '2rem 3rem' : '1.5rem 2rem',
               }}
             >
               {

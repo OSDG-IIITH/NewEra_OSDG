@@ -34,6 +34,8 @@ function LoginContent() {
         return 'Authentication validation failed. Please try logging in again.';
       case 'auth-failed':
         return 'Authentication failed. Please try logging in again.';
+      case 'cas-not-authorized':
+        return 'This application is not yet authorized with IIIT CAS. Please contact the OSDG team or try again later.';
       default:
         return null;
     }
