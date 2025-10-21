@@ -17,6 +17,9 @@ const oxanium = Oxanium({
 export const metadata: Metadata = {
   title: "OSDG | IIIT Hyderabad",
   description: "Open Source Developers Group at IIIT Hyderabad",
+  icons: {
+    icon: '/favicon.png',
+  },
 };
 
 export default function RootLayout({

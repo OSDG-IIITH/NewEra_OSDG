@@ -8,8 +8,9 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const returnTo = searchParams.get('returnTo') || '/';
   
-  // Create the service URL that CAS will redirect back to after authentication
-  const serviceUrl = `${SITE_URL}/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
+  // Always use localhost for CAS callback since production domain isn't whitelisted yet
+  // After authentication, the callback will redirect to the production domain (osdg.in)
+  const serviceUrl = `http://localhost:3000/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
   
   // Build CAS login URL following IIIT CAS format
   const casLoginUrl = `${CAS_BASE_URL}/login?service=${encodeURIComponent(serviceUrl)}`;

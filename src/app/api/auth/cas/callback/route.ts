@@ -72,8 +72,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${SITE_URL}/?error=no-ticket`);
   }
   
-  // Build service URL matching what we sent to CAS login
-  const serviceUrl = `${SITE_URL}/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
+  // Always use localhost for CAS validation since production domain isn't whitelisted yet
+  const serviceUrl = `http://localhost:3000/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
   const user = await validateCASTicket(ticket, serviceUrl);
   
   if (!user) {
@@ -92,16 +92,29 @@ export async function GET(request: NextRequest) {
     .setExpirationTime('24h')
     .sign(JWT_SECRET);
     
+    // Determine the target URL (production or localhost)
+    const targetUrl = process.env.NODE_ENV === 'production' ? 'https://osdg.in' : SITE_URL;
+    
     // Set secure HTTP-only cookie
     const cookieStore = cookies();
     cookieStore.set('cas-auth', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 24 * 60 * 60 // 24 hours
+      maxAge: 24 * 60 * 60, // 24 hours
+      domain: process.env.NODE_ENV === 'production' ? 'osdg.in' : undefined,
     });
     
-    return NextResponse.redirect(`${SITE_URL}${returnTo}`);
+    // Redirect to the target URL with user data as query params (for production)
+    if (process.env.NODE_ENV === 'production') {
+      const redirectUrl = new URL(returnTo, targetUrl);
+      redirectUrl.searchParams.set('username', user.username);
+      redirectUrl.searchParams.set('email', user.email);
+      redirectUrl.searchParams.set('casAuth', 'true');
+      return NextResponse.redirect(redirectUrl.toString());
+    }
+    
+    return NextResponse.redirect(`${targetUrl}${returnTo}`);
   } catch (error) {
     console.error('JWT signing error:', error);
     return NextResponse.redirect(`${SITE_URL}/?error=auth-failed`);

@@ -29,6 +29,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const fetchUser = async () => {
     try {
+      // First, check if we have CAS auth data in URL params (from production redirect)
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const casAuth = urlParams.get('casAuth');
+        const username = urlParams.get('username');
+        const email = urlParams.get('email');
+        
+        if (casAuth === 'true' && username && email) {
+          // Set user from URL params
+          setUser({
+            username,
+            name: username, // We can extract name from email or use username
+            email,
+          });
+          
+          // Clean up URL params
+          const cleanUrl = window.location.pathname;
+          window.history.replaceState({}, '', cleanUrl);
+          setLoading(false);
+          return;
+        }
+      }
+      
+      // Otherwise, fetch from API
       const response = await fetch('/api/auth/user');
       const data = await response.json();
       setUser(data.user);
