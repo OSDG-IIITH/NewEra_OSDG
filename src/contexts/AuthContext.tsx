@@ -79,14 +79,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const login = (returnTo: string = '/') => {
-    // Open CAS login in a popup window for production
-    const casLoginUrl = `/api/auth/cas/login?returnTo=${encodeURIComponent(returnTo)}`;
+    // Build the CAS login URL directly with localhost callback
+    const serviceUrl = `http://localhost:3000/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
+    const casLoginUrl = `https://login.iiit.ac.in/cas/login?service=${encodeURIComponent(serviceUrl)}`;
     
     const width = 600;
     const height = 700;
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
     
+    // Open CAS login in a popup window
     const popup = window.open(
       casLoginUrl,
       'CAS Login',
