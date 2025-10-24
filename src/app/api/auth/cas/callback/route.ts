@@ -71,19 +71,19 @@ export async function GET(request: NextRequest) {
   
   if (!ticket) {
     console.error('[CAS Callback] ❌ No ticket provided');
-    // Redirect back to osdg.in with error
     return NextResponse.redirect(`https://osdg.in/?error=no-ticket`);
   }
   
-  // Validate using the whitelisted osdg.iiit.ac.in service URL
+  // IMPORTANT: We validate using the WHITELISTED service URL
+  // Even though we're on osdg.in, we tell CAS we were validating for osdg.iiit.ac.in
+  // This is the workaround since osdg.in is not whitelisted
   const serviceUrl = `https://osdg.iiit.ac.in/forms/api/auth/login/callback?returnTo=${encodeURIComponent(returnTo)}`;
-  console.log('[CAS Callback] Validating with service URL:', serviceUrl);
+  console.log('[CAS Callback] Validating with whitelisted service URL:', serviceUrl);
   
   const user = await validateCASTicket(ticket, serviceUrl);
   
   if (!user) {
     console.error('[CAS Callback] ❌ User validation failed');
-    // Redirect back to osdg.in with error
     return NextResponse.redirect(`https://osdg.in/?error=validation-failed`);
   }
   
@@ -92,14 +92,14 @@ export async function GET(request: NextRequest) {
   console.log('[CAS Callback] Name:', user.name);
   console.log('[CAS Callback] Email:', user.email);
   
-  // Redirect back to osdg.in with user data in URL params
+  // Redirect to osdg.in with user data
   const redirectUrl = new URL(returnTo, 'https://osdg.in');
   redirectUrl.searchParams.set('casAuth', 'success');
   redirectUrl.searchParams.set('username', user.username);
   redirectUrl.searchParams.set('name', user.name);
   redirectUrl.searchParams.set('email', user.email);
   
-  console.log('[CAS Callback] ✅ Redirecting to:', redirectUrl.toString());
+  console.log('[CAS Callback] ✅ Redirecting to osdg.in:', redirectUrl.toString());
   
   return NextResponse.redirect(redirectUrl.toString());
 }
