@@ -73,10 +73,12 @@ export async function GET(request: NextRequest) {
         <body>
           <script>
             if (window.opener) {
-              window.opener.postMessage({ type: 'CAS_AUTH_ERROR', error: 'no-ticket' }, 'https://osdg.in');
-              window.close();
+              const targetOrigin = window.opener.location.origin;
+              window.opener.postMessage({ type: 'CAS_AUTH_ERROR', error: 'no-ticket' }, targetOrigin);
+              setTimeout(() => window.close(), 500);
             } else {
-              window.location.href = 'https://osdg.in/?error=no-ticket';
+              const baseUrl = document.referrer || 'https://osdg.in';
+              window.location.href = baseUrl + '?error=no-ticket';
             }
           </script>
           <p>Authentication failed. Redirecting...</p>
@@ -102,10 +104,12 @@ export async function GET(request: NextRequest) {
         <body>
           <script>
             if (window.opener) {
-              window.opener.postMessage({ type: 'CAS_AUTH_ERROR', error: 'validation-failed' }, 'https://osdg.in');
-              window.close();
+              const targetOrigin = window.opener.location.origin;
+              window.opener.postMessage({ type: 'CAS_AUTH_ERROR', error: 'validation-failed' }, targetOrigin);
+              setTimeout(() => window.close(), 500);
             } else {
-              window.location.href = 'https://osdg.in/?error=validation-failed';
+              const baseUrl = document.referrer || 'https://osdg.in';
+              window.location.href = baseUrl + '?error=validation-failed';
             }
           </script>
           <p>Authentication failed. Redirecting...</p>
@@ -135,20 +139,42 @@ export async function GET(request: NextRequest) {
             returnTo: ${JSON.stringify(returnTo)}
           };
           
+          console.log('Sending auth data to parent:', userData);
+          
           if (window.opener) {
-            // Send data to parent window (osdg.in)
-            window.opener.postMessage(userData, 'https://osdg.in');
-            window.close();
+            // Send data to parent window
+            // For production (osdg.in), send to https://osdg.in
+            // For local development, send to http://localhost:3000
+            const targetOrigin = window.opener.location.origin;
+            console.log('Target origin:', targetOrigin);
+            
+            try {
+              window.opener.postMessage(userData, targetOrigin);
+              console.log('Message sent successfully');
+              
+              // Close after a short delay to ensure message is received
+              setTimeout(() => {
+                window.close();
+              }, 500);
+            } catch (err) {
+              console.error('Error sending message:', err);
+              // Fallback: try closing anyway
+              setTimeout(() => {
+                window.close();
+              }, 1000);
+            }
           } else {
-            // Fallback: redirect to osdg.in with data in URL
-            const url = new URL('https://osdg.in' + ${JSON.stringify(returnTo)});
+            // Fallback: redirect to the opener's origin with data in URL
+            console.log('No opener window found, using fallback redirect');
+            const baseUrl = document.referrer || 'https://osdg.in';
+            const url = new URL(${JSON.stringify(returnTo)}, baseUrl);
             url.searchParams.set('username', ${JSON.stringify(user.username)});
             url.searchParams.set('email', ${JSON.stringify(user.email)});
             url.searchParams.set('casAuth', 'true');
             window.location.href = url.toString();
           }
         </script>
-        <p>Authentication successful! Redirecting...</p>
+        <p>Authentication successful! Closing window...</p>
       </body>
     </html>`,
     {

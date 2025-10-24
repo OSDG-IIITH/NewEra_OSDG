@@ -97,12 +97,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
     
     // Listen for messages from the popup
     const handleMessage = (event: MessageEvent) => {
-      // Verify the origin for security
-      if (event.origin !== 'http://localhost:3000') {
+      // Accept messages from localhost (where callback runs) for production
+      // For local development, also accept from localhost
+      const allowedOrigins = ['http://localhost:3000', 'https://osdg.in'];
+      
+      if (!allowedOrigins.includes(event.origin)) {
+        console.warn('Rejected message from origin:', event.origin);
         return;
       }
       
       if (event.data.type === 'CAS_AUTH_SUCCESS') {
+        console.log('CAS authentication successful:', event.data.user);
+        
         // Set user data from the popup
         setUser(event.data.user);
         
@@ -114,6 +120,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Navigate to the return URL if needed
         if (event.data.returnTo && event.data.returnTo !== '/') {
           window.location.href = event.data.returnTo;
+        } else {
+          // Force a refresh to update the UI
+          window.location.reload();
         }
         
         // Clean up
@@ -135,11 +144,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     
     window.addEventListener('message', handleMessage);
     
-    // Fallback: if popup is blocked, redirect to CAS login in the same window
-    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
-      window.removeEventListener('message', handleMessage);
-      window.location.href = casLoginUrl;
-    }
+    // Check if popup was successfully opened
+    setTimeout(() => {
+      if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+        window.removeEventListener('message', handleMessage);
+        alert('Popup was blocked. Please allow popups for this site and try again.');
+      }
+    }, 1000);
   };
 
   const logout = async () => {
