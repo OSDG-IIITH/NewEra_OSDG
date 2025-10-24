@@ -60,96 +60,100 @@ async function validateCASTicket(ticket: string, service: string): Promise<CASUs
 }
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
+  const { searchParams, origin } = new URL(request.url);
   const ticket = searchParams.get('ticket');
   const returnTo = searchParams.get('returnTo') || '/';
   
+  console.log('[CAS Callback] === CALLBACK RECEIVED ===');
+  console.log('[CAS Callback] Origin:', origin);
+  console.log('[CAS Callback] URL:', request.url);
+  console.log('[CAS Callback] Ticket:', ticket ? 'Present (' + ticket.substring(0, 20) + '...)' : 'Missing');
+  console.log('[CAS Callback] ReturnTo:', returnTo);
+  
   if (!ticket) {
-    // Return an HTML page that sends error message to parent window
+    console.error('[CAS Callback] ❌ No ticket provided');
     return new NextResponse(
       `<!DOCTYPE html>
       <html>
         <head><title>CAS Auth Error</title></head>
         <body>
+          <h2>Authentication Error</h2>
+          <p>No ticket provided. Please try again.</p>
           <script>
-            console.error('[CAS Callback] ERROR: No ticket provided');
-            console.log('[CAS Callback] Window opener exists:', !!window.opener);
-            
-            if (window.opener) {
-              const origins = ['https://osdg.in', 'http://localhost:3000'];
-              origins.forEach(origin => {
-                try {
-                  window.opener.postMessage({ type: 'CAS_AUTH_ERROR', error: 'no-ticket' }, origin);
-                  console.log('[CAS Callback] Error message sent to', origin);
-                } catch (err) {
-                  console.error('[CAS Callback] Failed to send to', origin, err);
-                }
-              });
-              setTimeout(() => window.close(), 1000);
-            } else {
-              alert('Authentication failed: No ticket. Please try again.');
-            }
+            console.error('[CAS Callback] No ticket - closing in 3 seconds');
+            setTimeout(() => {
+              if (window.opener) {
+                window.opener.postMessage({ type: 'CAS_AUTH_ERROR', error: 'no-ticket' }, '*');
+                window.close();
+              } else {
+                window.location.href = '${origin}';
+              }
+            }, 3000);
           </script>
-          <p>Authentication failed. Redirecting...</p>
         </body>
       </html>`,
-      {
-        status: 200,
-        headers: { 'Content-Type': 'text/html' },
-      }
+      { status: 200, headers: { 'Content-Type': 'text/html' } }
     );
   }
   
-  // Use localhost for CAS validation since production domain isn't whitelisted yet
-  const serviceUrl = `http://localhost:3000/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
-  const user = await validateCASTicket(ticket, serviceUrl);
+  //Try validation with localhost first (whitelisted), then fallback to origin
+  console.log('[CAS Callback] Attempting validation with localhost service URL...');
+  const localhostServiceUrl = `http://localhost:3000/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
+  let user = await validateCASTicket(ticket, localhostServiceUrl);
   
   if (!user) {
-    // Return an HTML page that sends error message to parent window
+    console.log('[CAS Callback] Localhost validation failed, trying with origin...');
+    const originServiceUrl = `${origin}/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
+    user = await validateCASTicket(ticket, originServiceUrl);
+  }
+  
+  if (!user) {
+    console.error('[CAS Callback] ❌ Both validation attempts failed');
     return new NextResponse(
       `<!DOCTYPE html>
       <html>
         <head><title>CAS Auth Error</title></head>
         <body>
+          <h2>Authentication Failed</h2>
+          <p>Could not validate your credentials. The IT office may need to whitelist osdg.in.</p>
+          <p>Technical details: Ticket validation failed for both localhost and ${origin}</p>
           <script>
-            console.error('[CAS Callback] ERROR: Ticket validation failed');
-            console.log('[CAS Callback] Window opener exists:', !!window.opener);
-            
-            if (window.opener) {
-              const origins = ['https://osdg.in', 'http://localhost:3000'];
-              origins.forEach(origin => {
-                try {
-                  window.opener.postMessage({ type: 'CAS_AUTH_ERROR', error: 'validation-failed' }, origin);
-                  console.log('[CAS Callback] Error message sent to', origin);
-                } catch (err) {
-                  console.error('[CAS Callback] Failed to send to', origin, err);
-                }
-              });
-              setTimeout(() => window.close(), 1000);
-            } else {
-              alert('Authentication failed: Validation failed. Please try again.');
-            }
+            console.error('[CAS Callback] Validation failed - closing in 5 seconds');
+            setTimeout(() => {
+              if (window.opener) {
+                window.opener.postMessage({ type: 'CAS_AUTH_ERROR', error: 'validation-failed' }, '*');
+                window.close();
+              } else {
+                window.location.href = '${origin}';
+              }
+            }, 5000);
           </script>
-          <p>Authentication failed. Redirecting...</p>
         </body>
       </html>`,
-      {
-        status: 200,
-        headers: { 'Content-Type': 'text/html' },
-      }
+      { status: 200, headers: { 'Content-Type': 'text/html' } }
     );
   }
   
-  // Return an HTML page that sends user data to parent window (osdg.in)
+  console.log('[CAS Callback] ✅✅✅ SUCCESS! User authenticated ✅✅✅');
+  console.log('[CAS Callback] Username:', user.username);
+  console.log('[CAS Callback] Name:', user.name);
+  console.log('[CAS Callback] Email:', user.email);
+  
+  // Return an HTML page that sends user data to parent window
   return new NextResponse(
     `<!DOCTYPE html>
     <html>
       <head><title>CAS Auth Success</title></head>
       <body>
+        <h2>✅ Authentication Successful!</h2>
+        <p>Welcome, <strong>${user.name}</strong> (${user.username})</p>
+        <p>Logging you in...</p>
+        
         <script>
-          console.log('[CAS Callback] Starting authentication callback');
-          console.log('[CAS Callback] User data:', ${JSON.stringify(user)});
-          console.log('[CAS Callback] Window opener exists:', !!window.opener);
+          console.log('=== CAS CALLBACK SUCCESS PAGE ===');
+          console.log('User:', ${JSON.stringify(user)});
+          console.log('Window opener exists:', !!window.opener);
+          console.log('Current origin:', window.location.origin);
           
           const userData = {
             type: 'CAS_AUTH_SUCCESS',
@@ -161,41 +165,40 @@ export async function GET(request: NextRequest) {
             returnTo: ${JSON.stringify(returnTo)}
           };
           
+          console.log('userData to send:', userData);
+          
           if (window.opener) {
-            console.log('[CAS Callback] Sending message to parent window');
+            console.log('✅ Opener window found - sending postMessage');
             
-            // Send to all possible origins - the browser will deliver to the correct one
-            const origins = ['https://osdg.in', 'http://localhost:3000'];
+            // Send to all possible origins
+            try {
+              window.opener.postMessage(userData, '*');
+              console.log('✅ Message sent with wildcard origin');
+            } catch (err) {
+              console.error('❌ Error sending message:', err);
+            }
             
-            origins.forEach(origin => {
-              try {
-                console.log('[CAS Callback] Sending to origin:', origin);
-                window.opener.postMessage(userData, origin);
-              } catch (err) {
-                console.error('[CAS Callback] Error sending to', origin, err);
-              }
-            });
-            
-            console.log('[CAS Callback] Messages sent, waiting before close');
-            
-            // Wait longer to ensure message is received
+            // Close window after delay
+            console.log('Waiting 2 seconds before closing...');
             setTimeout(() => {
-              console.log('[CAS Callback] Closing popup window');
+              console.log('Closing popup window now');
               window.close();
-            }, 1000);
+            }, 2000);
           } else {
-            console.error('[CAS Callback] No opener window found!');
-            alert('Authentication successful! Please close this window and refresh the main page.');
+            console.error('❌ No opener window - redirecting to main site');
+            setTimeout(() => {
+              window.location.href = '${origin}/?casAuth=success&username=' + encodeURIComponent(${JSON.stringify(user.username)});
+            }, 2000);
           }
         </script>
-        <h2>Authentication Successful!</h2>
-        <p>Closing window and logging you in...</p>
-        <p style="color: #666; font-size: 12px;">If this window doesn't close, you can close it manually.</p>
       </body>
     </html>`,
     {
       status: 200,
-      headers: { 'Content-Type': 'text/html' },
+      headers: { 
+        'Content-Type': 'text/html',
+        'Access-Control-Allow-Origin': '*',
+      },
     }
   );
 }
