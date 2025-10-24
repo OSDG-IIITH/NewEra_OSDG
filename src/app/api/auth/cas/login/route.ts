@@ -4,23 +4,22 @@ import { NextRequest, NextResponse } from 'next/server';
 const CAS_BASE_URL = process.env.CAS_BASE_URL || 'https://login.iiit.ac.in/cas';
 
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const returnTo = searchParams.get('returnTo') || '/';
   
   console.log('[CAS Login] === CAS LOGIN REQUEST ===');
-  console.log('[CAS Login] Origin:', origin);
   console.log('[CAS Login] ReturnTo:', returnTo);
   
-  // IMPORTANT: Use osdg.in for callback so CAS redirects back here
-  // We'll try localhost validation first, then fallback if needed
-  const callbackUrl = `${origin}/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
+  // Use osdg.iiit.ac.in which IS whitelisted by IT office
+  const serviceUrl = `https://osdg.iiit.ac.in/forms/api/auth/login/callback?returnTo=${encodeURIComponent(returnTo)}`;
   
-  console.log('[CAS Login] Using callback URL:', callbackUrl);
+  console.log('[CAS Login] Using whitelisted service URL:', serviceUrl);
   
-  // Build CAS login URL with osdg.in callback
-  const casLoginUrl = `${CAS_BASE_URL}/login?service=${encodeURIComponent(callbackUrl)}`;
+  // Build CAS login URL
+  const casLoginUrl = `${CAS_BASE_URL}/login?service=${encodeURIComponent(serviceUrl)}`;
   
   console.log('[CAS Login] ✅ Redirecting to CAS:', casLoginUrl);
   
+  // Redirect the entire page to CAS (no popup)
   return NextResponse.redirect(casLoginUrl);
 }
