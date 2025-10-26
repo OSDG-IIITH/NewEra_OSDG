@@ -1,7 +1,7 @@
 // CAS Authentication callback route - Bridge for production
 import { NextRequest, NextResponse } from 'next/server';
 
-const CAS_BASE_URL = process.env.CAS_BASE_URL || 'https://login.iiit.ac.in/cas';
+const CAS_BASE_URL = process.env.CAS_BASE_URL || 'https://login-test2.iiit.ac.in/cas';
 
 interface CASResponse {
   serviceResponse: {
@@ -60,31 +60,30 @@ async function validateCASTicket(ticket: string, service: string): Promise<CASUs
 }
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
+  const { searchParams, origin } = new URL(request.url);
   const ticket = searchParams.get('ticket');
   const returnTo = searchParams.get('returnTo') || '/';
   
   console.log('[CAS Callback] === CALLBACK RECEIVED ===');
   console.log('[CAS Callback] Full URL:', request.url);
+  console.log('[CAS Callback] Origin:', origin);
   console.log('[CAS Callback] Ticket:', ticket ? `Present (${ticket.substring(0, 30)}...)` : 'Missing');
   console.log('[CAS Callback] ReturnTo:', returnTo);
   
   if (!ticket) {
     console.error('[CAS Callback] ❌ No ticket provided');
-    return NextResponse.redirect(`https://osdg.in/?error=no-ticket`);
+    return NextResponse.redirect(`${origin}/?error=no-ticket`);
   }
   
-  // IMPORTANT: We validate using the WHITELISTED service URL
-  // Even though we're on osdg.in, we tell CAS we were validating for osdg.iiit.ac.in
-  // This is the workaround since osdg.in is not whitelisted
-  const serviceUrl = `https://osdg.iiit.ac.in/forms/api/auth/login/callback?returnTo=${encodeURIComponent(returnTo)}`;
-  console.log('[CAS Callback] Validating with whitelisted service URL:', serviceUrl);
+  // Validate using the same service URL that was sent to CAS
+  const serviceUrl = `${origin}/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
+  console.log('[CAS Callback] Validating with service URL:', serviceUrl);
   
   const user = await validateCASTicket(ticket, serviceUrl);
   
   if (!user) {
     console.error('[CAS Callback] ❌ User validation failed');
-    return NextResponse.redirect(`https://osdg.in/?error=validation-failed`);
+    return NextResponse.redirect(`${origin}/?error=validation-failed`);
   }
   
   console.log('[CAS Callback] ✅✅✅ SUCCESS! User authenticated ✅✅✅');
@@ -92,14 +91,14 @@ export async function GET(request: NextRequest) {
   console.log('[CAS Callback] Name:', user.name);
   console.log('[CAS Callback] Email:', user.email);
   
-  // Redirect to osdg.in with user data
-  const redirectUrl = new URL(returnTo, 'https://osdg.in');
+  // Redirect back with user data
+  const redirectUrl = new URL(returnTo, origin);
   redirectUrl.searchParams.set('casAuth', 'success');
   redirectUrl.searchParams.set('username', user.username);
   redirectUrl.searchParams.set('name', user.name);
   redirectUrl.searchParams.set('email', user.email);
   
-  console.log('[CAS Callback] ✅ Redirecting to osdg.in:', redirectUrl.toString());
+  console.log('[CAS Callback] ✅ Redirecting to:', redirectUrl.toString());
   
   return NextResponse.redirect(redirectUrl.toString());
 }

@@ -1,47 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
+import fs from 'fs';
+import path from 'path';
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'your-secret-key');
+const DATA_DIR = path.join(process.cwd(), 'data');
+const PROJECTS_FILE = path.join(DATA_DIR, 'projects.json');
 
-// In-memory storage for now
-// For Docker persistent storage, you can:
-// 1. Use a volume-mounted JSON file: const fs = require('fs'); const path = '/data/projects.json';
-// 2. Connect to a database (MongoDB, PostgreSQL, etc.) via environment variables
-// 3. Use Docker volumes: docker run -v /path/on/host:/data your-image
-let projects: any[] = [];
+// Ensure data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+// Load projects from file
+function loadProjects(): any[] {
+  try {
+    if (fs.existsSync(PROJECTS_FILE)) {
+      const data = fs.readFileSync(PROJECTS_FILE, 'utf-8');
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error('Error loading projects:', error);
+  }
+  return [];
+}
+
+// Save projects to file
+function saveProjects(projects: any[]): void {
+  try {
+    fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projects, null, 2), 'utf-8');
+  } catch (error) {
+    console.error('Error saving projects:', error);
+  }
+}
 
 export async function GET() {
+  const projects = loadProjects();
   return NextResponse.json({ projects });
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication using JWT token from cas-auth cookie
-    const token = request.cookies.get('cas-auth')?.value;
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized - Please login' }, { status: 401 });
-    }
-
-    // Verify JWT token
-    let user;
-    try {
-      const { payload } = await jwtVerify(token, JWT_SECRET);
-      user = {
-        username: payload.username,
-        name: payload.name,
-        email: payload.email
-      };
-    } catch (jwtError) {
-      console.error('JWT verification failed:', jwtError);
-      return NextResponse.json({ error: 'Invalid or expired session' }, { status: 401 });
-    }
-
     const body = await request.json();
-    const { title, description, siteLink, dateInitiated, instructionBook, imageUrl } = body;
+    const { title, description, siteLink, dateInitiated, instructionBook, imageUrl, addedBy } = body;
 
     if (!title || !description || !siteLink || !dateInitiated) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
+
+    const projects = loadProjects();
 
     const newProject = {
       id: Date.now().toString(),
@@ -51,11 +56,14 @@ export async function POST(request: NextRequest) {
       dateInitiated,
       instructionBook: instructionBook || '',
       imageUrl: imageUrl || '',
-      addedBy: user.username,
+      addedBy: addedBy || 'Anonymous',
       createdAt: new Date().toISOString(),
     };
 
     projects.unshift(newProject);
+    saveProjects(projects);
+
+    console.log('[Projects API] New project added:', newProject.title);
 
     return NextResponse.json({ project: newProject }, { status: 201 });
   } catch (error) {

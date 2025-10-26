@@ -40,5 +40,8 @@ next-env.d.ts
 Pipfile
 Pipfile.lock
 
+# Persistent data storage
+/data
+
 ## team-members.json
 src/data/teams.json

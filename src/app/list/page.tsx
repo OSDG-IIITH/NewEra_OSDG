@@ -56,7 +56,10 @@ export default function ListPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          addedBy: user?.username || 'Anonymous',
+        }),
       });
 
       if (response.ok) {
@@ -71,9 +74,13 @@ export default function ListPage() {
           imageUrl: '',
         });
         setShowAddForm(false);
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to add project');
       }
     } catch (error) {
       console.error('Error adding project:', error);
+      alert('Failed to add project. Please try again.');
     }
   };
 

@@ -14,4 +14,13 @@ services:
         networks:
             website_network:
                 ipv4_address: 172.21.1.2
+        ports:
+            - "3000:80"
+        volumes:
+            # Mount the data directory for persistent project storage
+            - ./data:/app/data
+        environment:
+            - NODE_ENV=production
+        restart: unless-stopped
+        container_name: osdg-web
         tty: true
