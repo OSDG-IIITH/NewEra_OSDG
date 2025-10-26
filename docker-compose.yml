@@ -21,6 +21,10 @@ services:
             - ./data:/app/data
         environment:
             - NODE_ENV=production
+            # CAS Authentication Server
+            # Use login-test2.iiit.ac.in for testing (whitelisted)
+            # Use login.iiit.ac.in for production (requires osdg.in to be whitelisted)
+            - CAS_BASE_URL=https://login-test2.iiit.ac.in/cas
         restart: unless-stopped
         container_name: osdg-web
         tty: true

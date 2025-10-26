@@ -1,0 +1,41 @@
+version: '3.8'
+
+# Production Docker Compose Configuration for osdg.in
+# Usage: docker-compose -f docker-compose.prod.yml up -d
+
+networks:
+  website_network:
+    ipam:
+      config:
+        - subnet: 172.21.1.0/24
+
+services:
+    website:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        networks:
+            website_network:
+                ipv4_address: 172.21.1.2
+        ports:
+            # Expose on port 8080 internally, Nginx will proxy to this
+            - "8080:80"
+        volumes:
+            # Mount the data directory for persistent project storage
+            - ./data:/app/data
+        environment:
+            - NODE_ENV=production
+            # Production CAS Server (login-test2 is whitelisted for osdg.in)
+            - CAS_BASE_URL=https://login-test2.iiit.ac.in/cas
+            # Optional: Explicit hostname for production
+            - HOSTNAME=osdg.in
+        restart: unless-stopped
+        container_name: osdg-web-prod
+        tty: true
+        # Health check for monitoring
+        healthcheck:
+          test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80"]
+          interval: 30s
+          timeout: 10s
+          retries: 3
+          start_period: 40s
