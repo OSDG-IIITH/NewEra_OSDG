@@ -83,7 +83,7 @@ const TeamPage: React.FC = () => {
         </h2>
         <div className="flex justify-center gap-24 flex-wrap">
           {sortedCoordinators.map((member, idx) => (
-            <MemberCard key={idx} member={member} showRole />
+            <MemberCard key={idx} member={member} />
           ))}
         </div>
       </div>
