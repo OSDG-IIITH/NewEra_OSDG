@@ -1,8 +1,13 @@
 // CAS Authentication callback route - Bridge for production
 import { NextRequest, NextResponse } from 'next/server';
 
-// Hardcoded to use login-test2 (no whitelisting required, works on IIIT WiFi)
-const CAS_BASE_URL = 'https://login-test2.iiit.ac.in/cas';
+// Use login-test2 for localhost (IIIT WiFi), production CAS for deployed sites
+const getCASBaseURL = (origin: string): string => {
+  if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+    return 'https://login-test2.iiit.ac.in/cas'; // Test server - only works on IIIT WiFi
+  }
+  return 'https://login.iiit.ac.in/cas'; // Production server - accessible from anywhere (needs whitelisting)
+};
 
 interface CASResponse {
   serviceResponse: {
@@ -26,8 +31,11 @@ interface CASUser {
   email: string;
 }
 
-async function validateCASTicket(ticket: string, service: string): Promise<CASUser | null> {
+async function validateCASTicket(ticket: string, service: string, origin: string): Promise<CASUser | null> {
   try {
+    // Get the appropriate CAS server based on origin
+    const CAS_BASE_URL = getCASBaseURL(origin);
+    
     // Build validation URL with JSON format
     const validateUrl = `${CAS_BASE_URL}/serviceValidate?service=${encodeURIComponent(service)}&ticket=${encodeURIComponent(ticket)}&format=JSON`;
     
@@ -93,7 +101,7 @@ export async function GET(request: NextRequest) {
   const serviceUrl = `${normalizedOrigin}/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
   console.log('[CAS Callback] Validating with service URL:', serviceUrl);
   
-  const user = await validateCASTicket(ticket, serviceUrl);
+  const user = await validateCASTicket(ticket, serviceUrl, normalizedOrigin);
   
   if (!user) {
     console.error('[CAS Callback] ❌ User validation failed');
