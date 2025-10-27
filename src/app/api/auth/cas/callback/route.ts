@@ -31,31 +31,37 @@ async function validateCASTicket(ticket: string, service: string): Promise<CASUs
     // Build validation URL with JSON format
     const validateUrl = `${CAS_BASE_URL}/serviceValidate?service=${encodeURIComponent(service)}&ticket=${encodeURIComponent(ticket)}&format=JSON`;
     
+    console.log('[CAS Validation] Sending validation request...');
+    console.log('[CAS Validation] URL:', validateUrl);
+    
     const response = await fetch(validateUrl);
     const data: CASResponse = await response.json();
     
-    console.log('CAS Response:', JSON.stringify(data, null, 2)); // For debugging
+    console.log('[CAS Validation] Response received:', JSON.stringify(data, null, 2));
     
     // Check for authentication failure
     if (data.serviceResponse.authenticationFailure) {
-      console.error('CAS Authentication failed:', data.serviceResponse.authenticationFailure);
+      console.error('[CAS Validation] ❌ CAS Authentication failed:', data.serviceResponse.authenticationFailure);
+      console.error('[CAS Validation] Code:', data.serviceResponse.authenticationFailure.code);
+      console.error('[CAS Validation] Description:', data.serviceResponse.authenticationFailure.description);
       return null;
     }
     
     // Extract user attributes
     const attributes = data.serviceResponse.authenticationSuccess?.attributes;
     if (!attributes || !attributes.uid || !attributes.uid[0]) {
-      console.error('No user ID in CAS response');
+      console.error('[CAS Validation] ❌ No user ID in CAS response');
       return null;
     }
     
+    console.log('[CAS Validation] ✅ User attributes extracted');
     return {
       username: attributes.uid[0],
       name: attributes.Name?.[0] || attributes.uid[0],
       email: attributes['E-Mail']?.[0] || `${attributes.uid[0]}@students.iiit.ac.in`,
     };
   } catch (error) {
-    console.error('CAS validation error:', error);
+    console.error('[CAS Validation] ❌ CAS validation error:', error);
     return null;
   }
 }
