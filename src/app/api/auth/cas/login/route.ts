@@ -12,8 +12,15 @@ export async function GET(request: NextRequest) {
   console.log('[CAS Login] Origin:', origin);
   console.log('[CAS Login] ReturnTo:', returnTo);
   
-  // Use the current domain (osdg.in or localhost) for callback
-  const callbackUrl = `${origin}/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
+  // Normalize origin: remove www. prefix for CAS compatibility
+  let normalizedOrigin = origin;
+  if (normalizedOrigin.includes('www.')) {
+    normalizedOrigin = normalizedOrigin.replace('://www.', '://');
+  }
+  console.log('[CAS Login] Normalized Origin:', normalizedOrigin);
+  
+  // Use the normalized domain (osdg.in or localhost) for callback
+  const callbackUrl = `${normalizedOrigin}/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
   
   console.log('[CAS Login] Using callback URL:', callbackUrl);
   

@@ -76,15 +76,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/?error=no-ticket`);
   }
   
+  // Normalize origin: remove www. prefix for CAS compatibility
+  let normalizedOrigin = origin;
+  if (normalizedOrigin.includes('www.')) {
+    normalizedOrigin = normalizedOrigin.replace('://www.', '://');
+  }
+  console.log('[CAS Callback] Normalized Origin:', normalizedOrigin);
+  
   // Validate using the same service URL that was sent to CAS
-  const serviceUrl = `${origin}/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
+  const serviceUrl = `${normalizedOrigin}/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
   console.log('[CAS Callback] Validating with service URL:', serviceUrl);
   
   const user = await validateCASTicket(ticket, serviceUrl);
   
   if (!user) {
     console.error('[CAS Callback] ❌ User validation failed');
-    return NextResponse.redirect(`${origin}/?error=validation-failed`);
+    return NextResponse.redirect(`${normalizedOrigin}/?error=validation-failed`);
   }
   
   console.log('[CAS Callback] ✅✅✅ SUCCESS! User authenticated ✅✅✅');
@@ -92,8 +99,8 @@ export async function GET(request: NextRequest) {
   console.log('[CAS Callback] Name:', user.name);
   console.log('[CAS Callback] Email:', user.email);
   
-  // Redirect back with user data
-  const redirectUrl = new URL(returnTo, origin);
+  // Redirect back with user data (use normalized origin)
+  const redirectUrl = new URL(returnTo, normalizedOrigin);
   redirectUrl.searchParams.set('casAuth', 'success');
   redirectUrl.searchParams.set('username', user.username);
   redirectUrl.searchParams.set('name', user.name);
