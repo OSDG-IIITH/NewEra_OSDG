@@ -1,7 +1,8 @@
 // CAS Authentication API route for login
 import { NextRequest, NextResponse } from 'next/server';
 
-const CAS_BASE_URL = process.env.CAS_BASE_URL || 'https://login-test2.iiit.ac.in/cas';
+// Hardcoded to use login-test2 (no whitelisting required, works on IIIT WiFi)
+const CAS_BASE_URL = 'https://login-test2.iiit.ac.in/cas';
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);

@@ -1,7 +1,8 @@
 // CAS Authentication callback route - Bridge for production
 import { NextRequest, NextResponse } from 'next/server';
 
-const CAS_BASE_URL = process.env.CAS_BASE_URL || 'https://login-test2.iiit.ac.in/cas';
+// Hardcoded to use login-test2 (no whitelisting required, works on IIIT WiFi)
+const CAS_BASE_URL = 'https://login-test2.iiit.ac.in/cas';
 
 interface CASResponse {
   serviceResponse: {
