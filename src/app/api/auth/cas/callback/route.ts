@@ -85,31 +85,97 @@ export async function GET(request: NextRequest) {
   }
   
   // Hardcode production URL to www.osdg.in, use origin for localhost
-  // This MUST match exactly what was sent to CAS during login
   const baseUrl = origin.includes('localhost') ? origin : 'https://www.osdg.in';
   const serviceUrl = `${baseUrl}/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
-  console.log('[CAS Callback] Validating with service URL:', serviceUrl);
   
-  const user = await validateCASTicket(ticket, serviceUrl);
+  console.log('[CAS Callback] Using CLIENT-SIDE validation (requires IIIT WiFi)');
+  console.log('[CAS Callback] Service URL:', serviceUrl);
   
-  if (!user) {
-    console.error('[CAS Callback] ❌ User validation failed');
-    return NextResponse.redirect(`${baseUrl}/?error=validation-failed`);
-  }
+  // Return HTML page that validates ticket in browser (only works on IIIT WiFi)
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Completing CAS Login...</title>
+  <style>
+    body { font-family: system-ui; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #0a0a0a; color: #fff; }
+    .container { text-align: center; max-width: 500px; padding: 2rem; }
+    .spinner { border: 3px solid #333; border-top: 3px solid #fff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .error { color: #ff6b6b; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="spinner"></div>
+    <h2>Completing CAS Login...</h2>
+    <p>Validating your credentials (requires IIIT WiFi)</p>
+    <div id="status"></div>
+  </div>
+  <script>
+    (async function() {
+      const statusEl = document.getElementById('status');
+      
+      try {
+        const ticket = '${ticket}';
+        const returnTo = '${returnTo}';
+        const serviceUrl = '${serviceUrl}';
+        
+        statusEl.textContent = 'Contacting CAS server...';
+        
+        // Validate ticket from browser (only works on IIIT WiFi with CORS)
+        const validateUrl = '${CAS_BASE_URL}/serviceValidate?service=' + encodeURIComponent(serviceUrl) + '&ticket=' + encodeURIComponent(ticket) + '&format=JSON';
+        
+        console.log('[Client CAS] Validating ticket:', validateUrl);
+        
+        const response = await fetch(validateUrl, { 
+          credentials: 'omit',
+          mode: 'cors'
+        });
+        
+        if (!response.ok) {
+          throw new Error('CAS returned status ' + response.status);
+        }
+        
+        const data = await response.json();
+        console.log('[Client CAS] Response:', data);
+        
+        if (data.serviceResponse && data.serviceResponse.authenticationSuccess) {
+          const attrs = data.serviceResponse.authenticationSuccess.attributes || {};
+          const username = (attrs.uid && attrs.uid[0]) || attrs.uid || 'cas_user';
+          const name = (attrs.Name && attrs.Name[0]) || attrs.Name || username;
+          const email = (attrs['E-Mail'] && attrs['E-Mail'][0]) || attrs['E-Mail'] || (username + '@students.iiit.ac.in');
+          
+          statusEl.textContent = 'Authentication successful! Logging you in...';
+          
+          // Send validated data to server to create session
+          const completeResp = await fetch('/api/auth/cas/complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, name, email })
+          });
+          
+          if (completeResp.ok) {
+            window.location.href = returnTo;
+          } else {
+            throw new Error('Server session creation failed');
+          }
+        } else if (data.serviceResponse && data.serviceResponse.authenticationFailure) {
+          throw new Error('CAS authentication failed: ' + (data.serviceResponse.authenticationFailure.description || 'Unknown error'));
+        } else {
+          throw new Error('Unexpected CAS response format');
+        }
+      } catch (error) {
+        console.error('[Client CAS] Error:', error);
+        statusEl.innerHTML = '<div class="error">❌ Authentication failed: ' + error.message + '<br><br>Make sure you are on IIIT WiFi.<br><a href="/" style="color: #4da6ff;">Go back to home</a></div>';
+      }
+    })();
+  </script>
+</body>
+</html>`;
   
-  console.log('[CAS Callback] ✅✅✅ SUCCESS! User authenticated ✅✅✅');
-  console.log('[CAS Callback] Username:', user.username);
-  console.log('[CAS Callback] Name:', user.name);
-  console.log('[CAS Callback] Email:', user.email);
-  
-  // Redirect back with user data - use same baseUrl for consistency
-  const redirectUrl = new URL(returnTo, baseUrl);
-  redirectUrl.searchParams.set('casAuth', 'success');
-  redirectUrl.searchParams.set('username', user.username);
-  redirectUrl.searchParams.set('name', user.name);
-  redirectUrl.searchParams.set('email', user.email);
-  
-  console.log('[CAS Callback] ✅ Redirecting to:', redirectUrl.toString());
-  
-  return NextResponse.redirect(redirectUrl.toString());
+  return new NextResponse(html, {
+    status: 200,
+    headers: { 'Content-Type': 'text/html; charset=utf-8' }
+  });
 }
