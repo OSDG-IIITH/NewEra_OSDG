@@ -1,7 +1,7 @@
 // CAS Authentication callback route - Bridge for production
 import { NextRequest, NextResponse } from 'next/server';
 
-// Hardcoded to use login-test2 (no whitelisting required, works on IIIT WiFi)
+// Hardcoded to use login-test2 (whitelisted by IT)
 const CAS_BASE_URL = 'https://login-test2.iiit.ac.in/cas';
 
 interface CASResponse {
@@ -76,9 +76,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/?error=no-ticket`);
   }
   
-  // IMPORTANT: Use the EXACT origin that CAS redirected to for validation
-  // This must match the service URL that was sent to CAS in the login request
-  // CAS will reject validation if the service URL doesn't match exactly
+  // Build service URL using exact origin (must match what was sent to CAS)
   const serviceUrl = `${origin}/api/auth/cas/callback?returnTo=${encodeURIComponent(returnTo)}`;
   console.log('[CAS Callback] Validating with service URL:', serviceUrl);
   
@@ -86,10 +84,6 @@ export async function GET(request: NextRequest) {
   
   if (!user) {
     console.error('[CAS Callback] ❌ User validation failed');
-    console.error('[CAS Callback] This usually means:');
-    console.error('[CAS Callback] 1. Service URL mismatch between login and callback');
-    console.error('[CAS Callback] 2. Ticket expired or already used');
-    console.error('[CAS Callback] 3. Service not whitelisted in CAS');
     return NextResponse.redirect(`${origin}/?error=validation-failed`);
   }
   
