@@ -31,23 +31,31 @@ async function validateCASTicket(ticket: string, service: string): Promise<CASUs
     // Build validation URL with JSON format
     const validateUrl = `${CAS_BASE_URL}/serviceValidate?service=${encodeURIComponent(service)}&ticket=${encodeURIComponent(ticket)}&format=JSON`;
     
-    const response = await fetch(validateUrl);
-    const data: CASResponse = await response.json();
+    console.log('[CAS Validate] === TICKET VALIDATION ===');
+    console.log('[CAS Validate] Service URL:', service);
+    console.log('[CAS Validate] Ticket:', ticket);
+    console.log('[CAS Validate] Validation URL:', validateUrl);
     
-    console.log('CAS Response:', JSON.stringify(data, null, 2)); // For debugging
+    const response = await fetch(validateUrl);
+    console.log('[CAS Validate] Response status:', response.status);
+    
+    const data: CASResponse = await response.json();
+    console.log('[CAS Validate] Full CAS Response:', JSON.stringify(data, null, 2));
     
     // Check for authentication failure
     if (data.serviceResponse.authenticationFailure) {
-      console.error('CAS Authentication failed:', data.serviceResponse.authenticationFailure);
+      console.error('[CAS Validate] ❌ Authentication failed:', data.serviceResponse.authenticationFailure);
       return null;
     }
     
     // Extract user attributes
     const attributes = data.serviceResponse.authenticationSuccess?.attributes;
     if (!attributes || !attributes.uid || !attributes.uid[0]) {
-      console.error('No user ID in CAS response');
+      console.error('[CAS Validate] ❌ No user ID in CAS response');
       return null;
     }
+    
+    console.log('[CAS Validate] ✅ Validation successful! User:', attributes.uid[0]);
     
     return {
       username: attributes.uid[0],
@@ -55,7 +63,7 @@ async function validateCASTicket(ticket: string, service: string): Promise<CASUs
       email: attributes['E-Mail']?.[0] || `${attributes.uid[0]}@students.iiit.ac.in`,
     };
   } catch (error) {
-    console.error('CAS validation error:', error);
+    console.error('[CAS Validate] ❌ Exception during validation:', error);
     return null;
   }
 }
