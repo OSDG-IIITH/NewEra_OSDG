@@ -11,9 +11,9 @@ export default function GuidePage() {
         {/* Header */}
         <div className="mb-12 md:mb-16">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-oxanium font-bold text-cyan-400 mb-4 md:mb-6">
-            Getting Started with Free/Libre and Open Source Software
+            Getting Started with FOSS
           </h1>
-          <div className="h-1 w-24 bg-cyan-400/50 mb-6 md:mb-8"></div>
+          
         </div>
 
         {/* Content */}
