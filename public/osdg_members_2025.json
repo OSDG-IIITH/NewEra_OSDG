@@ -88,5 +88,47 @@
     "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3DFGVWanTfnRuyadWzEbNsnv_ProfileImage.png&w=1080&q=75",
     "team": "Coordinators",
     "year": "2025-present"
+  },
+  {
+    "name": "Aman Jayesh",
+    "profile_picture_url": "/aman.jpg",
+    "team": "Social Media & Design",
+    "year": "2025-present"
+  },
+  {
+    "name": "Shreyas Deb",
+    "profile_picture_url": "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3DXWqu3ZhTKfxAeiZgwjuxqB_profile_shreyas.deb.png&w=1080&q=75",
+    "team": "Tech Team",
+    "year": "2025-present"
+  },
+  {
+    "name": "Kaushik Yadala",
+    "profile_picture_url": "/kaushik.jpg",
+    "team": "Events & Logistics",
+    "year": "2025-present"
+  },
+  {
+    "name": "Ananya Kasavajhala",
+    "profile_picture_url": "/ananya.jpg",
+    "team": "Social Media & Design",
+    "year": "2025-present"
+  },
+  {
+    "name": "Anushka Sinha",
+    "profile_picture_url": "/anushka.jpg",
+    "team": "Social Media & Design",
+    "year": "2025-present"
+  },
+  {
+    "name": "Vedant Kulkarni",
+    "profile_picture_url": "",
+    "team": "Tech Team",
+    "year": "2025-present"
+  },
+  {
+    "name": "Arnav Pai",
+    "profile_picture_url": "",
+    "team": "Tech Team",
+    "year": "2025-present"
   }
 ]

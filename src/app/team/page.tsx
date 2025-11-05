@@ -52,12 +52,20 @@ const TeamPage: React.FC = () => {
   const MemberCard = ({ member, showRole = false }: { member: TeamMember; showRole?: boolean }) => (
     <div className="flex flex-col items-center group">
       <div className="relative w-64 h-64 mb-4 rounded-full overflow-hidden border-2 border-cyan-500/30 group-hover:border-cyan-400 transition-all duration-300">
-        <Image
-          src={member.profile_picture_url}
-          alt={member.name}
-          fill
-          className="object-cover"
-        />
+        {member.profile_picture_url ? (
+          <Image
+            src={member.profile_picture_url}
+            alt={member.name}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-black flex items-center justify-center p-8">
+            <p className="text-gray-400 text-center text-sm font-oxanium leading-relaxed">
+              Redacted due to privacy concerns
+            </p>
+          </div>
+        )}
       </div>
       <h3 className="text-cyan-400 font-semibold text-center text-lg font-oxanium">{member.name}</h3>
       {showRole && <p className="text-gray-400 text-sm text-center font-oxanium">{member.team}</p>}
