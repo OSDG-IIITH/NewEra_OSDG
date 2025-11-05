@@ -23,7 +23,7 @@ const ABOUT_LINES = [
   " ",
   "    And as a distinguished arm of the Center for Open Source, IIIT-H, OSDG empowers passionate contributors for mastering open-source development.",
   " ",
-  "    Through competitive programs like Google Summer of Code, impactful projects & dynamic events, we set the benchmark for open-source excellence.",
+  "    Through competitive programs like Google Summer of Code, impactful projects & events, we set the benchmark for open-source excellence.",
   "-------------------------------------------------------------------"
 ];
 
@@ -280,7 +280,7 @@ export default function HomePage() {
       <section className="flex flex-col justify-center items-center min-h-screen text-center relative overflow-hidden px-4 md:px-4">
         <div className="flex flex-col items-center justify-center w-full max-w-full">
           {/* Tech Frame Animation Container */}
-          <div className="relative inline-block w-full max-w-full overflow-visible">
+          <div className="relative inline-block">
             {/* Top Left Corner SVG */}
             {!skipAnimation && (
             <svg
