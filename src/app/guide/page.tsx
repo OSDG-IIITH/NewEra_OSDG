@@ -140,15 +140,15 @@ export default function GuidePage() {
               Extend and Contribute Back
             </h2>
             <p className="text-base sm:text-lg leading-relaxed">
-              Sooner or later, you'll find a library that <span className="text-white font-semibold">almost</span> does what you need. 
-              Maybe the Moodle connector doesn't support your specific authentication method, or the mail library has a small bug.
+              Sooner or later, you&apos;ll find a library that <span className="text-white font-semibold">almost</span> does what you need. 
+              Maybe the Moodle connector doesn&apos;t support your specific authentication method, or the mail library has a small bug.
             </p>
             <p className="text-xl sm:text-2xl text-cyan-400 font-bold my-6">
               This is your moment.
             </p>
             <p className="text-base sm:text-lg leading-relaxed">
-              You can now dive into that library's code, make the change you need, and submit it back to the original project. 
-              Your first contribution isn't a random bug fix for a project you don't use; it's a{' '}
+              You can now dive into that library&apos;s code, make the change you need, and submit it back to the original project. 
+              Your first contribution isn&apos;t a random bug fix for a project you don&apos;t use; it&apos;s a{' '}
               <span className="text-cyan-400 font-semibold">feature you genuinely need</span>, which will also benefit others :)
             </p>
           </section>
@@ -159,7 +159,7 @@ export default function GuidePage() {
               Our Open Source Developers Group
             </h2>
             <p className="text-base sm:text-lg leading-relaxed">
-              "Open source" doesn't just mean contributing to some established library on GitHub. It starts local - find a group of 
+              &quot;Open source&quot; doesn&apos;t just mean contributing to some established library on GitHub. It starts local - find a group of 
               people you know with a common problem and build something leveraging open source tools to solve it!
             </p>
             <p className="text-base sm:text-lg leading-relaxed">
@@ -178,8 +178,8 @@ export default function GuidePage() {
             </p>
             <div className="mt-6 p-4 bg-black/30 rounded-md border border-cyan-500/20">
               <p className="text-base sm:text-lg leading-relaxed text-cyan-400">
-                Start by using projects built by our community. When you find a bug or think of an improvement, you'll have a familiar 
-                and supportive group of people to help you make your first contribution. Let's build and learn together!
+                Start by using projects built by our community. When you find a bug or think of an improvement, you&apos;ll have a familiar 
+                and supportive group of people to help you make your first contribution. Let&apos;s build and learn together!
               </p>
             </div>
           </section>
