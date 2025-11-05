@@ -275,7 +275,7 @@ CRITICAL INSTRUCTIONS:
     
     // Return sassy error message in streaming format
     const encoder = new TextEncoder();
-    const errorMessage = "I choose not to answer that. Now buzz off!";
+    const errorMessage = "I am currently talking to my love. I will be back in a few.";
     
     const stream = new ReadableStream({
       start(controller) {
