@@ -62,11 +62,11 @@ export default function GuidePage() {
               But Where Do I Start?
             </h2>
             <p className="text-base sm:text-lg leading-relaxed">
-              This is the most common hurdle. You're excited, you want to contribute, but the world of open source seems vast and intimidating. 
+              This is the most common hurdle. You&apos;re excited, you want to contribute, but the world of open source seems vast and intimidating. 
               The idea of cloning a massive, unfamiliar repository and trying to fix a bug feels alien and overwhelming.
             </p>
             <p className="text-base sm:text-lg leading-relaxed">
-              If you feel this way, <span className="text-cyan-400 font-semibold">you are not alone</span>. Let's reframe the entire approach.
+              If you feel this way, <span className="text-cyan-400 font-semibold">you are not alone</span>. Let&apos;s reframe the entire approach.
             </p>
           </section>
 
@@ -111,7 +111,7 @@ export default function GuidePage() {
               <li className="text-base sm:text-lg leading-relaxed flex items-start">
                 <span className="text-cyan-400 mr-3 flex-shrink-0">→</span>
                 <span>
-                  Have to find someone's birthday? Write a script that{' '}
+                  Have to find someone&apos;s birthday? Write a script that{' '}
                   <span className="text-white font-semibold">searches LDAP</span> for it.
                 </span>
               </li>
@@ -124,7 +124,7 @@ export default function GuidePage() {
               Discover and Use Open Source Libraries
             </h2>
             <p className="text-base sm:text-lg leading-relaxed">
-              As you build your mini-project, you'll quickly realize you don't have to build everything from scratch. You'll search for 
+              As you build your mini-project, you&apos;ll quickly realize you don&apos;t have to build everything from scratch. You&apos;ll search for 
               libraries to parse a PDF, make an HTTP request, or connect to a mail server.
             </p>
             <p className="text-base sm:text-lg leading-relaxed">
