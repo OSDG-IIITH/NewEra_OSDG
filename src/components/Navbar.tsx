@@ -47,7 +47,7 @@ export default function Navbar() {
               Linux Installation Guide
             </Link> */}
             <Link className={linkClass} href="/list">
-              List
+              Showcase
             </Link>
             <Link className={linkClass} href="/vpn-setup">
               VPN Setup
@@ -145,7 +145,7 @@ export default function Navbar() {
               href="/list"
               className="block px-3 py-2 text-base font-medium rounded-md hover:bg-[#3E4050] transition duration-300"
             >
-              /list
+              Showcase
             </Link>
             <Link
               href="/vpn-setup"

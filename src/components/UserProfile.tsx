@@ -32,8 +32,8 @@ export default function UserProfile({ className = '' }: { className?: string }) 
         <LogOut className="w-5 h-5" />
       </button>
       
-      {/* Tooltip */}
-      {showTooltip && (
+      {/* Tooltip - Commented out for future functionality */}
+      {/* {showTooltip && (
         <div className="absolute right-0 top-full mt-2 w-64 bg-gray-900 border border-gray-700 rounded-lg shadow-xl p-3 z-50 animate-fadeIn">
           <div className="text-sm font-medium text-gray-200 mb-1">
             {user.name}
@@ -52,7 +52,7 @@ export default function UserProfile({ className = '' }: { className?: string }) 
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

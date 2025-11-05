@@ -1,31 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-
-const DATA_DIR = path.join(process.cwd(), 'data');
-const PROJECTS_FILE = path.join(DATA_DIR, 'projects.json');
-
-// Load projects from file
-function loadProjects(): any[] {
-  try {
-    if (fs.existsSync(PROJECTS_FILE)) {
-      const data = fs.readFileSync(PROJECTS_FILE, 'utf-8');
-      return JSON.parse(data);
-    }
-  } catch (error) {
-    console.error('Error loading projects:', error);
-  }
-  return [];
-}
-
-// Save projects to file
-function saveProjects(projects: any[]): void {
-  try {
-    fs.writeFileSync(PROJECTS_FILE, JSON.stringify(projects, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error saving projects:', error);
-  }
-}
+import { supabase } from '@/utils/supabase';
 
 export async function DELETE(
   request: NextRequest,
@@ -33,21 +7,23 @@ export async function DELETE(
 ) {
   try {
     const projectId = params.id;
-    const projects = loadProjects();
+    console.log('[Projects API] DELETE request for project:', projectId);
     
-    const filteredProjects = projects.filter(p => p.id !== projectId);
+    const { error } = await supabase
+      .from('projects')
+      .delete()
+      .eq('id', projectId);
     
-    if (filteredProjects.length === projects.length) {
-      return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+    if (error) {
+      console.error('[Projects API] Supabase delete error:', error);
+      return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 });
     }
     
-    saveProjects(filteredProjects);
-    
-    console.log('[Projects API] Project deleted:', projectId);
+    console.log('[Projects API] ✅ Project deleted:', projectId);
     
     return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    console.error('Error deleting project:', error);
+    console.error('[Projects API] DELETE error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -116,10 +116,10 @@ export default function ListPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-oxanium font-bold text-cyan-400 mb-2">
-                Community Projects
+                Showcase
               </h1>
               <p className="text-gray-400 font-mono text-sm">
-                Open source projects for the IIIT-H community to collaborate on
+                Open source projects from the IIIT-H community
               </p>
             </div>
             {user && (
