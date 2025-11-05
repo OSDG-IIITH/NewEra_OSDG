@@ -116,7 +116,7 @@ export default function Navbar() {
       {/* Mobile menu, show/hide based on menu state */}
       {isOpen && (
         <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 bg-[#2E303E] border-t border-gray-700">
+          <div className="px-2 pt-2 pb-3 space-y-1 bg-black border-t border-gray-700">
             <Link
               href="/"
               className="block px-3 py-2 text-base font-medium rounded-md hover:bg-[#3E4050] transition duration-300"

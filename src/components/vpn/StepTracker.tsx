@@ -15,15 +15,15 @@ export default function StepTracker() {
   return (
     <div className="w-full py-6 bg-black">
       {/* Use a centered container and evenly spaced items */}
-      <div className="max-w-3xl mx-auto px-4">
-        <div className="flex items-center justify-center space-x-6">
+      <div className="max-w-3xl mx-auto px-2 sm:px-4">
+        <div className="flex items-center justify-center space-x-2 sm:space-x-4 md:space-x-6">
           {STEPS.map((step, index) => (
             <div key={step.number} className="flex items-center">
               {/* Step Circle */}
               <div className="flex flex-col items-center">
                 <div
                   className={`
-                    flex items-center justify-center w-10 h-10 border rounded-md transition-all duration-300 font-mono
+                    flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 border rounded-md transition-all duration-300 font-mono
                     ${
                       currentStep > step.number
                         ? 'bg-black border-green-500 text-green-400'
@@ -34,15 +34,15 @@ export default function StepTracker() {
                   `}
                 >
                   {currentStep > step.number ? (
-                    <CheckCircle2 className="w-5 h-5" />
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
                   ) : (
-                    <span className="text-sm font-bold">{step.number}</span>
+                    <span className="text-xs sm:text-sm font-bold">{step.number}</span>
                   )}
                 </div>
-                <div className="mt-2 text-center">
+                <div className="mt-1 sm:mt-2 text-center max-w-[80px] sm:max-w-none">
                   <div
                     className={`
-                      text-xs font-mono
+                      text-[10px] sm:text-xs font-mono whitespace-nowrap
                       ${currentStep >= step.number ? 'text-white' : 'text-gray-600'}
                     `}
                   >
@@ -51,11 +51,11 @@ export default function StepTracker() {
                 </div>
               </div>
 
-              {/* Connector Line (fixed width so centering works) */}
+              {/* Connector Line (responsive width) */}
               {index < STEPS.length - 1 && (
                 <div
                   className={`
-                    w-16 h-px mx-4 transition-all duration-300 self-center
+                    w-8 sm:w-12 md:w-16 h-px mx-2 sm:mx-3 md:mx-4 transition-all duration-300 self-center
                     ${currentStep > step.number ? 'bg-green-500/50' : 'bg-blue-500/30'}
                   `}
                 />

@@ -271,16 +271,16 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-black bg-gradient-to-b from-black to-blue-900/30 text-white font-sans scroll-smooth">
       {/* Welcome to typing animation - top left below navbar */}
-      <div className={`fixed top-40 left-28 z-30 font-oxanium text-white text-4xl tracking-wide transition-opacity duration-700 ${hideWelcome ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`fixed top-24 sm:top-32 md:top-40 left-4 sm:left-16 md:left-28 z-30 font-oxanium text-white text-2xl sm:text-3xl md:text-4xl tracking-wide transition-opacity duration-700 ${hideWelcome ? 'opacity-0' : 'opacity-100'}`}>
         <span>{welcomeText}</span>
         {showCursor && <span className="inline-block w-2 h-6 bg-white ml-1"></span>}
       </div>
 
       {/* Hero Section */}
-      <section className="flex flex-col justify-center items-center min-h-screen text-center relative overflow-hidden px-4">
-        <div className="flex flex-col items-center justify-center">
+      <section className="flex flex-col justify-center items-center min-h-screen text-center relative overflow-hidden px-4 md:px-4">
+        <div className="flex flex-col items-center justify-center w-full max-w-full">
           {/* Tech Frame Animation Container */}
-          <div className="relative inline-block">
+          <div className="relative inline-block w-full max-w-full overflow-visible">
             {/* Top Left Corner SVG */}
             {!skipAnimation && (
             <svg
@@ -351,22 +351,22 @@ export default function HomePage() {
               {
                 skipAnimation ? (
                   // Final rendering when skipping animations: always show full form
-                  <div className="flex flex-col items-center justify-center gap-0">
-                    <div className="flex items-baseline justify-center">
+                  <div className="flex flex-col items-center justify-center gap-0 w-full px-2">
+                    <div className="flex items-baseline justify-center flex-wrap">
                       {FULL_FORM_LINES.slice(0, 2).map((line, idx) => (
-                        <div key={line.letter} className="inline-flex items-baseline" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>
+                        <div key={line.letter} className="inline-flex items-baseline" style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}>
                           <span className="text-cyan-400 font-bold">{line.letter}</span>
-                          <span className="text-white" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)', lineHeight: '0.1' }}>{FULL_FORM_LINES[idx].word}</span>
-                          {idx === 0 && <span className="mx-3 md:mx-4"></span>}
+                          <span className="text-white" style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)', lineHeight: '1' }}>{FULL_FORM_LINES[idx].word}</span>
+                          {idx === 0 && <span className="mx-2 md:mx-4"></span>}
                         </div>
                       ))}
                     </div>
-                    <div className="flex items-baseline justify-center mt-[-40px]">
+                    <div className="flex items-baseline justify-center flex-wrap mt-[-20px] md:mt-[-40px]">
                       {FULL_FORM_LINES.slice(2, 4).map((line, idx) => (
-                        <div key={line.letter} className="inline-flex items-baseline" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>
+                        <div key={line.letter} className="inline-flex items-baseline" style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}>
                           <span className="text-cyan-400 font-bold">{line.letter}</span>
-                          <span className="text-white" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>{FULL_FORM_LINES[idx + 2].word}</span>
-                          {idx === 0 && <span className="mx-3 md:mx-4"></span>}
+                          <span className="text-white" style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}>{FULL_FORM_LINES[idx + 2].word}</span>
+                          {idx === 0 && <span className="mx-2 md:mx-4"></span>}
                         </div>
                       ))}
                     </div>
@@ -375,35 +375,35 @@ export default function HomePage() {
                   <>
                     {/* Phase 2: Type out OSDG */}
                     {animationPhase >= 2 && animationPhase < 3 && !showSplit && (
-                      <div className="text-cyan-400 font-bold tracking-wider" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>
+                      <div className="text-cyan-400 font-bold tracking-wider" style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}>
                         {typedText}
                       </div>
                     )}
                     {/* Phase 2.5: Split OSDG into two lines with smooth transition */}
                     {showSplit && animationPhase < 3 && (
                       <div className="flex flex-col items-center justify-center gap-0 transition-all duration-700 ease-out">
-                        <div className="text-cyan-400 font-bold tracking-wider transition-all duration-700" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>OS</div>
-                        <div className="text-cyan-400 font-bold tracking-wider transition-all duration-700 mt-[-40px]" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>DG</div>
+                        <div className="text-cyan-400 font-bold tracking-wider transition-all duration-700" style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}>OS</div>
+                        <div className="text-cyan-400 font-bold tracking-wider transition-all duration-700 mt-[-20px] md:mt-[-40px]" style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}>DG</div>
                       </div>
                     )}
                     {/* Phase 3: Expand each letter inline to full word */}
                     {animationPhase >= 3 && (
-                      <div className="flex flex-col items-center justify-center gap-0">
-                        <div className="flex items-baseline justify-center">
+                      <div className="flex flex-col items-center justify-center gap-0 w-full px-2">
+                        <div className="flex items-baseline justify-center flex-wrap">
                           {FULL_FORM_LINES.slice(0, 2).map((line, idx) => (
-                            <div key={line.letter} className="inline-flex items-baseline" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>
+                            <div key={line.letter} className="inline-flex items-baseline" style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}>
                               <span className="text-cyan-400 font-bold">{line.letter}</span>
-                              <span className="text-white transition-all duration-300" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)', lineHeight: '0.1' }}>{expandedText[idx]}</span>
-                              {idx === 0 && <span className="mx-3 md:mx-4"></span>}
+                              <span className="text-white transition-all duration-300" style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)', lineHeight: '1' }}>{expandedText[idx]}</span>
+                              {idx === 0 && <span className="mx-2 md:mx-4"></span>}
                             </div>
                           ))}
                         </div>
-                        <div className="flex items-baseline justify-center mt-[-40px]">
+                        <div className="flex items-baseline justify-center flex-wrap mt-[-20px] md:mt-[-40px]">
                           {FULL_FORM_LINES.slice(2, 4).map((line, idx) => (
-                            <div key={line.letter} className="inline-flex items-baseline" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>
+                            <div key={line.letter} className="inline-flex items-baseline" style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}>
                               <span className="text-cyan-400 font-bold">{line.letter}</span>
-                              <span className="text-white transition-all duration-300" style={{ fontSize: 'clamp(3.5rem, 10vw, 7rem)' }}>{expandedText[idx + 2]}</span>
-                              {idx === 0 && <span className="mx-3 md:mx-4"></span>}
+                              <span className="text-white transition-all duration-300" style={{ fontSize: 'clamp(2.5rem, 8vw, 7rem)' }}>{expandedText[idx + 2]}</span>
+                              {idx === 0 && <span className="mx-2 md:mx-4"></span>}
                             </div>
                           ))}
                         </div>
@@ -417,7 +417,7 @@ export default function HomePage() {
 
           {/* Tagline - Show after animation completes or immediately if skipped */}
           {(skipAnimation || (animationPhase >= 3 && expandedText.length === 4)) && (
-            <p className={`mt-8 md:mt-12 font-oxanium text-base md:text-xl text-gray-400 max-w-2xl px-4 transition-all duration-1000 ${skipAnimation ? 'opacity-100' : 'opacity-0 animate-fadeIn'}`}>
+            <p className={`mt-8 md:mt-12 font-oxanium text-sm sm:text-base md:text-xl text-gray-400 max-w-2xl px-4 sm:px-6 md:px-4 transition-all duration-1000 leading-relaxed ${skipAnimation ? 'opacity-100' : 'opacity-0 animate-fadeIn'}`}>
               Where elite minds meet open source — to build, disrupt, and lead the future — openly.
             </p>
           )}
