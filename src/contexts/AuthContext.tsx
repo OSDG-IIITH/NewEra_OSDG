@@ -95,9 +95,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     
     console.log('[OSDG.in Auth] Popup opened:', popup);
     
-    // Listen for messages from the popup
+    // Method 1: Listen for postMessage from popup
     const handleMessage = (event: MessageEvent) => {
-      console.log('[OSDG.in Auth] Message received!');
+      console.log('[OSDG.in Auth] Message received via postMessage!');
       console.log('[OSDG.in Auth] Origin:', event.origin);
       console.log('[OSDG.in Auth] Data:', event.data);
       
@@ -146,6 +146,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
     
     console.log('[OSDG.in Auth] Adding message listener');
     window.addEventListener('message', handleMessage);
+    
+    // Method 2: Listen for BroadcastChannel (cross-origin fallback)
+    try {
+      const channel = new BroadcastChannel('cas_auth_channel');
+      console.log('[OSDG.in Auth] BroadcastChannel listener added');
+      
+      channel.onmessage = (event) => {
+        console.log('[OSDG.in Auth] Message received via BroadcastChannel!');
+        console.log('[OSDG.in Auth] Data:', event.data);
+        
+        if (event.data.type === 'CAS_AUTH_SUCCESS') {
+          console.log('[OSDG.in Auth] ✅ Authentication successful via BroadcastChannel!');
+          
+          setUser(event.data.user);
+          sessionStorage.setItem('cas-user', JSON.stringify(event.data.user));
+          
+          channel.close();
+          window.removeEventListener('message', handleMessage);
+          if (popup && !popup.closed) {
+            popup.close();
+          }
+        }
+      };
+    } catch (e) {
+      console.warn('[OSDG.in Auth] BroadcastChannel not supported:', e);
+    }
     
     // Fallback: if popup is blocked, redirect to bridge URL in the same window
     if (!popup || popup.closed || typeof popup.closed === 'undefined') {
