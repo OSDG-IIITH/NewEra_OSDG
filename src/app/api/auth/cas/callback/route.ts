@@ -1,4 +1,7 @@
 // CAS Authentication callback route - Testing mode (trusts tickets)
+// NOTE: This route is NOT actively used in production
+// Authentication is handled via the bridge at osdg.iiit.ac.in/api/auth/callback
+// This route is kept as a fallback for local development or emergency use
 import { NextRequest, NextResponse } from 'next/server';
 
 // Hardcoded to use login-test2 (no whitelisting required, works on IIIT WiFi)

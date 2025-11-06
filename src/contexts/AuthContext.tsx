@@ -29,74 +29,47 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const fetchUser = async () => {
     try {
-      console.log('[Auth] === FETCH USER STARTED ===');
+      // First, check sessionStorage for cached user
+      if (typeof window !== 'undefined') {
+        const cachedUser = sessionStorage.getItem('cas-user');
+        if (cachedUser) {
+          setUser(JSON.parse(cachedUser));
+          setLoading(false);
+          return;
+        }
+      }
       
-      // First check URL params for CAS auth return
+      // Check if we have CAS auth data in URL params (fallback method)
       if (typeof window !== 'undefined') {
         const urlParams = new URLSearchParams(window.location.search);
         const casAuth = urlParams.get('casAuth');
         const username = urlParams.get('username');
-        const name = urlParams.get('name');
         const email = urlParams.get('email');
         
-        console.log('[Auth] URL Params check:', { casAuth, username, name, email });
-        
-        if (casAuth === 'success' && username) {
-          console.log('[Auth] ✅ CAS authentication found in URL!');
-          
+        if (casAuth === 'true' && username && email) {
+          // Set user from URL params
           const userData = {
             username,
-            name: name || username,
-            email: email || `${username}@students.iiit.ac.in`,
+            name: username,
+            email,
           };
-          
-          console.log('[Auth] Setting user from URL params:', userData);
           setUser(userData);
           
           // Cache in sessionStorage
           sessionStorage.setItem('cas-user', JSON.stringify(userData));
-          console.log('[Auth] User cached in sessionStorage');
           
           // Clean up URL params
           const cleanUrl = window.location.pathname;
           window.history.replaceState({}, '', cleanUrl);
-          console.log('[Auth] URL cleaned');
-          
-          setLoading(false);
-          return;
-        }
-        
-        // Check for error params
-        const error = urlParams.get('error');
-        if (error) {
-          console.error('[Auth] ❌ Authentication error in URL:', error);
-          alert(`Authentication failed: ${error}. Please try again.`);
-          
-          // Clean up URL
-          const cleanUrl = window.location.pathname;
-          window.history.replaceState({}, '', cleanUrl);
           setLoading(false);
           return;
         }
       }
       
-      // Check sessionStorage for cached user
-      if (typeof window !== 'undefined') {
-        const cachedUser = sessionStorage.getItem('cas-user');
-        if (cachedUser) {
-          console.log('[Auth] Found cached user in sessionStorage');
-          const userData = JSON.parse(cachedUser);
-          console.log('[Auth] Cached user:', userData);
-          setUser(userData);
-          setLoading(false);
-          return;
-        }
-      }
-      
-      console.log('[Auth] No user found, user is logged out');
+      // No user found
       setUser(null);
     } catch (error) {
-      console.error('[Auth] Error fetching user:', error);
+      console.error('Error fetching user:', error);
       setUser(null);
     } finally {
       setLoading(false);
@@ -104,16 +77,65 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const login = (returnTo: string = '/') => {
-    console.log('=== AUTH: LOGIN STARTED ===');
-    console.log('[Auth] ReturnTo:', returnTo);
+    // Open authentication bridge in popup
+    const bridgeUrl = `https://osdg.iiit.ac.in/api/auth/bridge?returnTo=osdg.in`;
     
-    // Do a full page redirect to CAS login (no popup)
-    const loginUrl = `/api/auth/cas/login?returnTo=${encodeURIComponent(returnTo)}`;
+    const width = 600;
+    const height = 700;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
     
-    console.log('[Auth] Redirecting to:', loginUrl);
+    const popup = window.open(
+      bridgeUrl,
+      'CAS Login',
+      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
+    );
     
-    // Full page redirect
-    window.location.href = loginUrl;
+    // Listen for messages from the popup
+    const handleMessage = (event: MessageEvent) => {
+      // Verify the origin for security
+      if (event.origin !== 'https://osdg.iiit.ac.in') {
+        return;
+      }
+      
+      if (event.data.type === 'CAS_AUTH_SUCCESS') {
+        // Set user data from the popup
+        setUser(event.data.user);
+        
+        // Cache in sessionStorage
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('cas-user', JSON.stringify(event.data.user));
+        }
+        
+        // Navigate to the return URL if needed
+        if (returnTo && returnTo !== '/') {
+          window.location.href = returnTo;
+        }
+        
+        // Clean up
+        window.removeEventListener('message', handleMessage);
+        if (popup && !popup.closed) {
+          popup.close();
+        }
+      } else if (event.data.type === 'CAS_AUTH_ERROR') {
+        console.error('CAS authentication error:', event.data.error);
+        alert('Authentication failed. Please try again.');
+        
+        // Clean up
+        window.removeEventListener('message', handleMessage);
+        if (popup && !popup.closed) {
+          popup.close();
+        }
+      }
+    };
+    
+    window.addEventListener('message', handleMessage);
+    
+    // Fallback: if popup is blocked, redirect to bridge URL in the same window
+    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+      window.removeEventListener('message', handleMessage);
+      window.location.href = bridgeUrl;
+    }
   };
 
   const logout = async () => {

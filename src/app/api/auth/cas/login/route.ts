@@ -1,4 +1,4 @@
-// CAS Authentication API route for login
+
 import { NextRequest, NextResponse } from 'next/server';
 
 // Hardcoded to use login-test2 (no whitelisting required, works on IIIT WiFi)
