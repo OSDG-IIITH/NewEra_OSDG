@@ -35,9 +35,18 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
   const [isTyping, setIsTyping] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const hasInitialized = useRef(false);
+  const [rateLimitedScenario, setRateLimitedScenario] = useState<string | null>(null);
+  const autoCloseTimerRef = useRef<NodeJS.Timeout | null>(null);
+  // Allow general Vetal access without login when running on localhost for development
+  const allowAnonymousLocal = typeof window !== "undefined" && (
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname === "::1"
+  );
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -53,6 +62,9 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
       if (typingIntervalRef.current) {
         clearInterval(typingIntervalRef.current);
       }
+      if (autoCloseTimerRef.current) {
+        clearTimeout(autoCloseTimerRef.current);
+      }
     };
   }, []);
 
@@ -61,9 +73,20 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
     if (isOpen && !hasInitialized.current) {
       hasInitialized.current = true;
       setMessages(getInitialMessages());
+      setRateLimitedScenario(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, mode]);
+
+  // Wrapper for onClose to clean up rate-limited scenario
+  const handleClose = () => {
+    setRateLimitedScenario(null);
+    if (autoCloseTimerRef.current) {
+      clearTimeout(autoCloseTimerRef.current);
+      autoCloseTimerRef.current = null;
+    }
+    onClose();
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -107,7 +130,11 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
 
       const response = await fetch(apiEndpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "x-user-email": user?.email || "",
+          "x-user-name": user?.name || "",
+        },
         body: JSON.stringify({
           messages: [...messages, { role: "user", content: userMessage }],
           image: uploadedImage, // Include uploaded image (base64 data URL)
@@ -127,6 +154,8 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
       let accumulatedText = "";
       let displayedText = "";
       const typingSpeed = 20; // milliseconds per character
+      let isRateLimited = false;
+      let shouldEndChat = false;
 
       setIsTyping(true);
 
@@ -147,6 +176,12 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
               }
               try {
                 const parsed = JSON.parse(data);
+                if (parsed.rateLimited) {
+                  isRateLimited = true;
+                }
+                if (parsed.endChat) {
+                  shouldEndChat = true;
+                }
                 accumulatedText += parsed.text;
               } catch (e) {
                 // Skip invalid JSON
@@ -155,23 +190,91 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
           }
         }
 
-        // Now animate the text letter by letter
-        let charIndex = 0;
-        typingIntervalRef.current = setInterval(() => {
-          if (charIndex < accumulatedText.length) {
-            displayedText += accumulatedText[charIndex];
-            setStreamingMessage(displayedText);
-            charIndex++;
-          } else {
-            if (typingIntervalRef.current) {
-              clearInterval(typingIntervalRef.current);
-              typingIntervalRef.current = null;
+        // Check if the message contains auto-close triggers
+        const lowerText = accumulatedText.toLowerCase();
+        const autoCloseTriggers = [
+          'chat ending now',
+          'buzz off',
+          'here you go—',
+          'closing this window'
+        ];
+        const hasAutoCloseTrigger = autoCloseTriggers.some(trigger => lowerText.includes(trigger));
+
+        // Handle rate-limited response differently
+        if (isRateLimited) {
+          // Split scenario from main message
+          const parts = accumulatedText.split('\n\n"');
+          const scenarioText = parts[0] || "";
+          const mainText = parts.length > 1 ? '"' + parts.slice(1).join('\n\n"') : accumulatedText;
+
+          // Set scenario text (italic part)
+          setRateLimitedScenario(scenarioText);
+
+          // Animate the main message
+          let charIndex = 0;
+          typingIntervalRef.current = setInterval(() => {
+            if (charIndex < mainText.length) {
+              displayedText += mainText[charIndex];
+              setStreamingMessage(displayedText);
+              charIndex++;
+            } else {
+              if (typingIntervalRef.current) {
+                clearInterval(typingIntervalRef.current);
+                typingIntervalRef.current = null;
+              }
+              setMessages(prev => [...prev, { role: "assistant", content: mainText }]);
+              setStreamingMessage("");
+              setIsTyping(false);
+
+              // Auto-close after 10 seconds for rate limit
+              autoCloseTimerRef.current = setTimeout(() => {
+                handleClose();
+                setRateLimitedScenario(null);
+              }, 10000);
             }
-            setMessages(prev => [...prev, { role: "assistant", content: accumulatedText }]);
-            setStreamingMessage("");
-            setIsTyping(false);
-          }
-        }, typingSpeed);
+          }, typingSpeed);
+        } else if (shouldEndChat || hasAutoCloseTrigger) {
+          // Handle forced chat ending
+          let charIndex = 0;
+          typingIntervalRef.current = setInterval(() => {
+            if (charIndex < accumulatedText.length) {
+              displayedText += accumulatedText[charIndex];
+              setStreamingMessage(displayedText);
+              charIndex++;
+            } else {
+              if (typingIntervalRef.current) {
+                clearInterval(typingIntervalRef.current);
+                typingIntervalRef.current = null;
+              }
+              setMessages(prev => [...prev, { role: "assistant", content: accumulatedText }]);
+              setStreamingMessage("");
+              setIsTyping(false);
+
+              // Auto-close after 3 seconds for forced end
+              autoCloseTimerRef.current = setTimeout(() => {
+                handleClose();
+              }, 3000);
+            }
+          }, typingSpeed);
+        } else {
+          // Normal response animation
+          let charIndex = 0;
+          typingIntervalRef.current = setInterval(() => {
+            if (charIndex < accumulatedText.length) {
+              displayedText += accumulatedText[charIndex];
+              setStreamingMessage(displayedText);
+              charIndex++;
+            } else {
+              if (typingIntervalRef.current) {
+                clearInterval(typingIntervalRef.current);
+                typingIntervalRef.current = null;
+              }
+              setMessages(prev => [...prev, { role: "assistant", content: accumulatedText }]);
+              setStreamingMessage("");
+              setIsTyping(false);
+            }
+          }, typingSpeed);
+        }
       }
       
       setUploadedImage(null);
@@ -188,6 +291,12 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
       setIsTyping(false);
     } finally {
       setIsLoading(false);
+      // Keep input focused so user can continue typing without extra clicks
+      try {
+        inputRef.current?.focus();
+      } catch (e) {
+        // ignore if focus fails
+      }
     }
   };
 
@@ -202,14 +311,14 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
 
   if (!isOpen) return null;
 
-  // Show auth required screen for general mode if not logged in
-  if (mode === "general" && !user) {
+  // Show auth required screen for general mode if not logged in (except on localhost)
+  if (mode === "general" && !user && !allowAnonymousLocal) {
     return (
       <>
         {/* Backdrop */}
         <div
           className="fixed inset-0 bg-black/80 z-50 animate-fade-in"
-          onClick={onClose}
+          onClick={handleClose}
         />
 
         {/* Auth Required Modal */}
@@ -220,7 +329,7 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
           >
             {/* Close button */}
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="absolute top-4 right-4 text-green-500 hover:text-green-400 transition-colors text-2xl font-bold"
               aria-label="Close"
             >
@@ -251,7 +360,7 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
               You&apos;ll need to log in if you want my attention.
             </p>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="bg-green-500/20 border border-green-500 hover:bg-green-500/30 text-green-400 hover:text-green-300 px-6 py-2 rounded-lg transition-all duration-300 font-semibold"
             >
               Got it
@@ -267,7 +376,7 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/80 z-50 animate-fade-in"
-        onClick={onClose}
+        onClick={handleClose}
       />
 
       {/* Modal */}
@@ -294,7 +403,7 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
               <h2 className="text-green-500 font-bold text-xl">Vetal AI</h2>
             </div>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="text-green-500 hover:text-green-400 transition-colors text-2xl font-bold"
               aria-label="Close chat"
             >
@@ -304,6 +413,17 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-4">
+            {/* Rate-limited scenario text (if present) */}
+            {rateLimitedScenario && (
+              <div className="flex justify-start">
+                <div className="bg-gray-900/50 text-gray-400 border border-green-500/10 rounded-2xl p-3 italic text-sm">
+                  {rateLimitedScenario.split('\n').map((line, idx) => (
+                    <div key={idx}>{line}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {messages.map((msg, idx) => (
               <div
                 key={idx}
@@ -394,13 +514,13 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
               )}
 
               <input
+                ref={inputRef}
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder={mode === "vpn-troubleshooting" ? "Describe the error or upload screenshot..." : "Disturb me and u will see me in ur evals :P"}
                 className="flex-1 bg-gray-900 text-gray-100 border border-green-500/30 rounded-2xl px-4 py-2 focus:outline-none focus:border-green-500 placeholder-gray-500"
-                disabled={isLoading}
               />
               <button
                 onClick={handleSend}
