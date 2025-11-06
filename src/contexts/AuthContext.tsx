@@ -77,6 +77,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const login = (returnTo: string = '/') => {
+    console.log('[OSDG.in Auth] Login initiated');
+    
     // Open authentication bridge in popup
     const bridgeUrl = `https://osdg.iiit.ac.in/api/auth/bridge?returnTo=osdg.in`;
     
@@ -91,24 +93,36 @@ export function AuthProvider({ children }: AuthProviderProps) {
       `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
     );
     
+    console.log('[OSDG.in Auth] Popup opened:', popup);
+    
     // Listen for messages from the popup
     const handleMessage = (event: MessageEvent) => {
-      // Verify the origin for security
-      if (event.origin !== 'https://osdg.iiit.ac.in') {
+      console.log('[OSDG.in Auth] Message received!');
+      console.log('[OSDG.in Auth] Origin:', event.origin);
+      console.log('[OSDG.in Auth] Data:', event.data);
+      
+      // Verify the origin for security - accept both http and https from osdg.iiit.ac.in
+      if (event.origin !== 'https://osdg.iiit.ac.in' && event.origin !== 'http://osdg.iiit.ac.in') {
+        console.warn('[OSDG.in Auth] Message rejected - invalid origin:', event.origin);
         return;
       }
       
       if (event.data.type === 'CAS_AUTH_SUCCESS') {
+        console.log('[OSDG.in Auth] ✅ Authentication successful!');
+        console.log('[OSDG.in Auth] User data:', event.data.user);
+        
         // Set user data from the popup
         setUser(event.data.user);
         
         // Cache in sessionStorage
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('cas-user', JSON.stringify(event.data.user));
+          console.log('[OSDG.in Auth] User cached in sessionStorage');
         }
         
         // Navigate to the return URL if needed
         if (returnTo && returnTo !== '/') {
+          console.log('[OSDG.in Auth] Navigating to:', returnTo);
           window.location.href = returnTo;
         }
         
@@ -117,8 +131,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (popup && !popup.closed) {
           popup.close();
         }
+        console.log('[OSDG.in Auth] Popup closed');
       } else if (event.data.type === 'CAS_AUTH_ERROR') {
-        console.error('CAS authentication error:', event.data.error);
+        console.error('[OSDG.in Auth] ❌ Authentication error:', event.data.error);
         alert('Authentication failed. Please try again.');
         
         // Clean up
@@ -129,10 +144,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     };
     
+    console.log('[OSDG.in Auth] Adding message listener');
     window.addEventListener('message', handleMessage);
     
     // Fallback: if popup is blocked, redirect to bridge URL in the same window
     if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+      console.warn('[OSDG.in Auth] Popup blocked! Redirecting in same window...');
       window.removeEventListener('message', handleMessage);
       window.location.href = bridgeUrl;
     }
