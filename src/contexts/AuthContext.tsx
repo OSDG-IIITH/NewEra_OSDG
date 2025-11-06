@@ -45,12 +45,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const casAuth = urlParams.get('casAuth');
         const username = urlParams.get('username');
         const email = urlParams.get('email');
+        const name = urlParams.get('name');
         
         if (casAuth === 'true' && username && email) {
           // Set user from URL params
           const userData = {
             username,
-            name: username,
+            name: name || username,
             email,
           };
           setUser(userData);
@@ -77,108 +78,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const login = (returnTo: string = '/') => {
-    console.log('[OSDG.in Auth] Login initiated');
+    console.log('[OSDG.in Auth] Login initiated - redirecting to bridge...');
     
-    // Open authentication bridge in popup
+    // Simple full-page redirect to the authentication bridge
+    // The bridge will handle CAS authentication and redirect back with user data in URL
     const bridgeUrl = `https://osdg.iiit.ac.in/api/auth/bridge?returnTo=osdg.in`;
     
-    const width = 600;
-    const height = 700;
-    const left = window.screen.width / 2 - width / 2;
-    const top = window.screen.height / 2 - height / 2;
-    
-    const popup = window.open(
-      bridgeUrl,
-      'CAS Login',
-      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no,scrollbars=yes,resizable=yes`
-    );
-    
-    console.log('[OSDG.in Auth] Popup opened:', popup);
-    
-    // Method 1: Listen for postMessage from popup
-    const handleMessage = (event: MessageEvent) => {
-      console.log('[OSDG.in Auth] Message received via postMessage!');
-      console.log('[OSDG.in Auth] Origin:', event.origin);
-      console.log('[OSDG.in Auth] Data:', event.data);
-      
-      // Verify the origin for security - accept both http and https from osdg.iiit.ac.in
-      if (event.origin !== 'https://osdg.iiit.ac.in' && event.origin !== 'http://osdg.iiit.ac.in') {
-        console.warn('[OSDG.in Auth] Message rejected - invalid origin:', event.origin);
-        return;
-      }
-      
-      if (event.data.type === 'CAS_AUTH_SUCCESS') {
-        console.log('[OSDG.in Auth] ✅ Authentication successful!');
-        console.log('[OSDG.in Auth] User data:', event.data.user);
-        
-        // Set user data from the popup
-        setUser(event.data.user);
-        
-        // Cache in sessionStorage
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('cas-user', JSON.stringify(event.data.user));
-          console.log('[OSDG.in Auth] User cached in sessionStorage');
-        }
-        
-        // Navigate to the return URL if needed
-        if (returnTo && returnTo !== '/') {
-          console.log('[OSDG.in Auth] Navigating to:', returnTo);
-          window.location.href = returnTo;
-        }
-        
-        // Clean up
-        window.removeEventListener('message', handleMessage);
-        if (popup && !popup.closed) {
-          popup.close();
-        }
-        console.log('[OSDG.in Auth] Popup closed');
-      } else if (event.data.type === 'CAS_AUTH_ERROR') {
-        console.error('[OSDG.in Auth] ❌ Authentication error:', event.data.error);
-        alert('Authentication failed. Please try again.');
-        
-        // Clean up
-        window.removeEventListener('message', handleMessage);
-        if (popup && !popup.closed) {
-          popup.close();
-        }
-      }
-    };
-    
-    console.log('[OSDG.in Auth] Adding message listener');
-    window.addEventListener('message', handleMessage);
-    
-    // Method 2: Listen for BroadcastChannel (cross-origin fallback)
-    try {
-      const channel = new BroadcastChannel('cas_auth_channel');
-      console.log('[OSDG.in Auth] BroadcastChannel listener added');
-      
-      channel.onmessage = (event) => {
-        console.log('[OSDG.in Auth] Message received via BroadcastChannel!');
-        console.log('[OSDG.in Auth] Data:', event.data);
-        
-        if (event.data.type === 'CAS_AUTH_SUCCESS') {
-          console.log('[OSDG.in Auth] ✅ Authentication successful via BroadcastChannel!');
-          
-          setUser(event.data.user);
-          sessionStorage.setItem('cas-user', JSON.stringify(event.data.user));
-          
-          channel.close();
-          window.removeEventListener('message', handleMessage);
-          if (popup && !popup.closed) {
-            popup.close();
-          }
-        }
-      };
-    } catch (e) {
-      console.warn('[OSDG.in Auth] BroadcastChannel not supported:', e);
-    }
-    
-    // Fallback: if popup is blocked, redirect to bridge URL in the same window
-    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
-      console.warn('[OSDG.in Auth] Popup blocked! Redirecting in same window...');
-      window.removeEventListener('message', handleMessage);
-      window.location.href = bridgeUrl;
-    }
+    console.log('[OSDG.in Auth] Redirecting to:', bridgeUrl);
+    window.location.href = bridgeUrl;
   };
 
   const logout = async () => {
