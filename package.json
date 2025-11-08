@@ -17,7 +17,7 @@
     "@google/generative-ai": "^0.24.1",
     "@myriaddreamin/typst.react": "^0.6.1-rc2",
     "@myriaddreamin/typst.ts": "^0.6.1-rc2",
-    "@supabase/supabase-js": "^2.39.0",
+    "@supabase/supabase-js": "^2.80.0",
     "@types/d3": "^7.4.3",
     "d3": "^7.9.0",
     "framer-motion": "^10.16.4",

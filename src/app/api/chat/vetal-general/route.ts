@@ -12,20 +12,37 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid message format' }, { status: 400 });
     }
 
+    console.log('[Vetal] Processing query:', lastMessage.content);
+
     // Search for relevant documents using vector similarity
     let documentsContext = '';
+    let searchSuccessful = false;
+    
     try {
-      // Search for up to 5 most relevant documents with similarity threshold of 0.5
-      const relevantDocs = await searchDocumentsByQuery(lastMessage.content, 5, 0.5);
-      documentsContext = formatDocumentsAsContext(relevantDocs);
+      console.log('[Vetal] Starting vector search...');
       
-      // Log for debugging
-      console.log(`Found ${relevantDocs.length} relevant documents for query: "${lastMessage.content}"`);
+      // Search for up to 5 most relevant documents with similarity threshold of 0.3 (lowered for better recall)
+      const relevantDocs = await searchDocumentsByQuery(lastMessage.content, 5, 0.3);
+      
+      console.log('[Vetal] Vector search completed. Found', relevantDocs.length, 'documents');
+      
+      if (relevantDocs.length > 0) {
+        documentsContext = formatDocumentsAsContext(relevantDocs);
+        searchSuccessful = true;
+        console.log('[Vetal] Documents context prepared:', documentsContext.substring(0, 200) + '...');
+      } else {
+        console.log('[Vetal] No relevant documents found for query');
+        documentsContext = 'No relevant documents found in the database.';
+      }
     } catch (error) {
-      console.error('Error searching documents:', error);
+      console.error('[Vetal] Error searching documents:', error);
+      console.error('[Vetal] Error details:', error instanceof Error ? error.message : 'Unknown error');
+      
       // Fallback to empty context if search fails
-      documentsContext = 'Unable to retrieve documents at this time.';
+      documentsContext = 'Unable to retrieve documents at this time due to a technical error.';
     }
+
+    console.log('[Vetal] Search successful:', searchSuccessful);
 
     // Get user info from request (if available)
     const userEmail = request.headers.get('x-user-email') || '';

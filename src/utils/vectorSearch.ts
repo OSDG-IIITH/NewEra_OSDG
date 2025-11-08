@@ -19,13 +19,52 @@ export interface DocumentEmbedding {
  * @returns The embedding vector as an array of numbers
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
+  console.log('[VectorSearch] Generating embedding for text:', text.substring(0, 100) + '...');
+  
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
-    const result = await model.embedContent(text);
-    return result.embedding.values;
+    if (!process.env.GEMINI_API_KEY) {
+      console.error('[VectorSearch] GEMINI_API_KEY is not set!');
+      throw new Error("GEMINI_API_KEY environment variable is not set");
+    }
+
+    // Use REST API directly to control output dimensionality
+    const apiKey = process.env.GEMINI_API_KEY;
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          content: {
+            parts: [{ text }]
+          },
+          taskType: 'RETRIEVAL_QUERY',
+          outputDimensionality: 768
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('[VectorSearch] Gemini API error:', error);
+      throw new Error(`Gemini API error: ${response.status} ${error}`);
+    }
+
+    const data = await response.json();
+    const embedding = data.embedding.values;
+    
+    console.log('[VectorSearch] Successfully generated embedding, dimension:', embedding.length);
+    
+    if (embedding.length !== 768) {
+      throw new Error(`Expected 768 dimensions but got ${embedding.length}`);
+    }
+    
+    return embedding;
   } catch (error) {
-    console.error("Error generating embedding:", error);
-    throw new Error("Failed to generate embedding");
+    console.error("[VectorSearch] Error generating embedding:", error);
+    throw new Error(`Failed to generate embedding: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -41,6 +80,12 @@ export async function searchDocuments(
   limit: number = 5,
   similarityThreshold: number = 0.5
 ): Promise<DocumentEmbedding[]> {
+  console.log('[VectorSearch] Searching documents with params:', {
+    embeddingDimension: queryEmbedding.length,
+    limit,
+    similarityThreshold
+  });
+
   try {
     // Call the RPC function for vector similarity search
     const { data, error } = await supabase.rpc("match_documents", {
@@ -50,14 +95,23 @@ export async function searchDocuments(
     });
 
     if (error) {
-      console.error("Error searching documents:", error);
-      throw new Error("Failed to search documents");
+      console.error("[VectorSearch] Supabase RPC error:", error);
+      throw new Error(`Failed to search documents: ${error.message}`);
     }
+
+    console.log('[VectorSearch] Search results:', {
+      documentsFound: data?.length || 0,
+      documents: data?.map((d: any) => ({
+        source: d.source_file,
+        similarity: d.similarity,
+        textPreview: d.chunk_text?.substring(0, 50) + '...'
+      }))
+    });
 
     return data || [];
   } catch (error) {
-    console.error("Error in searchDocuments:", error);
-    throw new Error("Failed to search documents");
+    console.error("[VectorSearch] Error in searchDocuments:", error);
+    throw error;
   }
 }
 
@@ -73,11 +127,21 @@ export async function searchDocumentsByQuery(
   limit: number = 5,
   similarityThreshold: number = 0.5
 ): Promise<DocumentEmbedding[]> {
-  // Generate embedding for the query
-  const queryEmbedding = await generateEmbedding(query);
+  console.log('[VectorSearch] Starting search for query:', query);
+  
+  try {
+    // Generate embedding for the query
+    const queryEmbedding = await generateEmbedding(query);
 
-  // Search for similar documents
-  return searchDocuments(queryEmbedding, limit, similarityThreshold);
+    // Search for similar documents
+    const results = await searchDocuments(queryEmbedding, limit, similarityThreshold);
+    
+    console.log('[VectorSearch] Search completed successfully, found', results.length, 'documents');
+    return results;
+  } catch (error) {
+    console.error('[VectorSearch] searchDocumentsByQuery failed:', error);
+    throw error;
+  }
 }
 
 /**
