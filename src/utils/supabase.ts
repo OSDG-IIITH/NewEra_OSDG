@@ -32,3 +32,13 @@ export interface ProjectInsert {
   image_url?: string;
   added_by: string;
 }
+
+// Types for the document_embeddings table
+export interface DocumentEmbedding {
+  id: number;
+  chunk_text: string;
+  embedding: number[];
+  source_file: string;
+  source_url: string | null;
+  created_at: string;
+}
