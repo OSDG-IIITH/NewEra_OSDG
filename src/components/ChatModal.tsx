@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Upload, X, Send } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 interface ChatModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ interface ChatModalProps {
 
 export default function ChatModal({ isOpen, onClose, mode = "general", vpnContext }: ChatModalProps) {
   const { user } = useAuth();
+  const router = useRouter();
   
   // Initialize messages with default message based on mode
   const getInitialMessages = () => [
@@ -86,6 +88,88 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
       autoCloseTimerRef.current = null;
     }
     onClose();
+  };
+
+  // Function to render markdown (bold and italic) in messages
+  const renderMarkdown = (text: string) => {
+    // Convert **text** to <strong>text</strong> and *text* to <em>text</em>
+    let html = text;
+    
+    // Handle bold: **text**
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    
+    // Handle italic: *text* (but not already processed **)
+    html = html.replace(/\*([^*]+?)\*/g, '<em>$1</em>');
+    
+    return html;
+  };
+
+  // Function to detect and navigate to pages from Vetal's response
+  const detectAndNavigate = (text: string) => {
+    const lowerText = text.toLowerCase();
+    
+    const pageMap: { [key: string]: string } = {
+      'vpn setup': '/vpn-setup',
+      'vpn': '/vpn-setup',
+      'projects': '/list',
+      'showcase': '/list',
+      'team': '/team',
+      'guide': '/guide',
+      'home': '/',
+    };
+
+    // Check for page refresh command
+    if (lowerText.includes('refresh') && (lowerText.includes('page') || lowerText.includes('times'))) {
+      const timesMatch = text.match(/(\d+)\s*times?/i);
+      const times = timesMatch ? parseInt(timesMatch[1]) : 1;
+      for (let i = 0; i < Math.min(times, 5); i++) { // Max 5 times to avoid abuse
+        setTimeout(() => window.location.reload(), i * 500);
+      }
+      return null; // Don't navigate, just refresh
+    }
+
+    // Check for email threat command
+    if (lowerText.includes('sending this mail') || lowerText.includes('sending email')) {
+      return 'EMAIL_THREAT';
+    }
+
+    // Check for multi-page navigation (opening in new tabs)
+    const newTabPattern = /opening\s+(\w+(?:\s+\w+)?)\s+in\s+new\s+tab/gi;
+    const matches = text.matchAll(newTabPattern);
+    const newTabPages: string[] = [];
+    
+    for (const match of matches) {
+      const keyword = match[1].toLowerCase();
+      for (const [key, path] of Object.entries(pageMap)) {
+        if (keyword.includes(key) || key.includes(keyword)) {
+          newTabPages.push(path);
+          break;
+        }
+      }
+    }
+
+    // Open pages in new tabs immediately (don't wait for timeout)
+    if (newTabPages.length > 0) {
+      setTimeout(() => {
+        newTabPages.forEach(path => {
+          window.open(path, '_blank');
+        });
+      }, 2000); // Open new tabs 2 seconds after message completes
+    }
+
+    // Check for final page navigation (current tab) - only if "now—" is present
+    if (lowerText.includes('now—') || lowerText.includes('now-')) {
+      for (const [keyword, path] of Object.entries(pageMap)) {
+        if (lowerText.includes(`opening ${keyword}`)) {
+          return path;
+        }
+        if (lowerText.includes(`open ${keyword}`)) {
+          return path;
+        }
+      }
+    }
+    
+    return null;
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,13 +276,24 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
 
         // Check if the message contains auto-close triggers
         const lowerText = accumulatedText.toLowerCase();
+        
         const autoCloseTriggers = [
-          'chat ending now',
-          'buzz off',
+          'ending this chit-chat',
           'here you go—',
-          'closing this window'
+          'closing this window',
+          'goodbye',
+          "i don't want to talk to you anymore",
+          'leave me alone',
+          "we won't talk anymore",
+          'now—', // This catches "Opening X now—"
         ];
         const hasAutoCloseTrigger = autoCloseTriggers.some(trigger => lowerText.includes(trigger));
+        
+        // Detect navigation path early
+        const navigationPath = detectAndNavigate(accumulatedText);
+        
+        // If navigation is detected, we should also trigger auto-close
+        const shouldAutoClose = hasAutoCloseTrigger || shouldEndChat || navigationPath !== null;
 
         // Handle rate-limited response differently
         if (isRateLimited) {
@@ -230,10 +325,12 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
               autoCloseTimerRef.current = setTimeout(() => {
                 handleClose();
                 setRateLimitedScenario(null);
-              }, 10000);
+              }, 5000);
             }
           }, typingSpeed);
-        } else if (shouldEndChat || hasAutoCloseTrigger) {
+        } else if (shouldAutoClose) {
+          // Handle forced chat ending with optional navigation
+          
           // Handle forced chat ending
           let charIndex = 0;
           typingIntervalRef.current = setInterval(() => {
@@ -250,9 +347,30 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
               setStreamingMessage("");
               setIsTyping(false);
 
-              // Auto-close after 3 seconds for forced end
+              // Auto-close after 2 seconds for forced end
               autoCloseTimerRef.current = setTimeout(() => {
-                handleClose();
+                if (navigationPath === 'EMAIL_THREAT') {
+                  // Compose threatening email
+                  const userName = user?.name || 'Student';
+                  const subject = encodeURIComponent('Request for Increased OSDG Funding');
+                  const body = encodeURIComponent(
+                    `I, ${userName}, am in love with Vetal & would request the institute to increase the funding to OSDG so I get uninterrupted access to it.\n\nSincerely,\n${userName}`
+                  );
+                  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+                  // Close chat after opening email
+                  setTimeout(() => {
+                    handleClose();
+                  }, 500);
+                } else if (navigationPath) {
+                  // Open page in current tab and close chat
+                  window.location.href = navigationPath;
+                  // Close chat after a brief moment for navigation to start
+                  setTimeout(() => {
+                    handleClose();
+                  }, 100);
+                } else {
+                  handleClose();
+                }
               }, 3000);
             }
           }, typingSpeed);
@@ -435,15 +553,14 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
                       ? "bg-green-500/20 text-green-100 border border-green-500/30"
                       : "bg-gray-900 text-gray-100 border border-green-500/20"
                   }`}
-                >
-                  {msg.content}
-                </div>
+                  dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.content) }}
+                />
               </div>
             ))}
             {streamingMessage && (
               <div className="flex justify-start">
                 <div className="bg-gray-900 text-gray-100 border border-green-500/20 rounded-2xl p-3">
-                  {streamingMessage}
+                  <span dangerouslySetInnerHTML={{ __html: renderMarkdown(streamingMessage) }} />
                   <span className="inline-block ml-1 align-middle w-4 h-4 animate-pulse">
                     <svg viewBox="0 0 200 200" className="w-full h-full">
                       <path
