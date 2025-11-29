@@ -65,6 +65,17 @@
   }
 }
 
+@keyframes slide-down {
+  0% {
+    transform: translate(-50%, -120%);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
 .animate-crawl-in {
   animation: crawl-in 1s ease-out;
 }
@@ -75,6 +86,10 @@
 
 .animate-fade-in {
   animation: fade-in 0.3s ease-in;
+}
+
+.animate-slideDown {
+  animation: slide-down 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Socials tray transitions */

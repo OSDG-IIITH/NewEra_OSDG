@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import ProjectCarousel from "@/components/ProjectCarousel";
+import AnnouncementBanner from "@/components/AnnouncementBanner";
 
 const FULL_FORM_LINES = [
   { letter: "O", word: "pen" },
@@ -270,6 +271,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-black bg-gradient-to-b from-black to-blue-900/30 text-white font-sans scroll-smooth">
+      {/* Announcement Banner */}
+      <AnnouncementBanner />
+      
       {/* Welcome to typing animation - top left below navbar */}
       <div className={`fixed top-24 sm:top-32 md:top-40 left-4 sm:left-16 md:left-28 z-30 font-oxanium text-white text-2xl sm:text-3xl md:text-4xl tracking-wide transition-opacity duration-700 ${hideWelcome ? 'opacity-0' : 'opacity-100'}`}>
         <span>{welcomeText}</span>
