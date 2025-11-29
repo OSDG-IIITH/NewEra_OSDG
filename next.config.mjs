@@ -9,6 +9,14 @@ const nextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/forms/:path*',
+        destination: 'http://localhost:5173/forms/:path*',
+      },
+    ];
+  },
 };
 
 export default nextConfig;

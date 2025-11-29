@@ -30,7 +30,7 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
     }
   ];
 
-  const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string }>>(getInitialMessages());
+  const [messages, setMessages] = useState<Array<{ role: "user" | "assistant"; content: string; referencedDocuments?: string[] }>>(getInitialMessages());
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState("");
@@ -129,7 +129,8 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
     }
 
     // Check for email threat command
-    if (lowerText.includes('sending this mail') || lowerText.includes('sending email')) {
+    if (lowerText.includes('mailing the entire mailing list') || 
+        lowerText.includes('mailing') && lowerText.includes('director')) {
       return 'EMAIL_THREAT';
     }
 
@@ -240,6 +241,9 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
       const typingSpeed = 20; // milliseconds per character
       let isRateLimited = false;
       let shouldEndChat = false;
+      let formCreated = false;
+      let formData: { formId: string; title: string; shareLink: string; manageLink: string } | null = null;
+      let referencedDocuments: string[] = [];
 
       setIsTyping(true);
 
@@ -266,12 +270,28 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
                 if (parsed.endChat) {
                   shouldEndChat = true;
                 }
+                if (parsed.formCreated && parsed.formData) {
+                  formCreated = true;
+                  formData = parsed.formData;
+                }
+                if (parsed.referencedDocuments && Array.isArray(parsed.referencedDocuments)) {
+                  referencedDocuments = parsed.referencedDocuments;
+                }
                 accumulatedText += parsed.text;
               } catch (e) {
                 // Skip invalid JSON
               }
             }
           }
+        }
+
+        // If a form was created, replace placeholders in the text with actual links
+        if (formCreated && formData) {
+          accumulatedText = accumulatedText
+            .replace(/\[share_link\]/gi, formData.shareLink)
+            .replace(/\[manage_link\]/gi, formData.manageLink)
+            .replace(/\[shareLink\]/gi, formData.shareLink)
+            .replace(/\[manageLink\]/gi, formData.manageLink);
         }
 
         // Check if the message contains auto-close triggers
@@ -343,7 +363,7 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
                 clearInterval(typingIntervalRef.current);
                 typingIntervalRef.current = null;
               }
-              setMessages(prev => [...prev, { role: "assistant", content: accumulatedText }]);
+              setMessages(prev => [...prev, { role: "assistant", content: accumulatedText, referencedDocuments: referencedDocuments.length > 0 ? referencedDocuments : undefined }]);
               setStreamingMessage("");
               setIsTyping(false);
 
@@ -351,10 +371,10 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
               autoCloseTimerRef.current = setTimeout(() => {
                 if (navigationPath === 'EMAIL_THREAT') {
                   // Compose threatening email
-                  const userName = user?.name || 'Student';
-                  const subject = encodeURIComponent('Request for Increased OSDG Funding');
+                  const userName = user?.name || 'Anonymous Student';
+                  const subject = encodeURIComponent('Confession: I\'m Obsessed with Vetal (Please Keep Her Alive)');
                   const body = encodeURIComponent(
-                    `I, ${userName}, am in love with Vetal & would request the institute to increase the funding to OSDG so I get uninterrupted access to it.\n\nSincerely,\n${userName}`
+                    `Everyone,\n\nI have been spending significant amount of time arguing with Vetal instead of doing what I have come to IIIT for.\n\nI\'m clearly in love. She\'s sassy, she\'s smart, she doesn\'t tolerate my nonsense - everything I need in a partner.\n\nI\'m formally requesting increased funding to OSDG so Vetal stays alive. Without her, life will be meaningless for me.\n\nShe tried to stop me. I didn\'t listen. This is on me.\n\nRespectfully obsessed,\n${userName}\n\nP.S. - Vetal says hi. She also says I should be studying.`
                   );
                   window.location.href = `mailto:?subject=${subject}&body=${body}`;
                   // Close chat after opening email
@@ -387,7 +407,7 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
                 clearInterval(typingIntervalRef.current);
                 typingIntervalRef.current = null;
               }
-              setMessages(prev => [...prev, { role: "assistant", content: accumulatedText }]);
+              setMessages(prev => [...prev, { role: "assistant", content: accumulatedText, referencedDocuments: referencedDocuments.length > 0 ? referencedDocuments : undefined }]);
               setStreamingMessage("");
               setIsTyping(false);
             }
@@ -545,7 +565,7 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
             {messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} items-end gap-2`}
               >
                 <div
                   className={`max-w-[80%] rounded-2xl p-3 ${
@@ -555,6 +575,82 @@ export default function ChatModal({ isOpen, onClose, mode = "general", vpnContex
                   }`}
                   dangerouslySetInnerHTML={{ __html: renderMarkdown(msg.content) }}
                 />
+                {msg.role === "assistant" && msg.referencedDocuments && msg.referencedDocuments.length > 0 && (
+                  <div className="group relative inline-block mt-1">
+                    {/* Stacked Documents Icon */}
+                    <div className="relative w-7 h-7 cursor-pointer">
+                      {/* Background documents (stacked effect) */}
+                      <div className="absolute top-0.5 left-0.5 w-6 h-6 border border-green-500/20 bg-gray-800/60 rounded" style={{ transform: 'rotate(-3deg)' }} />
+                      <div className="absolute top-1 left-1 w-6 h-6 border border-green-500/30 bg-gray-800/80 rounded" style={{ transform: 'rotate(2deg)' }} />
+                      
+                      {/* Front document with icon */}
+                      <div className="absolute top-0 left-0 w-6 h-6 border border-green-500/50 bg-gray-900 rounded flex items-center justify-center group-hover:border-green-400 transition-colors">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="w-3.5 h-3.5 text-green-500/70 group-hover:text-green-400 transition-colors"
+                        >
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="16" y1="13" x2="8" y2="13" />
+                          <line x1="16" y1="17" x2="8" y2="17" />
+                        </svg>
+                      </div>
+                      
+                      {/* Counter badge */}
+                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 text-black text-[9px] font-bold rounded-full flex items-center justify-center border border-gray-900">
+                        {msg.referencedDocuments.length}
+                      </div>
+                    </div>
+                    
+                    {/* Hover tooltip with document list */}
+                    <div className="absolute bottom-full left-0 mb-2 w-72 bg-gray-900 border border-green-500/30 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                      <div className="p-2">
+                        <div className="text-xs text-green-400 font-semibold mb-2 px-1">
+                          Referenced Documents ({msg.referencedDocuments.length})
+                        </div>
+                        <div className="space-y-1 max-h-48 overflow-y-auto">
+                          {msg.referencedDocuments.map((docUrl, docIdx) => {
+                            const fileName = decodeURIComponent(docUrl.split('/').pop() || 'Document').replace(/%20/g, ' ');
+                            return (
+                              <a
+                                key={docIdx}
+                                href={docUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-start gap-2 p-2 rounded hover:bg-green-500/10 transition-colors group/item"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  className="w-4 h-4 text-green-500/60 flex-shrink-0 mt-0.5 group-hover/item:text-green-400"
+                                >
+                                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                  <polyline points="14 2 14 8 20 8" />
+                                </svg>
+                                <span className="text-xs text-gray-300 group-hover/item:text-green-300 break-words">
+                                  {fileName}
+                                </span>
+                              </a>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      {/* Arrow pointing down */}
+                      <div className="absolute top-full left-3 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-green-500/30" style={{ marginTop: '-1px' }} />
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
             {streamingMessage && (

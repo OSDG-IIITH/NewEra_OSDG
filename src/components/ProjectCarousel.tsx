@@ -35,6 +35,13 @@ const PROJECTS: Project[] = [
     repo: 'https://github.com/OSDG-IIITH/Discord-CAS',
     website: 'https://osdg.iiit.ac.in/casbot/discord/invite',
   },
+  {
+    name: 'Is it Open?',
+    image: '/isitopen.png',
+    description: 'Because nothing hurts like showing up to a closed shop',
+    repo: '',
+    website: 'https://isitopen.vercel.app',
+  },
 ];
 
 export default function ProjectCarousel() {
@@ -117,16 +124,18 @@ export default function ProjectCarousel() {
                       <ExternalLink className="w-5 h-5 center" />
                       
                     </a>
-                    <a
-                      href={project.repo}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center text-gray-400 hover:text-cyan-400 transition-colors"
-                      aria-label={`${project.name} GitHub repository`}
-                    >
-                      <Github className="w-5 h-5 center" />
-                      
-                    </a>
+                    {project.repo && (
+                      <a
+                        href={project.repo}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center text-gray-400 hover:text-cyan-400 transition-colors"
+                        aria-label={`${project.name} GitHub repository`}
+                      >
+                        <Github className="w-5 h-5 center" />
+                        
+                      </a>
+                    )}
                     
                   </div>
                 </div>

@@ -10,6 +10,7 @@ export interface DocumentEmbedding {
   embedding: number[];
   source_file: string;
   source_url: string | null;
+  document_url: string | null;
   created_at: string;
 }
 
@@ -103,6 +104,7 @@ export async function searchDocuments(
       documentsFound: data?.length || 0,
       documents: data?.map((d: any) => ({
         source: d.source_file,
+        document_url: d.document_url,
         similarity: d.similarity,
         textPreview: d.chunk_text?.substring(0, 50) + '...'
       }))
@@ -166,4 +168,37 @@ ${doc.chunk_text}
 ---`;
     })
     .join("\n\n");
+}
+
+/**
+ * Get unique document URLs from search results
+ * @param documents - Array of document embeddings from search
+ * @returns Array of unique document URLs
+ */
+export function getReferencedDocumentUrls(documents: DocumentEmbedding[]): string[] {
+  // First try to use document_url if available
+  let urls = documents
+    .map(doc => doc.document_url)
+    .filter((url): url is string => url !== null && url !== undefined && url.trim() !== '');
+  
+  // If document_url is not available, construct URLs from source_file
+  if (urls.length === 0) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const bucketName = 'Intranet_Public_Documents';
+    
+    if (supabaseUrl) {
+      urls = documents
+        .map(doc => {
+          if (doc.source_file && doc.source_file.trim() !== '') {
+            // Construct Supabase Storage URL from source filename
+            const encodedFilename = encodeURIComponent(doc.source_file);
+            return `${supabaseUrl}/storage/v1/object/public/${bucketName}/${encodedFilename}`;
+          }
+          return null;
+        })
+        .filter((url): url is string => url !== null);
+    }
+  }
+  
+  return Array.from(new Set(urls));
 }
