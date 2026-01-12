@@ -44,7 +44,7 @@ export default function AnnouncementBanner() {
               <VetalGhost className="w-full h-full" />
             </div>
             <p className="text-sm md:text-base text-white font-oxanium font-semibold tracking-wide">
-              <span className="text-green-400">update:</span> hackiiit <span className="text-gray-300 font-normal">is starting soon. grab your friends and join in!</span>
+              <span className="text-green-400">HackIIIT 2026:</span> <span className="text-gray-300 font-normal">Yes, IIIT is looking up to you to make it better. Don&apos;t disappoint.</span>
             </p>
           </div>
 
