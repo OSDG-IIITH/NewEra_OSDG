@@ -8,7 +8,7 @@ export function middleware(request: NextRequest) {
   // Only process API routes that need user authentication
   const formsApiPaths = [
     '/api/forms-proxy',
-    '/api/chat/vetal-forms',
+    // '/api/chat/vetal-forms',
   ];
 
   const isFormsApi = formsApiPaths.some(path => request.nextUrl.pathname.startsWith(path));
@@ -47,6 +47,6 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/api/forms-proxy/:path*',
-    '/api/chat/vetal-forms',
+    // '/api/chat/vetal-forms',
   ],
 };

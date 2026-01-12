@@ -4,7 +4,7 @@
 'use client';
 
 import React from 'react';
-import VetalFormsConnector from '@/components/VetalFormsConnector';
+// import VetalFormsConnector from '@/components/VetalFormsConnector';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function FormsPage() {
@@ -46,7 +46,10 @@ export default function FormsPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden" style={{ height: 'calc(100vh - 8rem)' }}>
-          <VetalFormsConnector />
+          {/* <VetalFormsConnector /> */}
+          <div className="flex items-center justify-center h-full text-gray-500">
+             Vetal Forms is currently disabled.
+          </div>
         </div>
       </div>
     </div>
