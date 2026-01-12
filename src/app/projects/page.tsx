@@ -7,6 +7,7 @@ import projectsData from "@/data/projects.json";
 import carouselProjectNames from "@/data/carouselProjects.json";
 import brandLogo from "@/assets/BrandLogo.png";
 import Image from "next/image";
+import CASMaintenanceModal from "@/components/CASMaintenanceModal";
 
 interface TeamMember {
   name: string;
@@ -20,9 +21,13 @@ export default function Projects({ searchParams }: { searchParams: any }) {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [membersData, setMembersData] = useState<TeamMember[]>([]);
+  const [showModal, setShowModal] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Show modal on page load
+    setShowModal(true);
+
     // Load team members from JSON
     fetch('/osdg_members_2025.json')
       .then(res => res.json())
@@ -86,8 +91,8 @@ export default function Projects({ searchParams }: { searchParams: any }) {
             className="hidden mx-5 lg:flex lg:items-center h-[90%] w-[30%] rounded-3xl relative shrink-0 overflow-hidden shadow-xl"
             style={{
               backgroundImage: `url(${carouselProjectData[carouselIndex].image
-                  ? carouselProjectData[carouselIndex].image
-                  : "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3D572YeG2MbymmpyV5b8MQJh_osdg.png&w=384&q=75"
+                ? carouselProjectData[carouselIndex].image
+                : "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3D572YeG2MbymmpyV5b8MQJh_osdg.png&w=384&q=75"
                 })`,
               backgroundSize: "cover",
               backgroundPosition: "center",
@@ -167,8 +172,8 @@ export default function Projects({ searchParams }: { searchParams: any }) {
             className="flex lg:hidden items-start justify-start h-[25vh] w-[25vh] lg:h-48 lg:w-48 bg-gradient-to-br from-[#02b5ff] to-[#5c1aeb] rounded-3xl relative mt-10 shadow-lg overflow-hidden"
             style={{
               backgroundImage: `url(${carouselProjectData[carouselIndex].image
-                  ? carouselProjectData[carouselIndex].image
-                  : "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3D572YeG2MbymmpyV5b8MQJh_osdg.png&w=384&q=75"
+                ? carouselProjectData[carouselIndex].image
+                : "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3D572YeG2MbymmpyV5b8MQJh_osdg.png&w=384&q=75"
                 })`,
               backgroundSize: "cover",
               backgroundPosition: "center",
@@ -265,8 +270,8 @@ export default function Projects({ searchParams }: { searchParams: any }) {
                   }`}
                 style={{
                   backgroundImage: `url(${project.image
-                      ? project.image
-                      : "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3D572YeG2MbymmpyV5b8MQJh_osdg.png&w=384&q=75"
+                    ? project.image
+                    : "https://clubs.iiit.ac.in/_next/image?url=http%3A%2F%2Ffiles%2Ffiles%2Fdownload%3Ffilename%3D572YeG2MbymmpyV5b8MQJh_osdg.png&w=384&q=75"
                     })`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
@@ -274,11 +279,10 @@ export default function Projects({ searchParams }: { searchParams: any }) {
                 }}
               ></div>
               <div
-                className={`flex flex-col justify-center items-center p-5 absolute top-0 left-0 h-full w-full transition-all bg-black rounded-3xl ${
-                  index === carouselIndex 
-                    ? "bg-opacity-60" 
+                className={`flex flex-col justify-center items-center p-5 absolute top-0 left-0 h-full w-full transition-all bg-black rounded-3xl ${index === carouselIndex
+                    ? "bg-opacity-60"
                     : "bg-opacity-30 hover:bg-opacity-50"
-                }`}
+                  }`}
               >
                 <h2 className="text-xl font-semibold text-white text-center shadow-text">
                   {project.projectName}
@@ -300,8 +304,8 @@ export default function Projects({ searchParams }: { searchParams: any }) {
         <div className="flex flex-row justify-start">
           <motion.div
             className={`flex md:flex-row flex-col justify-center items-center h-10 w-28 ${activeTab === "All"
-                ? "bg-gradient-to-r from-[#4f15c2] to-[#6929e8]"
-                : "bg-[#322455] hover:bg-[#3d2b69]"
+              ? "bg-gradient-to-r from-[#4f15c2] to-[#6929e8]"
+              : "bg-[#322455] hover:bg-[#3d2b69]"
               } rounded-full relative mx-2 mb-5 text-white cursor-pointer select-none transition-colors duration-300`}
             onClick={() => setActiveTab("All")}
             whileHover={{ scale: 1.05 }}
@@ -311,8 +315,8 @@ export default function Projects({ searchParams }: { searchParams: any }) {
           </motion.div>
           <motion.div
             className={`flex md:flex-row flex-col justify-center items-center h-10 w-28 ${activeTab === "OSDG"
-                ? "bg-gradient-to-r from-[#4f15c2] to-[#6929e8]"
-                : "bg-[#322455] hover:bg-[#3d2b69]"
+              ? "bg-gradient-to-r from-[#4f15c2] to-[#6929e8]"
+              : "bg-[#322455] hover:bg-[#3d2b69]"
               } rounded-full relative mx-2 mb-5 text-white select-none cursor-pointer transition-colors duration-300`}
             onClick={() => setActiveTab("OSDG")}
             whileHover={{ scale: 1.05 }}
@@ -322,8 +326,8 @@ export default function Projects({ searchParams }: { searchParams: any }) {
           </motion.div>
           <motion.div
             className={`flex md:flex-row flex-col justify-center items-center h-10 w-28 ${activeTab === "Individual"
-                ? "bg-gradient-to-r from-[#4f15c2] to-[#6929e8]"
-                : "bg-[#322455] hover:bg-[#3d2b69]"
+              ? "bg-gradient-to-r from-[#4f15c2] to-[#6929e8]"
+              : "bg-[#322455] hover:bg-[#3d2b69]"
               } rounded-full relative mx-2 mb-5 text-white select-none cursor-pointer transition-colors duration-300`}
             onClick={() => setActiveTab("Individual")}
             whileHover={{ scale: 1.05 }}
@@ -449,6 +453,7 @@ export default function Projects({ searchParams }: { searchParams: any }) {
           </TransitionGroup>
         </div>
       </motion.div>
+      <CASMaintenanceModal isOpen={showModal} onClose={() => setShowModal(false)} />
     </main>
   );
 }

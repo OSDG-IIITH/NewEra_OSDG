@@ -37,15 +37,6 @@ export default function Navbar() {
             <Link className={linkClass} href="/">
               Home
             </Link>
-            {/* <Link className={linkClass} href="/projects">
-              Projects
-            </Link>
-            <Link className={linkClass} href="/events">
-              Events
-            </Link> */}
-            {/* <Link className={linkClass} href="/linux-installation">
-              Linux Installation Guide
-            </Link> */}
             <Link className={linkClass} href="/guide">
               Guide
             </Link>
@@ -61,12 +52,12 @@ export default function Navbar() {
             >
               Team
             </Link>
-            {/* <Link
-              className={`${linkClass} bg-indigo-600/70 hover:bg-indigo-500 px-4 py-2 rounded-lg hover:after:w-0`}
+            <Link
+              className={linkClass}
               href="/hackiiit"
             >
               HackIIIT
-            </Link> */}
+            </Link>
             <AuthWidget className="ml-4" />
           </div>
 
@@ -126,24 +117,6 @@ export default function Navbar() {
             >
               Home
             </Link>
-            {/* <Link
-              href="/projects"
-              className="block px-3 py-2 text-base font-medium rounded-md hover:bg-[#3E4050] transition duration-300"
-            >
-              Projects
-            </Link>{" "} */}
-            {/* <Link
-              href="/events"
-              className="block px-3 py-2 text-base font-medium rounded-md hover:bg-[#3E4050] transition duration-300"
-            >
-              Events
-            </Link> */}
-            {/* <Link
-              href="/linux-installation"
-              className="block px-3 py-2 text-base font-medium rounded-md hover:bg-[#3E4050] transition duration-300"
-            >
-              Linux Installation Guide
-            </Link> */}
             <Link
               href="/guide"
               className="block px-3 py-2 text-base font-medium rounded-md hover:bg-[#3E4050] transition duration-300"
@@ -168,12 +141,12 @@ export default function Navbar() {
             >
               Team
             </Link>
-            {/* <Link
+            <Link
               href="/hackiiit"
-              className="block px-3 py-2 text-base font-medium bg-indigo-600/80 rounded-md hover:bg-indigo-500 transition duration-300"
+              className="block px-3 py-2 text-base font-medium rounded-md hover:bg-[#3E4050] transition duration-300"
             >
               HackIIIT
-            </Link> */}
+            </Link>
             <div className="px-3 py-2">
               <AuthWidget />
             </div>

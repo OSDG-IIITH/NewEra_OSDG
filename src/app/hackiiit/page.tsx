@@ -1,786 +1,915 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { useState, useEffect, useRef } from "react";
-import { motion, useInView, useAnimation } from "framer-motion";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCalendar, faClock, faMapMarkerAlt, faTrophy, faLaptopCode, faUsers, faCode, faBrain, faLightbulb, faCoffee, faPizzaSlice } from "@fortawesome/free-solid-svg-icons";
-import hackathonGraphic from "@/assets/IntroGraphic.svg";
-
-// Animation component for sections
-const AnimatedSection = ({ children, delay = 0.2 }: { children: React.ReactNode; delay?: number }) => {
-    const ref = useRef(null);
-    const isInView = useInView(ref, { once: true, amount: 0.3 });
-    const controls = useAnimation();
-
-    useEffect(() => {
-        if (isInView) {
-            controls.start("visible");
-        }
-    }, [isInView, controls]);
-
-    return (
-        <motion.div
-            ref={ref}
-            initial="hidden"
-            animate={controls}
-            variants={{
-                hidden: { opacity: 0, y: 50 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.6, delay } }
-            }}
-        >
-            {children}
-        </motion.div>
-    );
-};
-
-// Custom hook for one-time animations
-const useOneTimeAnimation = (amount = 0.3) => {
-    const ref = useRef(null);
-    const isInView = useInView(ref, { once: true, amount });
-    return { ref, isInView };
-};
-
-const CountdownTimer = () => {
-    const [timeLeft, setTimeLeft] = useState({
-        days: 0,
-        hours: 0,
-        minutes: 0,
-        seconds: 0,
-    });
-
-    useEffect(() => {
-        const hackathonDate = new Date("March 15, 2025 17:00:00 GMT+0530");
-        const timer = setInterval(() => {
-            const now = new Date();
-            const difference = hackathonDate.getTime() - now.getTime();
-
-            if (difference > 0) {
-                setTimeLeft({
-                    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-                    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-                    minutes: Math.floor((difference / 1000 / 60) % 60),
-                    seconds: Math.floor((difference / 1000) % 60),
-                });
-            } else {
-                clearInterval(timer);
-                setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-            }
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, []);
-
-    const timeBlocks = [
-        { label: "Days", value: timeLeft.days },
-        { label: "Hours", value: timeLeft.hours },
-        { label: "Minutes", value: timeLeft.minutes },
-        { label: "Seconds", value: timeLeft.seconds },
-    ];
-
-    return (
-        <div className="flex justify-center gap-4 my-8">
-            {timeBlocks.map((block, index) => (
-                <motion.div
-                    key={block.label}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="text-center p-4 bg-[#304154] rounded-lg w-24 shadow-lg backdrop-blur-sm bg-opacity-90"
-                >
-                    <div className="text-3xl font-bold">{block.value}</div>
-                    <div className="text-sm opacity-80">{block.label}</div>
-                </motion.div>
-            ))}
-        </div>
-    );
-};
-
-// Track Illustration Component
-const TrackIllustration = ({ isRegular }: { isRegular: boolean }) => {
-    const { ref, isInView } = useOneTimeAnimation();
-
-    return (
-        <div className="relative w-full h-64 mb-6 overflow-hidden rounded-lg">
-            {isRegular ? (
-                // Regular Track Art
-                <div className="w-full h-full bg-gradient-to-br from-blue-700 to-indigo-900 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 opacity-20">
-                        {Array.from({ length: 15 }).map((_, i) => (
-                            <div
-                                key={i}
-                                className="absolute rounded-full"
-                                style={{
-                                    width: `${Math.random() * 20 + 5}px`,
-                                    height: `${Math.random() * 20 + 5}px`,
-                                    backgroundColor: 'white',
-                                    left: `${Math.random() * 100}%`,
-                                    top: `${Math.random() * 100}%`,
-                                    animation: `float ${Math.random() * 10 + 5}s linear infinite`,
-                                }}
-                            />
-                        ))}
-                    </div>
-                    <motion.div
-                        ref={ref}
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0 }}
-                        transition={{ duration: 0.7 }}
-                        className="text-center z-10"
-                    >
-                        <FontAwesomeIcon icon={faCode} className="text-7xl mb-4 text-white" />
-                        <div className="text-white text-2xl font-bold">Regular Track</div>
-                        <div className="text-blue-200 mt-2">Hosted by MontyCloud</div>
-                        <div className="flex mt-4 gap-3 justify-center">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                                <motion.div
-                                    key={i}
-                                    initial={{ scale: 0 }}
-                                    animate={isInView ? { scale: 1 } : { scale: 0 }}
-                                    transition={{ delay: i * 0.1, duration: 0.4 }}
-                                    className="w-8 h-8 rounded-full bg-white bg-opacity-20 flex items-center justify-center"
-                                >
-                                    <FontAwesomeIcon icon={faLaptopCode} className="text-white text-xs" />
-                                </motion.div>
-                            ))}
-                        </div>
-                    </motion.div>
-                </div>
-            ) : (
-                // Beginners Track Art
-                <div className="w-full h-full bg-gradient-to-br from-emerald-600 to-teal-800 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 opacity-20">
-                        {Array.from({ length: 15 }).map((_, i) => (
-                            <div
-                                key={i}
-                                className="absolute"
-                                style={{
-                                    width: `${Math.random() * 15 + 5}px`,
-                                    height: `${Math.random() * 15 + 5}px`,
-                                    backgroundColor: 'white',
-                                    borderRadius: '2px',
-                                    transform: `rotate(${Math.random() * 360}deg)`,
-                                    left: `${Math.random() * 100}%`,
-                                    top: `${Math.random() * 100}%`,
-                                    animation: `pulse ${Math.random() * 5 + 2}s ease-in-out infinite alternate`,
-                                }}
-                            />
-                        ))}
-                    </div>
-                    <motion.div
-                        ref={ref}
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={isInView ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0 }}
-                        transition={{ duration: 0.7 }}
-                        className="text-center z-10"
-                    >
-                        <FontAwesomeIcon icon={faLightbulb} className="text-7xl mb-4 text-white" />
-                        <div className="text-white text-2xl font-bold">Beginners Track</div>
-                        <div className="text-emerald-200 mt-2">Hosted by Team OSDG</div>
-                        <div className="flex mt-4 gap-2 justify-center">
-                            <motion.div
-                                initial={{ width: 0 }}
-                                animate={isInView ? { width: "80%" } : { width: 0 }}
-                                transition={{ duration: 0.8, delay: 0.3 }}
-                                className="h-2 rounded bg-white bg-opacity-30"
-                            />
-                        </div>
-                    </motion.div>
-                </div>
-            )}
-        </div>
-    );
-};
-
-// Timeline Item Component with Animation
-const TimelineItem = ({
-    time,
-    title,
-    description,
-    isLeft
-}: {
-    time: string;
-    title: string;
-    description: string;
-    isLeft: boolean;
-}) => {
-    const { ref, isInView } = useOneTimeAnimation();
-
-    return (
-        <motion.div
-            ref={ref}
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ duration: 0.6 }}
-            className="flex flex-col md:flex-row items-center text-center md:text-left last:mb-0 mb-12"
-        >
-            <div
-                className={`w-full md:w-1/2 px-4 ${
-                    isLeft ? "md:pr-8 md:self-end" : "md:pl-8 md:self-start md:order-last"
-                }`}
-            >
-                <motion.div
-                    whileHover={{ y: -5 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                    className="bg-white p-6 rounded-lg shadow-lg"
-                >
-                    <h3 className="font-bold text-blue-600">{time}</h3>
-                    <h4 className="text-lg font-bold">{title}</h4>
-                    <p className="text-gray-600 mt-2">{description}</p>
-                </motion.div>
-            </div>
-
-            {!isLeft && <div className="hidden md:block md:w-1/2"></div>}
-        </motion.div>
-    );
-};
-
-// Prize Item Component
-const PrizeItem = ({ position, amount }: { position: string; amount: string; }) => (
-    <motion.div
-        whileHover={{ scale: 1.03 }}
-        className="flex justify-between items-center border-b border-blue-200 py-3"
-    >
-        <span className="font-medium text-lg">{position}</span>
-        <span className="font-bold text-lg text-white-700">{amount}</span>
-    </motion.div>
-);
-
-// Participation Card Component
-const ParticipationCard = ({ isSolo }: { isSolo: boolean }) => {
-    const { ref, isInView } = useOneTimeAnimation();
-
-    return (
-        <motion.div
-            ref={ref}
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.6 }}
-            whileHover={{ scale: 1.05 }}
-            // transition={{ type: "spring", stiffness: 300 }}
-            className="bg-white rounded-xl shadow-xl overflow-hidden h-full flex flex-col"
-        >
-            <div className={`h-2 ${isSolo ? 'bg-indigo-600' : 'bg-purple-600'}`}></div>
-            <div className="p-6 flex-grow flex flex-col">
-                <div className="font-bold text-2xl mb-2">Participate {isSolo ? "Solo" : "in Teams"}</div>
-                <div className="text-gray-700 flex-grow flex flex-col">
-                    <p className="mb-4">{isSolo ?
-                        "Show off your individual coding skills and problem-solving abilities." :
-                        "Form teams of up to 5 members and collaborate on innovative solutions."
-                    }</p>
-                    <div className="flex justify-center my-3 flex-grow items-center">
-                        {isSolo ? (
-                            <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
-                                <FontAwesomeIcon icon={faUsers} className="text-indigo-600 text-2xl" />
-                            </div>
-                        ) : (
-                            <div className="flex gap-2">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <motion.div
-                                        key={i}
-                                        initial={{ scale: 0 }}
-                                        animate={isInView ? { scale: 1 } : { scale: 0 }}
-                                        transition={{ delay: i * 0.1, duration: 0.3 }}
-                                        className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center"
-                                    >
-                                        <FontAwesomeIcon icon={faUsers} className="text-purple-600 text-xs" />
-                                    </motion.div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                    <p className="text-sm mt-4">Note: {isSolo ? "Solo particpants must be available offline." : "At least one person from a team must be available offline."}</p>
-                </div>
-            </div>
-        </motion.div>
-    );
-};
-
-// Sponsor Card Component
-const SponsorCard = ({ name, logo, description, tier }: { name: string; logo?: string; description?: string; tier: string }) => {
-    const { ref, isInView } = useOneTimeAnimation();
-
-    return (
-        <motion.div
-            ref={ref}
-            initial={{ opacity: 0, y: 30 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.7 }}
-            whileHover={{
-                y: -10,
-                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-            }}
-            className="bg-white rounded-xl shadow-lg overflow-hidden"
-        >
-            <div className={`h-2 ${tier === "gold" ? "bg-yellow-500" : "bg-blue-500"}`}></div>
-            <div className="p-8">
-                <div className="flex justify-center mb-6">
-                    <div className="w-60 h-60 border rounded-lg p-2 flex items-center justify-center">
-                        {logo ? (
-                            <Image src={logo} alt={name} width={240} height={120} />
-                        ) : (
-                            <div className="text-gray-400 text-xl font-bold">{name}</div>
-                        )}
-                    </div>
-                </div>
-                <h3 className="text-2xl font-bold text-center mb-3">{name}</h3>
-                <p className="text-gray-600 text-center">{description}</p>
-            </div>
-        </motion.div>
-    );
-};
 
 export default function HackIIIT() {
+    const cursorRef = useRef<HTMLDivElement>(null);
+    const followerRef = useRef<HTMLDivElement>(null);
+    const glowRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        // Cursor & Glow Logic
+        const cursor = cursorRef.current;
+        const follower = followerRef.current;
+        const glow = glowRef.current;
+
+        if (!cursor || !follower || !glow) return;
+
+        let mouseX = 0;
+        let mouseY = 0;
+        let followerX = 0;
+        let followerY = 0;
+
+        const handleMouseMove = (e: MouseEvent) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            cursor.style.left = mouseX + "px";
+            cursor.style.top = mouseY + "px";
+
+            glow.style.left = mouseX + "px";
+            glow.style.top = mouseY + "px";
+        };
+
+        const animateFollower = () => {
+            followerX += (mouseX - followerX) * 0.15;
+            followerY += (mouseY - followerY) * 0.15;
+            follower.style.left = followerX + "px";
+            follower.style.top = followerY + "px";
+            requestAnimationFrame(animateFollower);
+        };
+
+        window.addEventListener("mousemove", handleMouseMove);
+        animateFollower();
+
+        // Hover interactions
+        const hoverElements = document.querySelectorAll(".hover-target, a, .timeline-item, .logo-wrapper");
+        hoverElements.forEach((el) => {
+            el.addEventListener("mouseenter", () => follower?.classList.add("cursor-hover"));
+            el.addEventListener("mouseleave", () => follower?.classList.remove("cursor-hover"));
+        });
+
+        // Reveal Observer
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const target = entry.target as HTMLElement;
+                        target.style.opacity = "1";
+                        target.style.transform = "translateY(0)";
+                        observer.unobserve(entry.target);
+                    }
+                });
+            },
+            { threshold: 0.1 }
+        );
+
+        document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+
+        // Smooth Scroll Navigation
+        const smoothScrollLinks = document.querySelectorAll('a[href^="#"]');
+        smoothScrollLinks.forEach((anchor) => {
+            anchor.addEventListener("click", function (this: HTMLAnchorElement, e: Event) {
+                (e as MouseEvent).preventDefault();
+                const target = document.querySelector(this.getAttribute("href")!);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                    });
+                }
+            });
+        });
+
+        // Scroll to Top Button
+        const scrollTopBtn = document.getElementById("scroll-top");
+        const handleScroll = () => {
+            if (window.pageYOffset > 500) {
+                scrollTopBtn?.classList.add("visible");
+            } else {
+                scrollTopBtn?.classList.remove("visible");
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+
+        return () => {
+            window.removeEventListener("mousemove", handleMouseMove);
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }, []);
+
     return (
-        <main className="overflow-hidden text-center md:text-left">
-            {/* Hero Section */}
-            <div className="text-white min-h-screen flex flex-col items-center justify-center py-16 bg-[#11101f] px-6 sm:px-8">
-                <div className="container mx-auto flex flex-col md:flex-row items-center w-full">
-                    <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8 }}
-                        className="md:w-1/2 w-full mb-10 md:mb-0 max-w-lg"
-                    >
-                        <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold leading-tight mb-4">
-                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                                HackIIIT
-                            </span>
-                            2025
-                        </h1>
-                        <p className="text-lg sm:text-xl text-gray-300 max-w-lg mx-auto md:mx-0">
-                            OSDG&apos;s annual 24-hour hackathon for building impactful Free and Open-Source Software projects.
-                        </p>
-
-                        <div className="flex flex-wrap gap-3 mt-6 justify-center md:justify-start">
-                            <motion.div
-                                whileHover={{ scale: 1.1 }}
-                                className="flex items-center bg-blue-900 bg-opacity-30 px-3 py-2 rounded-full text-sm sm:text-base"
-                            >
-                                <FontAwesomeIcon icon={faCalendar} className="mr-2 text-blue-400" />
-                                <span>March 15-16, 2025</span>
-                            </motion.div>
-                            <motion.div
-                                whileHover={{ scale: 1.1 }}
-                                className="flex items-center bg-blue-900 bg-opacity-30 px-3 py-2 rounded-full text-sm sm:text-base"
-                            >
-                                <FontAwesomeIcon icon={faClock} className="mr-2 text-blue-400" />
-                                <span>5:00 PM Onwards</span>
-                            </motion.div>
-                            <motion.div
-                                whileHover={{ scale: 1.1 }}
-                                className="flex items-center bg-blue-900 bg-opacity-30 px-3 py-2 rounded-full text-sm sm:text-base"
-                            >
-                                <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-blue-400" />
-                                <span>H-205, IIIT Hyderabad Campus</span>
-                            </motion.div>
-                        </div>
-
-                        <CountdownTimer />
-                        <motion.div className="flex space-x-6">
-                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                <a
-                                    href="https://forms.office.com/r/SHfn2vBKFh"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-block px-6 sm:px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-lg transition-all text-sm sm:text-base"
-                                >
-                                    Plan of Action submission
-                                </a>
-                            </motion.div>
-
-                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                <a
-                                    href="https://iiithydstudents-my.sharepoint.com/:w:/g/personal/osdg_students_iiit_ac_in/EWuuuGbnqJxPkUKpufX4gUgBd7KWr0HbnRc1Vud2QVpAHw?e=nzISG4"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-block px-6 sm:px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-lg transition-all text-sm sm:text-base"
-                                >
-                                    Resources Document
-                                </a>
-                            </motion.div>
-                        </motion.div>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, x: 50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                        className="flex justify-center"
-                    >
-                        <Image src={hackathonGraphic} alt="HackIIIT &apos;'25" className="max-w-full" />
-                    </motion.div>
-                </div>
-            </div>
-
-            {/* About Section */}
-            <section className="py-20 bg-white text-gray-800">
-                <div className="container mx-auto px-4">
-                    <AnimatedSection>
-                        <h2 className="text-4xl font-bold text-center mb-4">About the Event</h2>
-                        <div className="w-24 h-1 bg-blue-600 mx-auto mb-12"></div>
-                    </AnimatedSection>
-
-                    <div className="max-w-3xl mx-auto">
-                        <AnimatedSection delay={0.3}>
-                            <p className="text-lg mb-6 text-justify mx-auto max-w-2xl">
-                                HackIIIT is OSDG&apos;s annual 24-hour hackathon dedicated to building and working on cool and impactful Free and Open-Source Software (FOSS) projects. It&apos;s an opportunity for innovators to come together, collaborate, and transform ideas into reality.
-                            </p>
-                        </AnimatedSection>
-
-                        <div className="mt-16 grid md:grid-cols-2 gap-8">
-                            <AnimatedSection delay={0.4}>
-                                <ParticipationCard isSolo={true} />
-                            </AnimatedSection>
-
-                            <AnimatedSection delay={0.5}>
-                                <ParticipationCard isSolo={false} />
-                            </AnimatedSection>
-                        </div>
-
-                        <AnimatedSection delay={0.6}>
-                            <div className="mt-12 p-6 bg-blue-50 rounded-lg shadow-md mx-auto max-w-md">
-                                <h3 className="text-xl font-bold mb-3 flex items-center justify-center">
-                                    <FontAwesomeIcon icon={faTrophy} className="text-blue-600 mr-2" />
-                                    FOSS Focus
-                                </h3>
-                                <p className="text-justify">
-                                    All projects must adhere to FOSS principles, with clear documentation and open-source licenses that promote community contribution.
-                                </p>
-                            </div>
-                        </AnimatedSection>
-                    </div>
-                </div>
-            </section>
-
-            {/* Tracks Section */}
-            <section className="py-20 bg-[#11101f] text-white">
-                <div className="container mx-auto px-4">
-                    <AnimatedSection>
-                        <h2 className="text-4xl font-bold text-center mb-4">Event Tracks</h2>
-                        <div className="w-24 h-1 bg-blue-400 mx-auto mb-12"></div>
-                    </AnimatedSection>
-
-                    <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
-                        <AnimatedSection delay={0.3}>
-                            <div className="bg-[#1a1930] p-6 rounded-lg shadow-xl">
-                                <TrackIllustration isRegular={true} />
-                                <h3 className="text-2xl font-bold mb-4">Regular Track</h3>
-                                <p className="text-gray-300 mb-6">
-                                    For experienced developers ready to tackle complex problems and create innovative solutions. Hosted by MontyCloud, this track offers challenging problems and substantial rewards.
-                                </p>
-                                <ul className="text-gray-300 space-y-2">
-                                    <li className="flex items-start">
-                                        <FontAwesomeIcon icon={faCode} className="text-blue-400 mt-1 mr-2" />
-                                        <span>Advanced problem statements</span>
-                                    </li>
-                                    <li className="flex items-start">
-                                        <FontAwesomeIcon icon={faBrain} className="text-blue-400 mt-1 mr-2" />
-                                        <span>Professional mentoring</span>
-                                    </li>
-                                    <li className="flex items-start">
-                                        <FontAwesomeIcon icon={faLaptopCode} className="text-blue-400 mt-1 mr-2" />
-                                        <span>Internship opportunities</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </AnimatedSection>
-
-                        <AnimatedSection delay={0.4}>
-                            <div className="bg-[#1a1930] p-6 rounded-lg shadow-xl">
-                                <TrackIllustration isRegular={false} />
-                                <h3 className="text-2xl font-bold mb-4">Beginners Track</h3>
-                                <p className="text-gray-300 mb-6">
-                                    Designed for those new to hackathons or programming. Team OSDG hosts this track to provide a supportive environment for learning and growing your skills.
-                                </p>
-                                <ul className="text-gray-300 space-y-2">
-                                    <li className="flex items-start">
-                                        <FontAwesomeIcon icon={faLightbulb} className="text-emerald-400 mt-1 mr-2" />
-                                        <span>Beginner-friendly challenges</span>
-                                    </li>
-                                    <li className="flex items-start">
-                                        <FontAwesomeIcon icon={faUsers} className="text-emerald-400 mt-1 mr-2" />
-                                        <span>Guided mentorship</span>
-                                    </li>
-                                    <li className="flex items-start">
-                                        <FontAwesomeIcon icon={faCode} className="text-emerald-400 mt-1 mr-2" />
-                                        <span>Learn-as-you-build approach</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </AnimatedSection>
-                    </div>
-
-                    {/* <AnimatedSection delay={0.5}>
-                        <div className="max-w-3xl mx-auto mt-12 p-6 bg-[#1a1930] bg-opacity-80 rounded-lg shadow-lg">
-                            <div className="flex items-center mb-4">
-                                <FontAwesomeIcon icon={faCoffee} className="text-2xl text-yellow-400 mr-3" />
-                                <h3 className="text-xl font-bold">Complimentary Refreshments</h3>
-                            </div>
-                            <p className="text-gray-300">
-                                All participants who submit their plan of action will receive complimentary refreshments including energy drinks, soft drinks, chips, and biscuits to fuel your coding marathon! These will be available from Vindya Canteen on campus.
-                            </p>
-                        </div>
-                    </AnimatedSection> */}
-                </div>
-            </section>
-
-            {/* Timeline Section */}
-            <section className="py-20 bg-white text-gray-800 relative overflow-hidden">
-                <div className="absolute inset-0 opacity-10 pointer-events-none">
-                    <div className="w-full h-full" style={{
-                        backgroundImage: 'radial-gradient(circle, #4338ca 1px, transparent 1px)',
-                        backgroundSize: '20px 20px'
-                    }}></div>
-                </div>
-
-                <div className="container mx-auto px-4 relative z-10">
-                    <AnimatedSection>
-                        <h2 className="text-4xl font-bold text-center mb-4">Event Timeline</h2>
-                        <div className="w-24 h-1 bg-blue-600 mx-auto mb-16"></div>
-                    </AnimatedSection>
-
-                    <div className="max-w-5xl mx-auto">
-                        <div className="relative">
-                            {/* Timeline line */}
-                            <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 h-full w-1 bg-gradient-to-b from-blue-400 via-indigo-500 to-blue-600 rounded-full"></div>
-
-                            {/* Timeline items */}
-                            <div>
-                                <TimelineItem
-                                    time="March 15, 3PM - 5PM"
-                                    title="Introductions"
-                                    description="Meet the organizers and fellow participants. Get ready for an exciting hackathon experience!"
-                                    isLeft={true}
-                                />
-
-                                <TimelineItem
-                                    time="March 15, 5PM - 6PM"
-                                    title="Problem Statements Revealed"
-                                    description="Detailed presentation of hackathon challenges and objectives. Choose your track and start brainstorming solutions."
-                                    isLeft={false}
-                                />
-
-                                <TimelineItem
-                                    time="March 15, 6PM"
-                                    title="Hackathon Begins"
-                                    description="Start coding! Teams begin working on their projects."
-                                    isLeft={true}
-                                />
-
-                                <TimelineItem
-                                    time="March 15, 8PM"
-                                    title="Plan of Action Submission"
-                                    description="Teams document initial ideas, preliminary work, and plans for the remainder of the event. This serves as a guiding document for your team."
-                                    isLeft={false}
-                                />
-
-                                <TimelineItem
-                                    time="March 16, 4PM"
-                                    title="Hackathon Concludes"
-                                    description="Final code submissions, to wrap things up."
-                                    isLeft={true}
-                                />
-
-                                <TimelineItem
-                                    time="March 16, 4PM - 6PM"
-                                    title="Closing Notes, Networking and Evaluations"
-                                    description="Evaluations and feedback session, and opportunities to connect with fellow participants. Celebrate your achievements!"
-                                    isLeft={false}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Prizes Section */}
-            <section className="py-20 bg-[#11101f] text-white">
-                <div className="container mx-auto px-4">
-                    <AnimatedSection>
-                        <h2 className="text-4xl font-bold text-center mb-4">Prizes & Rewards</h2>
-                        <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-yellow-600 mx-auto mb-12"></div>
-                    </AnimatedSection>
-
-                    <AnimatedSection delay={0.3}>
-                        <div className="max-w-5xl mx-auto">
-                            <div className="text-center mb-12">
-                                <motion.div
-                                    initial={{ scale: 0 }}
-                                    whileInView={{ scale: 1 }}
-                                    transition={{ duration: 0.7 }}
-                                    className="text-7xl text-yellow-400 mb-6 inline-block"
-                                >
-                                    <FontAwesomeIcon icon={faTrophy} />
-                                </motion.div>
-                                <motion.p
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5, delay: 0.3 }}
-                                    className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-200"
-                                >
-                                    Total Prize Pool: ₹73,000
-                                </motion.p>
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-10 items-stretch">
-                                <motion.div
-                                    initial={{ opacity: 0, x: -50 }}
-                                    whileInView={{ opacity: 1, x: 0 }}
-                                    transition={{ duration: 0.6 }}
-                                    className="bg-gradient-to-br from-blue-900 to-[#1a1930] p-8 rounded-lg shadow-xl flex flex-col h-full"
-                                >
-                                    <h3 className="text-2xl font-bold text-center mb-6 text-blue-300">Regular Track</h3>
-                                    <div className="space-y-4">
-                                        <PrizeItem position="1st Place" amount="₹19,000" />
-                                        <PrizeItem position="2nd Place" amount="₹13,000" />
-                                        <PrizeItem position="3rd Place" amount="₹8,000" />
-                                    </div>
-                                    <div className="mt-6 p-4 bg-green-900 bg-opacity-40 rounded-lg">
-                                        <h4 className="text-lg font-bold text-center text-green-300">Additional Prize Pool</h4>
-                                        <div className="space-y-2 mt-4">
-                                            <PrizeItem position="MOYA Framework Contribution" amount="₹10,000" />
-                                            <PrizeItem position="Outcomes-Based Solution" amount="₹5,000" />
-                                            <PrizeItem position="Fun/Quirky Solution" amount="₹5,000" />
-                                        </div>
-                                    </div>
-                                    <div className="mt-6 p-4 bg-blue-900 bg-opacity-40 rounded-lg">
-                                        <p className="text-center text-sm text-blue-200">
-                                            <FontAwesomeIcon icon={faLaptopCode} className="mr-2" />
-                                            Best performers may be offered internships by MontyCloud based on their work
-                                        </p>
-                                    </div>
-                                </motion.div>
-
-                                <motion.div
-                                    initial={{ opacity: 0, x: 50 }}
-                                    whileInView={{ opacity: 1, x: 0 }}
-                                    transition={{ duration: 0.6 }}
-                                    className="bg-gradient-to-br from-emerald-900 to-[#1a1930] p-8 rounded-lg shadow-xl flex flex-col h-full justify-center"
-                                >
-                                    <h3 className="text-2xl font-bold text-center mb-6 text-emerald-300">Beginners Track</h3>
-                                    <div className="space-y-4">
-                                        <PrizeItem position="1st Place" amount="₹7,000" />
-                                        <PrizeItem position="2nd Place" amount="₹4,000" />
-                                        <PrizeItem position="3rd Place" amount="₹2,000" />
-                                    </div>
-                                    <div className="mt-6 p-4 bg-emerald-900 bg-opacity-40 rounded-lg">
-                                        <p className="text-center text-sm text-emerald-200">
-                                            <FontAwesomeIcon icon={faLightbulb} className="mr-2" />
-                                            Great opportunity to gain hackathon experience and showcase your skills
-                                        </p>
-                                    </div>
-                                </motion.div>
-                            </div>
-                        </div>
-                    </AnimatedSection>
-                </div>
-            </section>
-
-            {/* Food Section */}
-            <section className="py-16 bg-white text-gray-800">
-                <div className="container mx-auto px-4">
-                    <AnimatedSection>
-                        <h2 className="text-4xl font-bold text-center mb-4">Food & Refreshments</h2>
-                        <div className="w-24 h-1 bg-red-500 mx-auto mb-12"></div>
-                    </AnimatedSection>
-
-                    <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
-                        <AnimatedSection delay={0.3}>
-                            <motion.div
-                                whileHover={{ y: -10 }}
-                                className="bg-gradient-to-br from-gray-50 to-gray-100 p-8 rounded-lg shadow-lg"
-                            >
-                                <div className="flex justify-center mb-6">
-                                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-                                        <FontAwesomeIcon icon={faCoffee} className="text-red-600 text-2xl" />
-                                    </div>
-                                </div>
-                                <h3 className="text-xl font-bold text-center mb-4">Complimentary Refreshments</h3>
-                                <p className="text-gray-600 text-center">
-                                    All participants who submit their plan of action will receive complimentary refreshments (like energy/soft drinks, chips, and biscuits).
-                                </p>
-                            </motion.div>
-                        </AnimatedSection>
-
-                        <AnimatedSection delay={0.4}>
-                            <motion.div
-                                whileHover={{ y: -10 }}
-                                className="bg-gradient-to-br from-gray-50 to-gray-100 p-8 rounded-lg shadow-lg"
-                            >
-                                <div className="flex justify-center mb-6">
-                                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
-                                        <FontAwesomeIcon icon={faPizzaSlice} className="text-orange-600 text-2xl" />
-                                    </div>
-                                </div>
-                                <h3 className="text-xl font-bold text-center mb-4">Food Stalls</h3>
-                                <p className="text-gray-600 text-center">
-                                    Food stalls will be set up outside the Himalaya block, offering Pizza Hut and Amul ice creams. Get ready for some delicious treats!
-                                </p>
-                            </motion.div>
-                        </AnimatedSection>
-                    </div>
-                </div>
-            </section>
-
-            {/* Sponsors Section */}
-            <section className="py-20 bg-[#11101f] text-white">
-                <div className="container mx-auto px-4">
-                    <AnimatedSection>
-                        <h2 className="text-4xl font-bold text-center mb-4">Our Sponsors</h2>
-                        <div className="w-24 h-1 bg-gradient-to-r from-blue-400 to-purple-500 mx-auto mb-12"></div>
-                    </AnimatedSection>
-
-                    <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10">
-                        <AnimatedSection delay={0.3}>
-                            <SponsorCard
-                                name="MontyCloud"
-                                logo="/mcLogo.webp"
-                                description="MontyCloud is a Seattle, WA based No-Code CloudOps Company, dedicated to helping their customers achieve Excellence in Cloud Operations, in just a few clicks. They are supporting the Regular track of the hackathon."
-                                tier="gold"
-                            />
-                        </AnimatedSection>
-
-                        <AnimatedSection delay={0.4}>
-                            <SponsorCard
-                                name="IIIT Hyderabad"
-                                logo="/iiithlogo.jpg"
-                                description="Supporting the Beginners track, providing venue support and infrastructure for the event. Sponsoring complimentary refreshments for all participants."
-                                tier="silver"
-                            />
-                        </AnimatedSection>
-                    </div>
-
-                    {/* <AnimatedSection delay={0.5}>
-                        <div className="max-w-3xl mx-auto mt-16 p-6 bg-[#1a1930] bg-opacity-80 rounded-lg shadow-md text-center">
-                            <h3 className="text-xl font-bold mb-4">Interested in Sponsoring?</h3>
-                            <p className="text-gray-300 mb-6">
-                                Join our mission to promote open-source innovation and connect with talented developers at IIIT Hyderabad.
-                            </p>
-                            <motion.button
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="px-5 py-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg font-semibold"
-                            >
-                                Contact Us for Sponsorship
-                            </motion.button>
-                        </div>
-                    </AnimatedSection> */}
-                </div>
-            </section>
-
-            {/* Add styles for animations */}
+        <>
             <style jsx global>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-15px); }
-        }
-        
-        @keyframes pulse {
-          0% { transform: scale(0.95); opacity: 0.7; }
-          100% { transform: scale(1.05); opacity: 1; }
-        }
-      `}</style>
-        </main>
+                :root {
+                    --black: #000000;
+                    --blue: #0d1164;
+                    --purple: #640d5f;
+                    --pink: #ea2264;
+                    --peach: #f78d60;
+                    --glass: rgba(255, 255, 255, 0.03);
+                    --border: rgba(255, 255, 255, 0.1);
+                }
+
+                * {
+                    cursor: none;
+                }
+
+                body {
+                    font-family: "Plus Jakarta Sans", sans-serif;
+                    background: var(--black);
+                    color: #fff;
+                }
+
+                #cursor {
+                    width: 8px;
+                    height: 8px;
+                    background: var(--peach);
+                    border-radius: 50%;
+                    position: fixed;
+                    pointer-events: none;
+                    z-index: 10001;
+                    transform: translate(-50%, -50%);
+                }
+
+                #cursor-follower {
+                    width: 30px;
+                    height: 30px;
+                    border: 1px solid var(--pink);
+                    border-radius: 50%;
+                    position: fixed;
+                    pointer-events: none;
+                    z-index: 10000;
+                    transform: translate(-50%, -50%);
+                    transition: width 0.3s, height 0.3s, background 0.3s, border 0.3s;
+                }
+
+                .cursor-hover {
+                    width: 80px !important;
+                    height: 80px !important;
+                    background: rgba(234, 34, 100, 0.1) !important;
+                    border: 1px solid var(--peach) !important;
+                }
+
+                .grid-overlay {
+                    position: fixed;
+                    inset: 0;
+                    background-image: linear-gradient(rgba(100, 13, 95, 0.15) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(100, 13, 95, 0.15) 1px, transparent 1px);
+                    background-size: 50px 50px;
+                    z-index: 0;
+                    pointer-events: none;
+                }
+
+                .ambient-glow {
+                    position: fixed;
+                    width: 60vmax;
+                    height: 60vmax;
+                    background: radial-gradient(circle, rgba(100, 13, 95, 0.3) 0%, transparent 70%);
+                    top: 0;
+                    left: 0;
+                    transform: translate(-50%, -50%);
+                    pointer-events: none;
+                    z-index: 1;
+                }
+
+                #scroll-top {
+                    position: fixed;
+                    bottom: 30px;
+                    right: 30px;
+                    width: 50px;
+                    height: 50px;
+                    background: var(--pink);
+                    border: 2px solid var(--border);
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                    opacity: 0;
+                    pointer-events: none;
+                    transition: opacity 0.3s, transform 0.3s;
+                    font-size: 1.5rem;
+                    color: white;
+                }
+
+                #scroll-top.visible {
+                    opacity: 1;
+                    pointer-events: auto;
+                }
+
+                #scroll-top:hover {
+                    background: var(--purple);
+                    transform: translateY(-5px);
+                    box-shadow: 0 5px 20px var(--purple);
+                }
+
+                .section {
+                    min-height: 100vh;
+                    padding: 120px 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    position: relative;
+                    z-index: 10;
+                }
+
+                .container {
+                    width: 100%;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    padding: 0 20px;
+                }
+
+                .hero-title {
+                    font-family: "Press Start 2P", cursive;
+                    font-size: clamp(2rem, 8vw, 5rem);
+                    margin-bottom: 20px;
+                    color: #fff;
+                    text-shadow: 4px 4px var(--purple);
+                    text-align: center;
+                    line-height: 1.2;
+                }
+
+                .btn-cta {
+                    background: var(--pink);
+                    color: white;
+                    padding: 16px 40px;
+                    border-radius: 4px;
+                    text-decoration: none;
+                    font-family: "Space Mono", monospace;
+                    font-weight: bold;
+                    transition: 0.3s;
+                    display: inline-block;
+                    border: none;
+                    text-transform: uppercase;
+                    letter-spacing: 2px;
+                    margin-top: 20px;
+                }
+
+                .btn-cta:hover {
+                    background: var(--purple);
+                    box-shadow: 0 0 30px var(--purple);
+                    transform: translateY(-3px);
+                }
+
+                .hero-graphic {
+                    position: absolute;
+                    left: 25%;
+                    top: 55%;
+                    transform: translateY(-50%);
+                    width: 50%;
+                    opacity: 0.1;
+                    z-index: -1;
+                }
+
+                .glass-box {
+                    border: 11px solid var(--border);
+                    padding: 60px;
+                    border-radius: 30px;
+                    display: grid;
+                    grid-template-columns: 1fr 1.5fr;
+                    gap: 50px;
+                    align-items: center;
+                }
+
+                .carousel-container {
+                    overflow: hidden;
+                    width: 100%;
+                    padding: 40px 0;
+                }
+
+                .carousel-track {
+                    display: flex;
+                    gap: 20px;
+                    width: fit-content;
+                    animation: scroll 30s linear infinite;
+                }
+
+                .carousel-img {
+                    width: 350px;
+                    height: 220px;
+                    object-fit: cover;
+                    border-radius: 15px;
+                    border: 1px solid var(--border);
+                    transition: 0.4s;
+                    filter: grayscale(1);
+                    flex-shrink: 0;
+                }
+
+                .carousel-img:hover {
+                    filter: grayscale(0);
+                    border-color: var(--pink);
+                    transform: scale(1.05);
+                }
+
+                @keyframes scroll {
+                    0% {
+                        transform: translateX(0);
+                    }
+                    100% {
+                        transform: translateX(calc(-350px * 4 - 80px));
+                    }
+                }
+
+                .timeline-item {
+                    padding: 40px;
+                    border-left: 2px solid var(--purple);
+                    margin-left: 20px;
+                    position: relative;
+                    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                }
+
+                .timeline-item:hover {
+                    border-left: 8px solid var(--pink);
+                    padding-left: 60px;
+                    background: linear-gradient(90deg, rgba(100, 13, 95, 0.2), transparent);
+                }
+
+                .timeline-item::after {
+                    content: "";
+                    position: absolute;
+                    left: -6px;
+                    top: 50px;
+                    width: 10px;
+                    height: 10px;
+                    background: var(--purple);
+                    border-radius: 50%;
+                    transition: 0.3s;
+                }
+
+                .timeline-item:hover::after {
+                    background: var(--pink);
+                    box-shadow: 0 0 15px var(--pink);
+                    transform: scale(1.5);
+                }
+
+                .faq-item {
+                    background: var(--glass);
+                    border: 1px solid var(--border);
+                    border-radius: 15px;
+                    padding: 30px;
+                    margin-bottom: 20px;
+                    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                }
+
+                .faq-item:hover {
+                    border-color: var(--pink);
+                    background: rgba(234, 34, 100, 0.05);
+                    transform: translateX(10px);
+                }
+
+                .faq-question {
+                    font-family: "Space Mono", monospace;
+                    font-size: clamp(1rem, 2vw, 1.1rem);
+                    color: var(--pink);
+                    margin-bottom: 15px;
+                }
+
+                .faq-answer {
+                    color: #ccc;
+                    font-size: clamp(0.9rem, 2vw, 1rem);
+                    line-height: 1.8;
+                }
+
+                .footer-logo-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                    gap: 40px;
+                    align-items: center;
+                    justify-items: center;
+                    padding: 60px 0;
+                }
+
+                .logo-wrapper {
+                    transition: 0.4s;
+                    filter: grayscale(1) brightness(1.5);
+                    opacity: 0.6;
+                }
+
+                .logo-wrapper:hover {
+                    transform: scale(1.1);
+                    filter: grayscale(0) brightness(1);
+                    opacity: 1;
+                }
+
+                .logo-img {
+                    height: 50px;
+                    width: auto;
+                    object-fit: contain;
+                    max-width: 100%;
+                }
+
+                .reveal {
+                    opacity: 0;
+                    transform: translateY(30px);
+                    transition: opacity 1s, transform 1s;
+                }
+
+                @media (max-width: 1024px) {
+                    .section {
+                        padding: 100px 20px;
+                    }
+                    .glass-box {
+                        grid-template-columns: 1fr;
+                        padding: 40px;
+                        gap: 30px;
+                    }
+                    .carousel-img {
+                        width: 280px;
+                        height: 180px;
+                    }
+                    @keyframes scroll {
+                        0% {
+                            transform: translateX(0);
+                        }
+                        100% {
+                            transform: translateX(calc(-280px * 4 - 80px));
+                        }
+                    }
+                }
+
+                @media (max-width: 768px) {
+                    #cursor,
+                    #cursor-follower {
+                        display: none;
+                    }
+                    * {
+                        cursor: auto;
+                    }
+                    #scroll-top {
+                        width: 45px;
+                        height: 45px;
+                        bottom: 20px;
+                        right: 20px;
+                    }
+                    .btn-cta {
+                        padding: 12px 24px;
+                        font-size: 0.8rem;
+                        letter-spacing: 1px;
+                    }
+                    .section {
+                        min-height: 100vh;
+                        padding: 80px 15px;
+                    }
+                    .hero-title {
+                        font-size: clamp(1.5rem, 10vw, 2.5rem);
+                        text-shadow: 2px 2px var(--purple);
+                    }
+                    .hero-graphic {
+                        display: none;
+                    }
+                    .glass-box {
+                        padding: 30px 20px;
+                        border-width: 6px;
+                        border-radius: 20px;
+                        gap: 20px;
+                    }
+                    .glass-box h2 {
+                        font-size: 0.9rem !important;
+                    }
+                    .glass-box p {
+                        font-size: 1rem !important;
+                    }
+                    .carousel-img {
+                        width: 250px;
+                        height: 160px;
+                    }
+                    @keyframes scroll {
+                        0% {
+                            transform: translateX(0);
+                        }
+                        100% {
+                            transform: translateX(calc(-250px * 4 - 80px));
+                        }
+                    }
+                    .timeline-item {
+                        padding: 25px 20px;
+                        margin-left: 10px;
+                    }
+                    .timeline-item:hover {
+                        padding-left: 30px;
+                    }
+                    .timeline-item h3 {
+                        font-size: 1rem;
+                    }
+                    .timeline-item p {
+                        font-size: 0.85rem;
+                    }
+                    .footer-logo-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                        gap: 30px;
+                        padding: 40px 0;
+                    }
+                    .logo-img {
+                        height: 40px;
+                    }
+                    .grid-overlay {
+                        background-size: 30px 30px;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .btn-cta {
+                        padding: 10px 20px;
+                        font-size: 0.7rem;
+                    }
+                    .section {
+                        padding: 60px 10px;
+                    }
+                    .hero-title {
+                        margin-bottom: 15px;
+                    }
+                    .glass-box {
+                        padding: 20px 15px;
+                        border-width: 4px;
+                        border-radius: 15px;
+                    }
+                    .carousel-img {
+                        width: 200px;
+                        height: 130px;
+                    }
+                    @keyframes scroll {
+                        0% {
+                            transform: translateX(0);
+                        }
+                        100% {
+                            transform: translateX(calc(-200px * 4 - 80px));
+                        }
+                    }
+                    .timeline-item {
+                        padding: 20px 15px;
+                    }
+                    .footer-logo-grid {
+                        grid-template-columns: 1fr;
+                        gap: 25px;
+                    }
+                }
+
+                @media (min-width: 1440px) {
+                    .container {
+                        max-width: 1400px;
+                    }
+                    .carousel-img {
+                        width: 400px;
+                        height: 250px;
+                    }
+                    @keyframes scroll {
+                        0% {
+                            transform: translateX(0);
+                        }
+                        100% {
+                            transform: translateX(calc(-400px * 4 - 80px));
+                        }
+                    }
+                }
+            `}</style>
+
+            <link
+                href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;700&family=Space+Mono:wght@400;700&family=Press+Start+2P&display=swap"
+                rel="stylesheet"
+            />
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;700&family=Space+Mono:wght@400;700&family=Press+Start+2P&display=swap');
+            `}</style>
+
+            <div ref={cursorRef} id="cursor"></div>
+            <div ref={followerRef} id="cursor-follower"></div>
+            <div className="grid-overlay"></div>
+            <div ref={glowRef} className="ambient-glow" id="glow"></div>
+
+            {/* Hero */}
+            <section className="section" id="hero">
+                <Image src="/hackiiit/beige-hackintosh-nobg.png" className="hero-graphic" alt="" width={500} height={500} />
+                <div className="container" style={{ textAlign: "center" }}>
+                    <p
+                        className="reveal"
+                        style={{
+                            color: "var(--pink)",
+                            fontFamily: "Space Mono",
+                            letterSpacing: "6px",
+                            marginBottom: "15px",
+                            fontSize: "clamp(0.7rem, 2vw, 1rem)",
+                        }}
+                    >
+                        [ SESSION_OPEN ]
+                    </p>
+                    <h1 className="hero-title reveal">HACKIIIT</h1>
+                    <p
+                        className="reveal"
+                        style={{
+                            fontSize: "clamp(1rem, 3vw, 1.3rem)",
+                            color: "#888",
+                            fontFamily: "Space Mono",
+                            marginBottom: "10px",
+                        }}
+                    >
+                        BUILD_THE_FUTURE_OF_CAMPUS
+                    </p>
+                    <p
+                        className="reveal"
+                        style={{
+                            color: "var(--peach)",
+                            fontFamily: "Space Mono",
+                            fontWeight: "bold",
+                            fontSize: "clamp(1.1rem, 3.5vw, 1.5rem)",
+                        }}
+                    >
+                        PRIZE POOL: ₹1,00,000
+                    </p>
+
+                    <div className="reveal">
+                        <a href="#" className="btn-cta hover-target disabled:">
+                            REGISTRATIONS OPENING SOON
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            {/* Mission */}
+            <section className="section" id="mission">
+                <div className="container">
+                    <div className="glass-box reveal">
+                        <div>
+                            <Image
+                                src="/hackiiit/audio_cassette_black.png"
+                                style={{ width: "100%", filter: "drop-shadow(0 0 25px #472635)" }}
+                                alt=""
+                                width={400}
+                                height={400}
+                            />
+                        </div>
+                        <div>
+                            <h2
+                                style={{
+                                    fontFamily: "Press Start 2P",
+                                    fontSize: "clamp(0.9rem, 2vw, 1.2rem)",
+                                    color: "var(--pink)",
+                                    marginBottom: "25px",
+                                }}
+                            >
+                                THE_MISSION
+                            </h2>
+                            <p style={{ color: "#ccc", fontSize: "clamp(1rem, 2vw, 1.1rem)", marginBottom: "25px" }}>
+                                We challenge you to solve a campus problem. The execution must be{" "}
+                                <span style={{ color: "var(--peach)" }}>Open Source</span>. No gates, no secrets. Just pure
+                                code.
+                            </p>
+                            <div
+                                style={{
+                                    fontFamily: "Space Mono",
+                                    color: "var(--purple)",
+                                    fontWeight: "bold",
+                                    fontSize: "clamp(0.9rem, 2vw, 1rem)",
+                                }}
+                            >
+                                <p style={{ color: "var(--pink)" }}>[ WHAT: 24H_HACK ]</p>
+                                <p style={{ color: "var(--pink)" }}>[ WHEN: JAN_24-26 ]</p>
+                                <p style={{ color: "var(--pink)" }}>[ WHERE: IIIT Hyderabad ]</p>
+                                <p style={{ color: "var(--pink)" }}>[ WHY: BECAUSE_CODE_CHANGES_CAMPUS ]</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Memories Carousel */}
+            <section className="section" style={{ background: "rgba(13, 17, 100, 0.1)" }} id="memories">
+                <div className="container">
+                    <h2
+                        className="reveal"
+                        style={{
+                            fontFamily: "Press Start 2P",
+                            fontSize: "clamp(0.7rem, 2vw, 1rem)",
+                            textAlign: "center",
+                            marginBottom: "50px",
+                        }}
+                    >
+                        MEMORIES_HACKIIIT_2025
+                    </h2>
+                    <div className="carousel-container reveal">
+                        <div className="carousel-track">
+                            {[9, 8, 7, 6, 5, 4, 3, 2, 1].map((num) => (
+                                <Image
+                                    key={num}
+                                    className="carousel-img"
+                                    src={`/hackiiit/carousel${num}.JPG`}
+                                    alt={`Carousel ${num}`}
+                                    width={350}
+                                    height={220}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Jane Street Spotlight */}
+            <section
+                style={{
+                    color: "white",
+                    minHeight: "100vh",
+                    padding: "100px 20px",
+                    display: "flex",
+                    alignItems: "center",
+                }}
+            >
+                <div className="container" style={{ textAlign: "center" }}>
+                    <h2
+                        className="reveal"
+                        style={{
+                            fontFamily: "Press Start 2P",
+                            fontSize: "clamp(0.7rem, 2vw, 1rem)",
+                            textAlign: "center",
+                            marginBottom: "50px",
+                        }}
+                    >
+                        PARTNERING WITH
+                    </h2>
+                    <Image
+                        src="/hackiiit/Jane_street_logo.png"
+                        style={{ maxHeight: "200px", width: "auto", maxWidth: "90%", marginBottom: "30px" }}
+                        alt="Jane Street"
+                        width={500}
+                        height={200}
+                    />
+                    <p
+                        style={{
+                            maxWidth: "700px",
+                            margin: "0 auto",
+                            fontSize: "clamp(1rem, 2vw, 1.1rem)",
+                            lineHeight: "1.8",
+                            padding: "0 20px",
+                        }}
+                    >
+                        Jane Street is a quantitative trading firm with a unique focus on technology and collaborative
+                        problem-solving. We are proud to have them as our primary partner for HackIIIT 2025.
+                    </p>
+                </div>
+            </section>
+
+            {/* Timeline */}
+            <section className="section" id="timeline">
+                <div className="container" style={{ maxWidth: "800px" }}>
+                    <h2
+                        className="reveal"
+                        style={{
+                            fontFamily: "Press Start 2P",
+                            fontSize: "clamp(0.8rem, 2vw, 1rem)",
+                            marginBottom: "60px",
+                            color: "var(--peach)",
+                        }}
+                    >
+                        CHRONOLOGY_LOG
+                    </h2>
+                    <div className="timeline-item reveal hover-target">
+                        <h3 style={{ color: "var(--pink)", fontSize: "clamp(1rem, 2.5vw, 1.2rem)" }}>REGISTRATIONS</h3>
+                        <p style={{ color: "#666", fontFamily: "Space Mono", fontSize: "clamp(0.85rem, 2vw, 1rem)" }}>
+                            Assemble your team and start tinkering! Only a few projects will be shortlisted based on proposal
+                            quality
+                        </p>
+                    </div>
+                    <div className="timeline-item reveal hover-target">
+                        <h3 style={{ fontSize: "clamp(1rem, 2.5vw, 1.2rem)" }}>THE KICKOFF</h3>
+                        <p style={{ color: "#666", fontFamily: "Space Mono", fontSize: "clamp(0.85rem, 2vw, 1rem)" }}>
+                            JAN 24 | 12:00 // KEYNOTE ADDRESS
+                        </p>
+                    </div>
+                    <div className="timeline-item reveal hover-target">
+                        <h3 style={{ fontSize: "clamp(1rem, 2.5vw, 1.2rem)" }}>24H HACKING</h3>
+                        <p style={{ color: "#666", fontFamily: "Space Mono", fontSize: "clamp(0.85rem, 2vw, 1rem)" }}>
+                            JAN 24 | 15:00 // PURE HACKING BEGINS (24 HOURS)
+                        </p>
+                    </div>
+                    <div className="timeline-item reveal hover-target">
+                        <h3 style={{ fontSize: "clamp(1rem, 2.5vw, 1.2rem)" }}>JUDGEMENT DAY</h3>
+                        <p style={{ color: "#666", fontFamily: "Space Mono", fontSize: "clamp(0.85rem, 2vw, 1rem)" }}>
+                            JAN 25 | 15:00 // EVENT ENDS (3:00 PM)
+                        </p>
+                    </div>
+                    <div className="timeline-item reveal hover-target">
+                        <h3 style={{ fontSize: "clamp(1rem, 2.5vw, 1.2rem)" }}>RESULTS ANNOUNCED</h3>
+                        <p style={{ color: "#666", fontFamily: "Space Mono", fontSize: "clamp(0.85rem, 2vw, 1rem)" }}>
+                            JAN 26 // RESULTS ANNOUNCED
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* FAQ Section */}
+            <section className="section" id="faq" style={{ background: "rgba(100, 13, 95, 0.05)" }}>
+                <div className="container" style={{ maxWidth: "900px" }}>
+                    <h2
+                        className="reveal"
+                        style={{
+                            fontFamily: "Press Start 2P",
+                            fontSize: "clamp(0.8rem, 2vw, 1rem)",
+                            marginBottom: "60px",
+                            color: "var(--peach)",
+                            textAlign: "center",
+                        }}
+                    >
+                        FREQUENTLY_ASKED_QUESTIONS
+                    </h2>
+
+                    <div className="faq-item reveal">
+                        <h3 className="faq-question">Who can participate?</h3>
+                        <p className="faq-answer">
+                            HackIIIT is open to all IIIT Hyderabad students. You must form teams of 2 to 4 members to
+                            participate.
+                        </p>
+                    </div>
+
+                    <div className="faq-item reveal">
+                        <h3 className="faq-question">What should I build?</h3>
+                        <p className="faq-answer">
+                            Focus on solving real campus problems. Your solution must be open source and should address an
+                            actual need within our community.
+                        </p>
+                    </div>
+
+                    <div className="faq-item reveal">
+                        <h3 className="faq-question">Do I need to be experienced?</h3>
+                        <p className="faq-answer">
+                            No! HackIIIT welcomes all skill levels. Whether you&apos;re a beginner or an experienced developer,
+                            there&apos;s a place for you here.
+                        </p>
+                    </div>
+
+                    <div className="faq-item reveal">
+                        <h3 className="faq-question">What&apos;s the prize pool distribution?</h3>
+                        <p className="faq-answer">
+                            The total prize pool of ₹1,00,000 will be distributed among top teams. Exact distribution will be
+                            announced closer to the event.
+                        </p>
+                    </div>
+
+                    <div className="faq-item reveal">
+                        <h3 className="faq-question">Will there be mentorship?</h3>
+                        <p className="faq-answer">
+                            Yes! Mentors will be available throughout the 24-hour period to guide you and answer your
+                            questions.
+                        </p>
+                    </div>
+
+                    <div className="faq-item reveal">
+                        <h3 className="faq-question">What do I need to bring?</h3>
+                        <p className="faq-answer">
+                            Bring your laptop, charger, and enthusiasm! We&apos;ll provide food, beverages, and a great hacking
+                            environment.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* Scroll to Top Button */}
+            <button
+                id="scroll-top"
+                className="hover-target"
+                aria-label="Scroll to top"
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
+                ↑
+            </button>
+
+            {/* Footer */}
+            <footer style={{ padding: "100px 20px", borderTop: "1px solid var(--border)", background: "#000" }}>
+                <div className="container">
+                    <div className="footer-logo-grid">
+                        <div className="logo-wrapper reveal">
+                            <Image src="/hackiiit/iiit-logo.png" alt="IIIT" className="logo-img" width={150} height={50} />
+                        </div>
+                        <div className="logo-wrapper reveal">
+                            <Image src="/hackiiit/OSDG-logo.png" alt="OSDG" className="logo-img" width={150} height={50} />
+                        </div>
+                        <div className="logo-wrapper reveal">
+                            <Image
+                                src="/hackiiit/Jane_street_logo.png"
+                                alt="Jane Street"
+                                className="logo-img"
+                                width={150}
+                                height={50}
+                            />
+                        </div>
+                        <div className="logo-wrapper reveal">
+                            <Image src="/hackiiit/sponsor_2.png" alt="Sponsor" className="logo-img" width={150} height={50} />
+                        </div>
+                    </div>
+                    <p
+                        style={{
+                            textAlign: "center",
+                            fontFamily: "Space Mono",
+                            color: "#444",
+                            fontSize: "clamp(0.7rem, 1.5vw, 0.8rem)",
+                            marginTop: "50px",
+                        }}
+                    >
+                        EXECUTED BY OSDG // RELEASE_2026_V1
+                    </p>
+                </div>
+            </footer>
+        </>
     );
 }

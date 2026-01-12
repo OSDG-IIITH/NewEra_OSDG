@@ -5,6 +5,7 @@ import StepTracker from '@/components/vpn/StepTracker';
 import Step1Authentication from '@/components/vpn/Step1Authentication';
 import Step2CommandExecution from '@/components/vpn/Step2CommandExecution';
 import Step3Success from '@/components/vpn/Step3Success';
+import CASMaintenanceModal from '@/components/CASMaintenanceModal';
 // import VetalBotDelayed from '@/components/VetalBotDelayed';
 import { Terminal } from 'lucide-react';
 import { useState } from 'react';
@@ -13,12 +14,16 @@ import { useEffect } from 'react';
 function VPNSetupContent() {
   const { currentStep, hasStarted, setHasStarted, osInfo, commandData, errorText } = useVPNWizard();
   // const [openVetalChat, setOpenVetalChat] = useState(false);
-  
+  const [showModal, setShowModal] = useState(false);
+
   const tagline = 'Automated configuration for internal network access - outside';
   const [typedTagline, setTypedTagline] = useState('');
   const [showTagCursor, setShowTagCursor] = useState(true);
 
   useEffect(() => {
+    // Show modal on page load
+    setShowModal(true);
+
     if (!hasStarted) {
       let i = 0;
       const speed = 20; // fast typing
@@ -66,6 +71,7 @@ function VPNSetupContent() {
             &gt; Start setup
           </button>
         </div>
+        <CASMaintenanceModal isOpen={showModal} onClose={() => setShowModal(false)} />
       </div>
     );
   }
@@ -83,7 +89,7 @@ function VPNSetupContent() {
           {/* Step Content */}
           <div className="min-h-[400px]">
             {currentStep === 1 && <Step1Authentication />}
-            {currentStep === 2 && <Step2CommandExecution onError={() => {}} />}
+            {currentStep === 2 && <Step2CommandExecution onError={() => { }} />}
             {currentStep === 3 && <Step3Success />}
           </div>
         </div>
@@ -97,6 +103,8 @@ function VPNSetupContent() {
         onForceHandled={() => setOpenVetalChat(false)}
         onOpenChat={() => setOpenVetalChat(false)}
       /> */}
+
+      <CASMaintenanceModal isOpen={showModal} onClose={() => setShowModal(false)} />
     </div>
   );
 }
