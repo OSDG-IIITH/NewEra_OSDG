@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, use } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { motion } from "framer-motion";
 import "../../../styles/projects.css";
@@ -16,8 +16,9 @@ interface TeamMember {
   year: string;
 }
 
-export default function Projects({ searchParams }: { searchParams: any }) {
-  const [activeTab, setActiveTab] = useState(searchParams.activeTab || "All");
+export default function Projects({ searchParams }: { searchParams: Promise<any> }) {
+  const resolvedSearchParams = use(searchParams);
+  const [activeTab, setActiveTab] = useState(resolvedSearchParams.activeTab || "All");
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [membersData, setMembersData] = useState<TeamMember[]>([]);

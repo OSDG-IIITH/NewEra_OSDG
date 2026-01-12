@@ -3,8 +3,9 @@ import { supabase } from '@/utils/supabase';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
+  const params = await props.params;
   try {
     const projectId = params.id;
     console.log('[Projects API] DELETE request for project:', projectId);
