@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 // Make sure this path is correct for your project structure
-import "/styles/linux-installation.css";
+import "../../../styles/linux-installation.css";
 
 export default function LinuxInstallationPage() {
   const [htmlContent, setHtmlContent] = useState("");

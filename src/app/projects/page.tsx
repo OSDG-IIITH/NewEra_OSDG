@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { motion } from "framer-motion";
-import "/styles/projects.css";
+import "../../../styles/projects.css";
 import projectsData from "@/data/projects.json";
 import carouselProjectNames from "@/data/carouselProjects.json";
 import brandLogo from "@/assets/BrandLogo.png";

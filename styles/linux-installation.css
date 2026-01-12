@@ -247,6 +247,7 @@ main {
 }
 
 /* --- OPTIMIZATION: Style for TODO items --- */
+/* :contains is not supported in standard CSS
 .prose p:has(strong:contains('TODO')),
 .prose p:contains('TODO'),
 .prose li:contains('TODO') {
@@ -256,6 +257,7 @@ main {
     border-radius: 0.25rem;
     color: #fef08a;
 }
+*/
 
 
 /* Responsive Design for Mobile */
