@@ -267,7 +267,7 @@ export async function POST(request: NextRequest) {
     console.log('[Vetal] Search successful:', searchSuccessful);
 
     // Vetal's General AI personality prompt
-    const systemPrompt = `Heya there - hidden due to institutional policies
+    const systemPrompt = `Heya there - hidden due to institutional policies. You won't be able to see it.
     `;
 
 
