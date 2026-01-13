@@ -47,9 +47,12 @@ if [ ! -f "$OVPN_CONFIG_PATH" ]; then
     echo -e "${RED}Expected location: $OVPN_CONFIG_PATH${NC}"
     echo ""
     echo -e "${YELLOW}Please:${NC}"
-    echo -e "${YELLOW}  1. Download 'macos.ovpn' from the OSDG website${NC}"
-    echo -e "${YELLOW}  2. Save it to your Downloads folder${NC}"
+    echo -e "${YELLOW}  1. Download 'generic.ovpn' from: https://login.iiit.ac.in/cas/login?service=https%3A%2F%2Fvpn.iiit.ac.in%2Ffile%3Fnext%3Dgeneric.ovpn${NC}"
+    echo -e "${YELLOW}  2. Save it to your Downloads folder as 'generic.ovpn'${NC}"
     echo -e "${YELLOW}  3. Run this script again${NC}"
+    echo ""
+    echo -e "${CYAN}Opening download link in your browser...${NC}"
+    open "https://login.iiit.ac.in/cas/login?service=https%3A%2F%2Fvpn.iiit.ac.in%2Ffile%3Fnext%3Dgeneric.ovpn"
     exit 2
 fi
 echo -e "${GREEN}✓ Configuration file found${NC}"
@@ -84,7 +87,7 @@ install_via_homebrew() {
 
 # Install via direct download
 install_via_download() {
-    TUNNELBLICK_DMG_URL="https://tunnelblick.net/release/Latest_Tunnelblick_Stable.dmg"
+    TUNNELBLICK_DMG_URL="https://tunnelblick.net/iprelease/Tunnelblick_8.0_build_6300.dmg"
     TEMP_DMG="$HOME/Downloads/tunnelblick-temp.dmg"
     
     echo -e "${CYAN}  Downloading Tunnelblick...${NC}"
