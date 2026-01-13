@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: "OSDG | IIIT Hyderabad",
   description: "Open Source Developers Group at IIIT Hyderabad",
   icons: {
-    icon: '/favicon.png',
+    icon: "/favicon.png",
   },
 };
 
@@ -29,16 +29,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${oxanium.variable}`}>
-      <body className={inter.className} style={{
-        background: 'linear-gradient(to bottom, #000 60%, #0a1a3c 100%)',
-        minHeight: '100vh',
-        color: 'white',
-      }}>
+      <body
+        className={inter.className}
+        style={{
+          background: "linear-gradient(to bottom, #000 60%, #0a1a3c 100%)",
+          minHeight: "100vh",
+          color: "white",
+        }}
+      >
         <AuthProvider>
           <Navbar />
-          <main style={{background: 'transparent'}}>
-            {children}
-          </main>
+          <main style={{ background: "transparent" }}>{children}</main>
           <SocialSidebar />
           <VetalBotDelayed />
           <Footer />
