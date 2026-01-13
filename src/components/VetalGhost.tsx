@@ -1,13 +1,24 @@
 "use client";
 
 import React from "react";
-
+import { usePathname } from "next/navigation";
 interface VetalGhostProps {
   className?: string;
   onClick?: () => void;
 }
 
-export default function VetalGhost({ className = "", onClick }: VetalGhostProps) {
+export default function VetalGhost({
+  className = "",
+  onClick,
+}: VetalGhostProps) {
+  const pathname = usePathname();
+
+  console.log(pathname);
+  // Return NULL if on the hackathon page.
+  // This ensures NO HTML is rendered at all.
+  if (pathname.startsWith("/hackiiit") || pathname.startsWith("/hackathon")) {
+    return null;
+  }
   return (
     <svg
       viewBox="0 0 200 200"
@@ -18,7 +29,7 @@ export default function VetalGhost({ className = "", onClick }: VetalGhostProps)
     >
       {/* Ghost body outline - head and sides */}
       <path
-        d="M 100 30 
+        d="M 100 30
            C 60 30, 40 50, 40 90
            L 40 145"
         fill="none"
