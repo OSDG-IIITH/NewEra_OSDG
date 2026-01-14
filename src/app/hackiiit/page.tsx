@@ -918,7 +918,7 @@ export default function HackIIIT() {
           >
             Jane Street is a quantitative trading firm with a unique focus on
             technology and collaborative problem-solving. We are proud to have
-            them as our sponsor for HackIIIT 2025.
+            them as our sponsor for HackIIIT 2026.
           </p>
         </div>
       </section>
