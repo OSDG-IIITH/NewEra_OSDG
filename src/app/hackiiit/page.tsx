@@ -743,8 +743,11 @@ export default function HackIIIT() {
           </p>
 
           <div className="reveal">
-            <a href="#" className="btn-cta hover-target disabled:">
-              REGISTRATIONS OPENING SOON
+            <a
+              href="https://forms.cloud.microsoft/r/zuhQi6mv2W"
+              className="btn-cta hover-target disabled:"
+            >
+              REGISTER NOW
             </a>
           </div>
         </div>
