@@ -1104,7 +1104,7 @@ export default function HackIIIT() {
               working on improving.
               <br />
               <br />
-              OSDG reserved rights to disqualify participants found using
+              OSDG reserves rights to disqualify participants found using
               undisclosed previous work.
             </p>
 

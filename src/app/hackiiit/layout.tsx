@@ -1,8 +1,7 @@
-// app/hackathon/layout.tsx
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "HackIIIT | 2025",
+  title: "HackIIIT | 2026",
   description: "Build anything that makes IIIT better.",
 };
 
