@@ -1020,10 +1020,10 @@ export default function HackIIIT() {
 
           <div className="reveal">
             <a
-              href="https://forms.office.com/Pages/ResponsePage.aspx?id=t1kxAuStqEa_qrgtolaf18tt6a2J6UdEhZiSuC2swhhURVNQS0tQQ01JNkc0QVYxTkVJNlJWQzRRSy4u"
+              href="/hackiiit#timeline"
               className="btn-cta hover-target disabled:"
             >
-              Register Now
+              Registrations Closed, View Timeline >>
             </a>
           </div>
         </div>
@@ -1523,8 +1523,7 @@ export default function HackIIIT() {
           <div className="faq-item reveal">
             <h3 className="faq-question">What is the proposal about???</h3>
             <p className="faq-answer">
-              Focus on solving real campus problems. Your solution must be open
-              source and should address an actual need within our community.
+              Give a short summary of your solution in a simple one page pdf. Submissions will open on 24th Jan, 2:00 PM.
             </p>
           </div>
 
