@@ -681,6 +681,282 @@ export default function HackIIIT() {
             }
           }
         }
+
+        /* Prizes Section Styles */
+        .prize-grid {
+          display: flex;
+          justify-content: center;
+          align-items: flex-end;
+          gap: 20px;
+          margin-bottom: 60px;
+          flex-wrap: wrap;
+        }
+
+        .prize-card {
+          background: var(--glass);
+          border: 1px solid var(--border);
+          border-radius: 20px;
+          padding: 40px 20px;
+          text-align: center;
+          width: 280px;
+          position: relative;
+          backdrop-filter: blur(10px);
+          transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .prize-card:hover {
+          transform: translateY(-10px);
+          border-color: var(--pink);
+          background: rgba(234, 34, 100, 0.1);
+          box-shadow: 0 10px 30px rgba(234, 34, 100, 0.2);
+        }
+
+        .prize-card.first {
+          height: 380px;
+          border-color: var(--peach);
+          background: rgba(247, 141, 96, 0.05);
+          order: 2;
+          z-index: 2;
+        }
+        
+        .prize-card.first:hover {
+          border-color: var(--peach);
+          background: rgba(247, 141, 96, 0.15);
+          box-shadow: 0 10px 40px rgba(247, 141, 96, 0.3);
+        }
+
+        .prize-card.second {
+          height: 320px;
+          order: 1;
+        }
+
+        .prize-card.third {
+          height: 300px;
+          order: 3;
+        }
+
+        .prize-rank {
+          font-family: "Press Start 2P";
+          font-size: 2rem;
+          margin-bottom: 20px;
+          color: #fff;
+          opacity: 0.8;
+        }
+        
+        .prize-card.first .prize-rank {
+          color: var(--peach);
+        }
+
+        .prize-amount {
+          font-family: "Space Mono";
+          font-size: 1.8rem;
+          font-weight: bold;
+          color: #fff;
+          margin-bottom: 10px;
+        }
+
+        .prize-label {
+          font-family: "Space Mono";
+          color: #888;
+          font-size: 0.9rem;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+
+        .prize-crown {
+          font-size: 3rem;
+          margin-bottom: 15px;
+          animation: float 3s ease-in-out infinite;
+          display: block;
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+
+        .awards-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 20px;
+          margin-top: 40px;
+        }
+
+        .award-item {
+          background: var(--glass);
+          border: 1px solid var(--border);
+          border-radius: 15px;
+          padding: 30px;
+          text-align: center;
+          transition: 0.3s;
+          backdrop-filter: blur(5px);
+        }
+
+        .award-item:hover {
+          border-color: var(--purple);
+          transform: translateY(-5px);
+          background: rgba(100, 13, 95, 0.15);
+        }
+
+        .award-icon {
+          font-size: 2.5rem;
+          margin-bottom: 15px;
+        }
+
+        .award-amount {
+          font-family: "Space Mono";
+          color: var(--peach);
+          font-weight: bold;
+          font-size: 1.2rem;
+          margin-bottom: 5px;
+        }
+
+        .award-title {
+          color: #fff;
+          font-size: 1rem;
+          font-family: "Plus Jakarta Sans", sans-serif;
+          font-weight: 600;
+        }
+
+        .award-desc {
+          font-size: 0.8rem;
+          color: #888;
+          margin-top: 5px;
+          font-family: "Space Mono";
+        }
+
+        @media (max-width: 1024px) {
+           .prize-grid {
+              gap: 15px;
+           }
+           .prize-card {
+              min-width: 260px;
+           }
+        }
+
+        @media (max-width: 900px) {
+
+             .award-desc {
+          font-size: 0.8rem;
+          color: #888;
+          margin-top: 5px;
+          font-family: "Space Mono";
+          visibility: hidden;
+          display : none ; 
+        }
+
+           .prize-grid {
+              flex-direction: column;
+              align-items: center;
+              gap: 30px;
+           }
+           
+           .prize-card {
+              width: 100%;
+              max-width: 450px;
+              height: auto !important;
+              order: unset !important;
+              padding: 30px 20px;
+              display: grid;
+              grid-template-columns: auto 1fr;
+              grid-template-rows: auto auto;
+              text-align: left;
+              align-items: center;
+              column-gap: 20px;
+           }
+
+           .prize-card.first {
+              order: -1 !important;
+              grid-template-rows: auto auto auto;
+           }
+
+           .prize-rank {
+              grid-row: 1 / 3;
+              margin-bottom: 0;
+              font-size: 1.5rem;
+           }
+           
+          
+           .prize-amount {
+              grid-column: 2;
+              grid-row: 1;
+              font-size: 1.4rem;
+              margin-bottom: 5px;
+           }
+
+           .prize-label {
+              grid-column: 2;
+              grid-row: 2;
+              font-size: 0.8rem;
+           }
+
+           .prize-crown {
+             grid-column: 1 / 3;
+             grid-row: 1;
+             font-size: 2rem;
+             margin-bottom: 10px;
+             text-align: center;
+             width: 100%;
+           }
+
+          
+        }
+
+        @media (max-width: 600px) {
+           .awards-grid {
+              grid-template-columns: 1fr; /* Stack awards on small mobile */
+           }
+           
+           .award-item {
+              display: flex;
+              align-items: center;
+              text-align: left;
+              padding: 20px;
+              gap: 20px;
+           }
+
+           .award-icon {
+              margin-bottom: 0;
+              font-size: 2rem;
+           }
+
+           .award-info {
+              flex-grow: 1;
+           }
+           
+           /* Need to wrap content in a div for flex layout in JS logic? 
+              CSS-only fix: assume direct children. 
+              But wait, the HTML structure is: icon, amount, title, desc.
+              Flexbox will put them in a row. We want icon + (stack of rest).
+           */
+        }
+        
+        /* Better Approach for Mobile Awards: Keep grid but center content or allow 2 cols on slightly larger mobile */
+        @media (max-width: 480px) {
+           .prize-card {
+             grid-template-columns: 1fr;
+             text-align: center;
+             justify-items: center;
+             gap: 10px;
+           }
+           
+           .prize-rank, 
+            .prize-rank, 
+           .prize-amount, 
+           .prize-label {
+             grid-column: auto;
+             grid-row: auto;
+           }
+           
+           .prize-crown {
+             grid-column: auto;
+             margin-bottom: 5px;
+           }
+
+           .award-item {
+              padding: 20px;
+           }
+        }
       `}</style>
 
       <link
@@ -744,10 +1020,10 @@ export default function HackIIIT() {
 
           <div className="reveal">
             <a
-              href="https://forms.cloud.microsoft/r/zuhQi6mv2W"
+              href="/hackiiit#timeline"
               className="btn-cta hover-target disabled:"
             >
-              REGISTER NOW
+              View Timeline
             </a>
           </div>
         </div>
@@ -879,6 +1155,92 @@ export default function HackIIIT() {
         </div>
       </section>
 
+
+
+      {/* Prizes Section */}
+      <section className="section" id="prizes">
+        <div className="container">
+          <h2
+            className="reveal"
+            style={{
+              fontFamily: "Space Mono",
+              fontSize: "clamp(1.5rem, 2vw, 1.5rem)",
+              margin: "100px 0 50px",
+              color: "#e4c66bff",
+              textAlign: "center",
+              letterSpacing: "4px",
+            }}
+          >
+            [ PRIZE_POOL_BREAKDOWN ]
+          </h2>
+
+          <div className="prize-grid reveal">
+            {/* 2nd Prize */}
+            <div className="prize-card second hover-target">
+              <span className="prize-crown">🥈</span>
+              <div className="prize-rank">2ND</div>
+              <div className="prize-amount">₹25,000</div>
+              <div className="prize-label">Runner Up</div>
+            </div>
+
+            {/* 1st Prize */}
+            <div className="prize-card first hover-target">
+              <span className="prize-crown">🥇</span>
+              <div className="prize-rank">1ST</div>
+              <div className="prize-amount">₹40,000</div>
+              <div className="prize-label">Winner</div>
+            </div>
+
+            {/* 3rd Prize */}
+            <div className="prize-card third hover-target">
+              <span className="prize-crown">🥉</span>
+              <div className="prize-rank">3RD</div>
+              <div className="prize-amount">₹15,000</div>
+              <div className="prize-label">2nd Runner Up</div>
+            </div>
+          </div>
+
+          <h3
+            className="reveal"
+            style={{
+              fontFamily: "Space Mono",
+              fontSize: "clamp(1rem, 2vw, 1.5rem)",
+              margin: "100px 0 50px",
+              color: "#fff",
+              textAlign: "center",
+              letterSpacing: "4px",
+            }}
+          >
+            [ ADDITIONAL_AWARDS ]
+          </h3>
+
+          <div className="awards-grid reveal">
+            <div className="award-item hover-target">
+              <div className="award-icon">🎨</div>
+              <div className="award-amount">₹5,000</div>
+              <div className="award-title">Most Creative Project</div>
+            </div>
+            <div className="award-item hover-target">
+              <div className="award-icon">👨‍🏫</div>
+              <div className="award-amount">₹5,000</div>
+              <div className="award-title">Best Mentor Award</div>
+            </div>
+            <div className="award-item hover-target">
+              <div className="award-icon">✨</div>
+              <div className="award-amount">₹5,000</div>
+              <div className="award-title">Best UI/UX</div>
+            </div>
+            <div className="award-item hover-target">
+              <div className="award-icon">🎁</div>
+              <div className="award-amount">₹5,000</div>
+              <div className="award-title">Special Prize</div>
+              <div className="award-desc">To be revealed soon</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
       {/* Jane Street Spotlight */}
       <section className="section compact">
         <div className="container" style={{ textAlign: "center" }}>
@@ -970,7 +1332,7 @@ export default function HackIIIT() {
                 fontSize: "clamp(0.85rem, 2vw, 1rem)",
               }}
             >
-              JAN 24 | 12:00 // EVENT OPENING
+              JAN 24 | 14:00 // EVENT OPENING
               <br /> Keynote Adress by Prof. Karthik Vaidhyanathan. Proposal
               submissions and evaluations.
             </p>
@@ -986,7 +1348,7 @@ export default function HackIIIT() {
                 fontSize: "clamp(0.85rem, 2vw, 1rem)",
               }}
             >
-              JAN 24 | 15:00 // PURE HACKING BEGINS (24 HOURS)
+              JAN 24 | 17:00 // PURE HACKING BEGINS (24 HOURS)
             </p>
           </div>
           <div className="timeline-item reveal hover-target">
@@ -1159,6 +1521,15 @@ export default function HackIIIT() {
           </div>
 
           <div className="faq-item reveal">
+            <h3 className="faq-question">What is the proposal about???</h3>
+            <p className="faq-answer">
+              Focus on solving real campus problems. Your solution must be open
+              source and should address an actual need within our community.
+            </p>
+          </div>
+
+
+          <div className="faq-item reveal">
             <h3 className="faq-question">Do I need to be experienced?</h3>
             <p className="faq-answer">
               No! HackIIIT welcomes all skill levels. Whether you&apos;re a
@@ -1173,7 +1544,8 @@ export default function HackIIIT() {
             </h3>
             <p className="faq-answer">
               The total prize pool of ₹1,00,000 will be distributed among top
-              teams. Exact distribution will be announced closer to the event.
+              teams and a few top mentors. Exact distribution will be announced
+              closer to the event.
             </p>
           </div>
 
