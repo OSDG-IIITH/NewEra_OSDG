@@ -1164,7 +1164,7 @@ export default function HackIIIT() {
             className="reveal"
             style={{
               fontFamily: "Space Mono",
-              fontSize: "clamp(1.5rem, 2vw, 1.5rem)",
+              fontSize: "clamp(1rem, 2vw, 1.5rem)",
               margin: "100px 0 50px",
               color: "#e4c66bff",
               textAlign: "center",
