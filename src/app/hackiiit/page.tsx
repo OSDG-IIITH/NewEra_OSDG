@@ -1020,10 +1020,10 @@ export default function HackIIIT() {
 
           <div className="reveal">
             <a
-              href="/hackiiit#timeline"
+              href="https://forms.office.com/Pages/ResponsePage.aspx?id=t1kxAuStqEa_qrgtolaf18tt6a2J6UdEhZiSuC2swhhURVNQS0tQQ01JNkc0QVYxTkVJNlJWQzRRSy4u"
               className="btn-cta hover-target disabled:"
             >
-              View Timeline
+              Register Now
             </a>
           </div>
         </div>
