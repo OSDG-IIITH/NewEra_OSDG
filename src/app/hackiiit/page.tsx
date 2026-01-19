@@ -718,7 +718,7 @@ export default function HackIIIT() {
           order: 2;
           z-index: 2;
         }
-        
+
         .prize-card.first:hover {
           border-color: var(--peach);
           background: rgba(247, 141, 96, 0.15);
@@ -742,7 +742,7 @@ export default function HackIIIT() {
           color: #fff;
           opacity: 0.8;
         }
-        
+
         .prize-card.first .prize-rank {
           color: var(--peach);
         }
@@ -771,8 +771,13 @@ export default function HackIIIT() {
         }
 
         @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
+          0%,
+          100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
         }
 
         .awards-grid {
@@ -826,136 +831,132 @@ export default function HackIIIT() {
         }
 
         @media (max-width: 1024px) {
-           .prize-grid {
-              gap: 15px;
-           }
-           .prize-card {
-              min-width: 260px;
-           }
+          .prize-grid {
+            gap: 15px;
+          }
+          .prize-card {
+            min-width: 260px;
+          }
         }
 
         @media (max-width: 900px) {
+          .award-desc {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 5px;
+            font-family: "Space Mono";
+            visibility: hidden;
+            display: none;
+          }
 
-             .award-desc {
-          font-size: 0.8rem;
-          color: #888;
-          margin-top: 5px;
-          font-family: "Space Mono";
-          visibility: hidden;
-          display : none ; 
-        }
+          .prize-grid {
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+          }
 
-           .prize-grid {
-              flex-direction: column;
-              align-items: center;
-              gap: 30px;
-           }
-           
-           .prize-card {
-              width: 100%;
-              max-width: 450px;
-              height: auto !important;
-              order: unset !important;
-              padding: 30px 20px;
-              display: grid;
-              grid-template-columns: auto 1fr;
-              grid-template-rows: auto auto;
-              text-align: left;
-              align-items: center;
-              column-gap: 20px;
-           }
+          .prize-card {
+            width: 100%;
+            max-width: 450px;
+            height: auto !important;
+            order: unset !important;
+            padding: 30px 20px;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-rows: auto auto;
+            text-align: left;
+            align-items: center;
+            column-gap: 20px;
+          }
 
-           .prize-card.first {
-              order: -1 !important;
-              grid-template-rows: auto auto auto;
-           }
+          .prize-card.first {
+            order: -1 !important;
+            grid-template-rows: auto auto auto;
+          }
 
-           .prize-rank {
-              grid-row: 1 / 3;
-              margin-bottom: 0;
-              font-size: 1.5rem;
-           }
-           
-          
-           .prize-amount {
-              grid-column: 2;
-              grid-row: 1;
-              font-size: 1.4rem;
-              margin-bottom: 5px;
-           }
+          .prize-rank {
+            grid-row: 1 / 3;
+            margin-bottom: 0;
+            font-size: 1.5rem;
+          }
 
-           .prize-label {
-              grid-column: 2;
-              grid-row: 2;
-              font-size: 0.8rem;
-           }
+          .prize-amount {
+            grid-column: 2;
+            grid-row: 1;
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+          }
 
-           .prize-crown {
-             grid-column: 1 / 3;
-             grid-row: 1;
-             font-size: 2rem;
-             margin-bottom: 10px;
-             text-align: center;
-             width: 100%;
-           }
+          .prize-label {
+            grid-column: 2;
+            grid-row: 2;
+            font-size: 0.8rem;
+          }
 
-          
+          .prize-crown {
+            grid-column: 1 / 3;
+            grid-row: 1;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-align: center;
+            width: 100%;
+          }
         }
 
         @media (max-width: 600px) {
-           .awards-grid {
-              grid-template-columns: 1fr; /* Stack awards on small mobile */
-           }
-           
-           .award-item {
-              display: flex;
-              align-items: center;
-              text-align: left;
-              padding: 20px;
-              gap: 20px;
-           }
+          .awards-grid {
+            grid-template-columns: 1fr; /* Stack awards on small mobile */
+          }
 
-           .award-icon {
-              margin-bottom: 0;
-              font-size: 2rem;
-           }
+          .award-item {
+            display: flex;
+            align-items: center;
+            text-align: left;
+            padding: 20px;
+            gap: 20px;
+          }
 
-           .award-info {
-              flex-grow: 1;
-           }
-           
-           /* Need to wrap content in a div for flex layout in JS logic? 
-              CSS-only fix: assume direct children. 
+          .award-icon {
+            margin-bottom: 0;
+            font-size: 2rem;
+          }
+
+          .award-info {
+            flex-grow: 1;
+          }
+
+          /* Need to wrap content in a div for flex layout in JS logic?
+              CSS-only fix: assume direct children.
               But wait, the HTML structure is: icon, amount, title, desc.
               Flexbox will put them in a row. We want icon + (stack of rest).
            */
         }
-        
+
         /* Better Approach for Mobile Awards: Keep grid but center content or allow 2 cols on slightly larger mobile */
         @media (max-width: 480px) {
-           .prize-card {
-             grid-template-columns: 1fr;
-             text-align: center;
-             justify-items: center;
-             gap: 10px;
-           }
-           
-           .prize-rank, 
-            .prize-rank, 
-           .prize-amount, 
-           .prize-label {
-             grid-column: auto;
-             grid-row: auto;
-           }
-           
-           .prize-crown {
-             grid-column: auto;
-             margin-bottom: 5px;
-           }
+          .prize-card {
+            grid-template-columns: 1fr;
+            text-align: center;
+            justify-items: center;
+            gap: 10px;
+          }
 
-           .award-item {
-              padding: 20px;
-           }
+          .prize-rank,
+          .prize-rank,
+          .prize-amount,
+          .prize-label {
+            grid-column: auto;
+            grid-row: auto;
+          }
+
+          .prize-crown {
+            grid-column: auto;
+            margin-bottom: 5px;
+          }
+
+          .award-item {
+            padding: 20px;
+          }
         }
       `}</style>
 
@@ -1020,10 +1021,10 @@ export default function HackIIIT() {
 
           <div className="reveal">
             <a
-              href="https://forms.office.com/Pages/ResponsePage.aspx?id=t1kxAuStqEa_qrgtolaf18tt6a2J6UdEhZiSuC2swhhURVNQS0tQQ01JNkc0QVYxTkVJNlJWQzRRSy4u"
+              href="/hackiiit#timeline"
               className="btn-cta hover-target disabled:"
             >
-              Register Now
+              Registrations Closed, View Timeline 🠞
             </a>
           </div>
         </div>
@@ -1155,8 +1156,6 @@ export default function HackIIIT() {
         </div>
       </section>
 
-
-
       {/* Prizes Section */}
       <section className="section" id="prizes">
         <div className="container">
@@ -1239,7 +1238,6 @@ export default function HackIIIT() {
           </div>
         </div>
       </section>
-
 
       {/* Jane Street Spotlight */}
       <section className="section compact">
@@ -1523,11 +1521,10 @@ export default function HackIIIT() {
           <div className="faq-item reveal">
             <h3 className="faq-question">What is the proposal about???</h3>
             <p className="faq-answer">
-              Focus on solving real campus problems. Your solution must be open
-              source and should address an actual need within our community.
+              Give a short summary of your solution in a simple one page pdf.
+              Submissions will open on 24th Jan, 2:00 PM.
             </p>
           </div>
-
 
           <div className="faq-item reveal">
             <h3 className="faq-question">Do I need to be experienced?</h3>
