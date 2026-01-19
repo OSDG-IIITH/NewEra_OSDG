@@ -277,6 +277,16 @@ export default function HackIIIT() {
           line-height: 1.2;
         }
 
+        .glow-letter {
+          display: inline-block;
+          transition: all 0.2s ease;
+        }
+
+        .glow-letter:hover {
+          color: #ffd1fdff;
+          text-shadow: 0 0 10px var(--pink), 0 0 20px var(--peach);
+        }
+
         .btn-cta {
           background: var(--pink);
           color: white;
@@ -995,7 +1005,13 @@ export default function HackIIIT() {
           >
             [ SESSION_OPEN ]
           </p>
-          <h1 className="hero-title reveal">HACKIIIT</h1>
+          <h1 className="hero-title reveal">
+            {"HACKIIIT".split("").map((char, index) => (
+              <span key={index} className="glow-letter">
+                {char}
+              </span>
+            ))}
+          </h1>
           <p
             className="reveal"
             style={{
@@ -1254,7 +1270,7 @@ export default function HackIIIT() {
             PARTNERING WITH
           </h2>
           <Image
-            src="/hackiiit/Jane_street_logo.png"
+            src="/hackiiit/jane_street_logo.png"
             alt="Jane Street"
             width={500}
             height={200}
@@ -1276,9 +1292,11 @@ export default function HackIIIT() {
               padding: "0 20px",
             }}
           >
-            Jane Street is a quantitative trading firm with a unique focus on
-            technology and collaborative problem-solving. We are proud to have
-            them as our sponsor for HackIIIT 2026.
+            Jane Street works differently. We are a quantitative trading firm
+            active on more than 200 trading venues across 45 countries. As a
+            liquidity provider and market maker, we help form the backbone of
+            global markets. Our approach is rooted in technology and rigorous
+            quantitative analysis, but our success is driven by our people.
           </p>
         </div>
       </section>
@@ -1595,7 +1613,7 @@ export default function HackIIIT() {
             </div>
             <div className="logo-wrapper reveal">
               <Image
-                src="/hackiiit/Jane_street_logo.png"
+                src="/hackiiit/jane_street_logo_stacked.png"
                 alt="Jane Street"
                 className="logo-img"
                 width={150}
