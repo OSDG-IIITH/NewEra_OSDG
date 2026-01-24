@@ -1,12 +1,40 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 export default function HackIIIT() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const followerRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
+
+  const [timeLeft, setTimeLeft] = useState("--:--:--");
+  const [isProposalOpen, setIsProposalOpen] = useState(false);
+
+  useEffect(() => {
+    // Countdown Timer
+    const target = new Date("2026-01-24T10:54:00+05:30").getTime();
+    
+    const updateTimer = () => {
+      const now = new Date().getTime();
+      const diff = target - now;
+
+      if (diff <= 0) {
+        setIsProposalOpen(true);
+        setTimeLeft("00:00:00");
+      } else {
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+        setTimeLeft(`${h}h ${m}m ${s}s`);
+      }
+    };
+
+    updateTimer(); // Initial call
+    const timerId = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(timerId);
+  }, []);
 
   useEffect(() => {
     // Cursor & Glow Logic
@@ -1036,12 +1064,22 @@ export default function HackIIIT() {
           </p>
 
           <div className="reveal">
-            <a
-              href="/hackiiit#timeline"
-              className="btn-cta hover-target disabled:"
-            >
-              Registrations Closed, View Timeline 🠞
-            </a>
+            {isProposalOpen ? (
+                <a
+                  href="/hackiiit/proposals"
+                  className="btn-cta hover-target"
+                >
+                  Submit Proposal 🠞
+                </a>
+            ) : (
+                <button
+                  disabled
+                  className="btn-cta disabled cursor-not-allowed opacity-50"
+                  style={{ pointerEvents: 'none' }}
+                >
+                  Opens in {timeLeft}
+                </button>
+            )}
           </div>
         </div>
       </section>
