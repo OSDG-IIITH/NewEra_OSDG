@@ -1577,7 +1577,7 @@ export default function HackIIIT() {
           <div className="faq-item reveal">
             <h3 className="faq-question">What is the proposal about???</h3>
             <p className="faq-answer">
-              Give a short summary of your solution in a simple one page pdf.
+              Give a summary of your solution & the problem you will be working on.
               Submissions will open on 24th Jan, 2:00 PM.
             </p>
           </div>

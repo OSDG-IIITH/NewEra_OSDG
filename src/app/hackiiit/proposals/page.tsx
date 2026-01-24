@@ -98,19 +98,19 @@ export default function ProposalsPage() {
     }
   }, [teamName, email]);
 
-  // Initial Check when Team/Email changes (Debounced)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-        if (teamName && email) {
-            setLoading(true);
-            fetchStatus(false).finally(() => {
-                setLoading(false);
-                setFirstLoadDone(true);
-            });
-        }
-    }, 800);
-    return () => clearTimeout(timer);
-  }, [teamName, email, fetchStatus]);
+  // Initial Check when Team/Email changes (Debounced) - DISABLED in favor of manual check
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //       if (teamName && email) {
+  //           setLoading(true);
+  //           fetchStatus(false).finally(() => {
+  //               setLoading(false);
+  //               setFirstLoadDone(true);
+  //           });
+  //       }
+  //   }, 800);
+  //   return () => clearTimeout(timer);
+  // }, [teamName, email, fetchStatus]);
 
   // Polling every 5 seconds
   useEffect(() => {
@@ -207,20 +207,21 @@ export default function ProposalsPage() {
       
       <div className="relative z-10 container mx-auto px-4 py-20 max-w-2xl">
          <h1 className="text-4xl md:text-6xl font-bold mb-2 tracking-tight text-center">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ea2264] to-[#f78d60]">
+            {/* <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ea2264] to-[#f78d60]">
                HackIIIT 2026
-            </span> Proposals
+            </span>  */}
+            Pitch Your Build
          </h1>
          <p className="text-center text-gray-400 mb-12">
-            Get. Set. Go.
+            Propose. Pass. Build.
          </p>
 
          <div className="bg-[#0f0f13] border border-white/10 p-8 rounded-2xl shadow-2xl backdrop-blur-xl transition-all duration-500">
             <form onSubmit={handleSubmit} className="space-y-6">
                 
                 {/* Identification Fields */}
-                <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
+                <div className="flex flex-col md:flex-row gap-4 items-end">
+                    <div className="space-y-2 flex-grow">
                         <label className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Team Name</label>
                         <input
                             required
@@ -231,7 +232,7 @@ export default function ProposalsPage() {
                             className="glass-input w-full p-3 rounded-lg"
                         />
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-2 flex-grow">
                         <label className="text-sm font-semibold text-gray-400 uppercase tracking-wider">POC Email</label>
                         <input
                             required
@@ -242,38 +243,65 @@ export default function ProposalsPage() {
                             className="glass-input w-full p-3 rounded-lg"
                         />
                     </div>
+                    
+                    {!firstLoadDone && (
+                        <button
+                            type="button"
+                            onClick={async () => {
+                              if (!teamName || !email) return;
+                              setLoading(true);
+                              await fetchStatus(false);
+                              setLoading(false);
+                              setFirstLoadDone(true);
+                            }}
+                            disabled={!teamName || !email || loading}
+                            className="group flex-none flex items-center justify-center w-12 h-12 mb-[1px] rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-300"
+                            aria-label="Proceed"
+                        >
+                          {loading ? (
+                            <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                          ) : (
+                            <svg className="w-5 h-5 text-white/80 group-hover:text-white transform group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                          )}
+                        </button>
+                    )}
                 </div>
 
-                {/* Status Banner */}
-                {status && (
-                    <div className="flex flex-col gap-2 animate-fade-in">
+                {/* After identity is checked, show status + proposal */}
+                {firstLoadDone ? (
+                  <>
+                    {/* Status Banner */}
+                    {status && (
+                      <div className="flex flex-col gap-2 animate-fade-in">
                         <div className="flex items-center justify-between">
-                            <h3 className="text-xl font-bold tracking-tight text-white mb-2">Proposal Status</h3>
-                            <span className={`px-3 py-1 rounded text-sm font-semibold uppercase ${
-                                status.toLowerCase() === 'accepted' ? 'text-green-400 bg-green-900/20 border border-green-500/20' :
-                                status.toLowerCase() === 'rejected' ? 'text-red-400 bg-red-900/20 border border-red-500/20' :
-                                'text-yellow-400 bg-yellow-900/20 border border-yellow-500/20'
-                            }`}>
-                                {status}
-                            </span>
+                          <h3 className="text-xl font-bold tracking-tight text-white mb-2">Proposal Status</h3>
+                          <span className={`px-3 py-1 rounded text-sm font-semibold uppercase ${
+                            status.toLowerCase() === 'accepted' ? 'text-green-400 bg-green-900/20 border border-green-500/20' :
+                            status.toLowerCase() === 'rejected' ? 'text-red-400 bg-red-900/20 border border-red-500/20' :
+                            'text-yellow-400 bg-yellow-900/20 border border-yellow-500/20'
+                          }`}>
+                            {status}
+                          </span>
                         </div>
                         {comment && (
-                             <div className="text-sm bg-white/5 p-3 rounded border border-white/10 text-gray-300">
-                                {comment}
-                             </div>
+                           <div className="text-sm bg-white/5 p-3 rounded border border-white/10 text-gray-300">
+                            {comment}
+                           </div>
                         )}
                         {status.toLowerCase() === 'rejected' && (
-                            <p className="text-xs text-red-400 mt-1">Re-submit below.</p>
+                          <p className="text-xs text-red-400 mt-1">Re-submit below.</p>
                         )}
-                    </div>
-                )}
+                      </div>
+                    )}
 
-                {/* Proposal Text Area */}
-                <div className="space-y-2 relative">
-                    <label className="text-sm font-semibold text-gray-400 uppercase tracking-wider block">
+                    {/* Proposal Text Area */}
+                    <div className="space-y-2 relative">
+                      <label className="text-sm font-semibold text-gray-400 uppercase tracking-wider block">
                         Project Proposal
-                    </label>
-                    <textarea
+                      </label>
+                      <textarea
                         required
                         rows={8}
                         disabled={isLocked}
@@ -281,30 +309,32 @@ export default function ProposalsPage() {
                         value={proposal}
                         onChange={e => setProposal(e.target.value)}
                         className={`glass-input w-full p-3 rounded-lg resize-none ${isLocked ? 'text-gray-400' : ''}`}
-                    />
-                </div>
+                      />
+                    </div>
 
-                {/* Submit Button */}
-                {!isLocked && (
-                    <button
+                    {/* Submit Button */}
+                    {!isLocked && (
+                      <button
                         type="submit"
                         disabled={loading || !teamName || !email}
                         className="w-full py-4 bg-gradient-to-r from-[#ea2264] to-[#f78d60] rounded-lg font-bold text-lg hover:shadow-[0_0_30px_rgba(234,34,100,0.5)] transition-shadow disabled:opacity-50 disabled:cursor-not-allowed text-white uppercase tracking-wide"
-                    >
+                      >
                         {loading ? "Processing..." : (status?.toLowerCase() === 'rejected' ? "Re-submit Proposal" : "Submit")}
-                    </button>
-                )}
+                      </button>
+                    )}
 
-                {/* Message Banner */}
-                {message && (
-                    <div className={`p-3 rounded-lg text-center text-sm ${
+                    {/* Message Banner */}
+                    {message && (
+                      <div className={`p-3 rounded-lg text-center text-sm ${
                         message.toLowerCase().includes("fail") || message.toLowerCase().includes("error") 
                         ? "bg-red-500/10 text-red-200 border border-red-500/20" 
                         : "bg-green-500/10 text-green-200 border border-green-500/20"
-                    }`}>
+                      }`}>
                         {message}
-                    </div>
-                )}
+                      </div>
+                    )}
+                  </>
+                ) : null}
             </form>
          </div>
       </div>
