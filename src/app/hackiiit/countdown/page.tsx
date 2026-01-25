@@ -23,7 +23,7 @@ export default function HackIIITCountdown() {
 
     useEffect(() => {
         // Target: 5 PM on 25 Jan 2026
-        const target = new Date("2026-01-25T15:33:00+05:30").getTime();
+        const target = new Date("2026-01-25T17:00:00+05:30").getTime();
 
         const updateTimer = () => {
             const now = new Date().getTime();
