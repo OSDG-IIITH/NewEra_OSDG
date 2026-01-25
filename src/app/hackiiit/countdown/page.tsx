@@ -118,13 +118,15 @@ export default function HackIIITCountdown() {
           --border: rgba(255, 255, 255, 0.1);
         }
 
-        body {
+        html, body {
           font-family: var(--font-press-start);
-
           background: var(--black);
           color: #fff;
           margin: 0;
+          padding: 0;
           overflow: hidden;
+          height: 100%;
+          width: 100%;
         }
         
         .countdown-container {
@@ -132,7 +134,7 @@ export default function HackIIITCountdown() {
             align-items: center;
             justify-content: center;
             height: 100vh;
-            width: 100vw;
+            width: 100%;
             position: relative;
         }
 
