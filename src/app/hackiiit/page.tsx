@@ -14,7 +14,7 @@ export default function HackIIIT() {
   useEffect(() => {
     // Countdown Timer
     const target = new Date("2026-01-24T12:00:00+05:30").getTime();
-    
+
     const updateTimer = () => {
       const now = new Date().getTime();
       const diff = target - now;
@@ -1065,20 +1065,20 @@ export default function HackIIIT() {
 
           <div className="reveal">
             {isProposalOpen ? (
-                <a
-                  href="/hackiiit/proposals"
-                  className="btn-cta hover-target"
-                >
-                  Submit Proposal 🠞
-                </a>
+              <a
+                href="/hackiiit/proposals"
+                className="btn-cta hover-target"
+              >
+                Submit Proposal 🠞
+              </a>
             ) : (
-                <button
-                  disabled
-                  className="btn-cta disabled cursor-not-allowed opacity-50"
-                  style={{ pointerEvents: 'none' }}
-                >
-                  Opens in {timeLeft}
-                </button>
+              <button
+                disabled
+                className="btn-cta disabled cursor-not-allowed opacity-50"
+                style={{ pointerEvents: 'none' }}
+              >
+                Opens in {timeLeft}
+              </button>
             )}
           </div>
         </div>
@@ -1430,7 +1430,7 @@ export default function HackIIIT() {
                 fontSize: "clamp(0.85rem, 2vw, 1rem)",
               }}
             >
-              JAN 25 | 15:00 // EVENT ENDS (3:00 PM)
+              JAN 25 | 17:00 // EVENT ENDS (5:00 PM)
             </p>
           </div>
           <div className="timeline-item reveal hover-target">
