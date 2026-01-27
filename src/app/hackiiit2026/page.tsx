@@ -1339,6 +1339,12 @@ export default function HackIIIT() {
           >
             JAN 24-26, 2026 • ₹1,00,000 PRIZE POOL
           </p>
+          <button
+            className="btn-cta"
+            href="https://gist.github.com/Gopalkataria/926edc4320cbd137e65fa5e284c3a260"
+          >
+            Have a look at all submissions here
+          </button>
         </div>
       </section>
 
@@ -1580,100 +1586,6 @@ export default function HackIIIT() {
       </section>
 
 
-      {/* Mission */}
-      <section className="section" id="mission">
-        <div className="container">
-          <div className="glass-box reveal">
-            <div>
-              <Image
-                src="/hackiiit/audio_cassette_black.png"
-                style={{
-                  width: "100%",
-                  filter: "drop-shadow(0 0 25px #472635)",
-                }}
-                alt=""
-                width={400}
-                height={400}
-              />
-            </div>
-            <div>
-              <h2
-                style={{
-                  fontFamily: "Press Start 2P",
-                  fontSize: "clamp(0.9rem, 2vw, 1.2rem)",
-                  color: "var(--pink)",
-                  marginBottom: "25px",
-                }}
-              >
-                THE_MISSION
-              </h2>
-              <p
-                style={{
-                  color: "#ccc",
-                  fontSize: "clamp(1rem, 2vw, 1.1rem)",
-                  lineHeight: "1.6",
-                  maxWidth: "70ch",
-                  marginBottom: "25px",
-                }}
-              >
-                HackIIIT 2026 challenged the brightest minds at IIIT Hyderabad
-                to build solutions for real campus problems—in the open.
-                <br />
-                Open source, always. No gates. No secrets. Just code that
-                matters.
-                <br />
-                <br />
-                IIIT is home to some of the country’s best engineers. It’s also
-                home to outdated portals, clunky websites, and missing
-                quality-of-life features.
-                <br />
-                <br />
-                At OSDG, we believe the best way to fix problems is to build.
-                Welcome to{" "}
-                <span style={{ color: "var(--peach)", fontWeight: 600 }}>
-                  HackIIIT
-                </span>
-                , our annual hackathon focused on one simple idea:
-                <br />
-                <strong style={{ color: "#fff" }}>
-                  build anything that makes life at IIIT better.
-                </strong>
-                <br />
-                <br />
-                This year, we’re going bigger. A larger prize pool. A sharper
-                judging process. A unified theme,{" "}
-                <a
-                  href="https://google.com"
-                  style={{ color: "var(--peach)", textDecoration: "none" }}
-                >
-                  Sunset
-                </a>
-                .
-                <br />
-                Let’s reimagine campus life, one open-source project at a time.
-              </p>
-
-              <div
-                style={{
-                  fontFamily: "Space Mono",
-                  color: "var(--purple)",
-                  fontWeight: "bold",
-                  fontSize: "clamp(0.9rem, 2vw, 1rem)",
-                }}
-              >
-                <p style={{ color: "var(--pink)" }}>[ EVENT: 24H_HACK ]</p>
-                <p style={{ color: "var(--pink)" }}>[ DATES: JAN_24-26_2026 ]</p>
-                <p style={{ color: "var(--pink)" }}>
-                  [ LOCATION: IIIT Hyderabad ]
-                </p>
-                <p style={{ color: "var(--pink)" }}>
-                  [ TOTAL_PRIZES: ₹1,00,000 ]
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
 
       {/* Jane Street Spotlight */}
@@ -1688,7 +1600,7 @@ export default function HackIIIT() {
               marginBottom: "50px",
             }}
           >
-            PARTNERING WITH
+            POWERED BY
           </h2>
           <Image
             src="/hackiiit/jane_street_logo.png"
@@ -1721,6 +1633,67 @@ export default function HackIIIT() {
           </p>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer
+        style={{
+          padding: "100px 20px",
+          borderTop: "1px solid var(--border)",
+          background: "#000",
+        }}
+      >
+        <div className="container">
+          <div className="footer-logo-grid">
+            <div className="logo-wrapper reveal">
+              <Image
+                src="/hackiiit/OSDG-logo.png"
+                alt="OSDG"
+                className="logo-img"
+                width={150}
+                height={50}
+              />
+            </div>
+            <div className="logo-wrapper reveal">
+              <Image
+                src="/hackiiit/jane_street_logo_stacked.png"
+                alt="Jane Street"
+                className="logo-img"
+                width={150}
+                height={50}
+              />
+            </div>
+            <div className="logo-wrapper reveal">
+              <Image
+                src="/hackiiit/iiit-logo.png"
+                alt="IIIT"
+                className="logo-img"
+                width={150}
+                height={50}
+              />
+            </div>
+            <div className="logo-wrapper reveal">
+              <Image
+                src="/hackiiit/sponsor_2.png"
+                alt="Sponsor"
+                className="logo-img"
+                width={150}
+                height={50}
+              />
+            </div>
+          </div>
+          <p
+            style={{
+              textAlign: "center",
+              fontFamily: "Space Mono",
+              color: "#fff",
+              fontSize: "clamp(0.7rem, 1.5vw, 0.8rem)",
+              marginTop: "50px",
+            }}
+          >
+            Copyright (c) 2026 OSDG. All Rights Reserved.
+          </p>
+        </div>
+      </footer>
 
 
       {/* Scroll to Top Button */}
