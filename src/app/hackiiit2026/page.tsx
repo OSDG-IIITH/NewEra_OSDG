@@ -1341,7 +1341,7 @@ export default function HackIIIT() {
           </p>
           <button
             className="btn-cta"
-            href="https://gist.github.com/Gopalkataria/926edc4320cbd137e65fa5e284c3a260"
+            onClick={() => window.location.href = "https://gist.github.com/Gopalkataria/926edc4320cbd137e65fa5e284c3a260"}
           >
             Have a look at all submissions here
           </button>
