@@ -1,40 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 
 export default function HackIIIT() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const followerRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
-
-  const [timeLeft, setTimeLeft] = useState("--:--:--");
-  const [isProposalOpen, setIsProposalOpen] = useState(false);
-
-  useEffect(() => {
-    // Countdown Timer
-    const target = new Date("2026-01-24T12:00:00+05:30").getTime();
-
-    const updateTimer = () => {
-      const now = new Date().getTime();
-      const diff = target - now;
-
-      if (diff <= 0) {
-        setIsProposalOpen(true);
-        setTimeLeft("00:00:00");
-      } else {
-        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((diff % (1000 * 60)) / 1000);
-        setTimeLeft(`${h}h ${m}m ${s}s`);
-      }
-    };
-
-    updateTimer(); // Initial call
-    const timerId = setInterval(updateTimer, 1000);
-
-    return () => clearInterval(timerId);
-  }, []);
 
   useEffect(() => {
     // Cursor & Glow Logic
@@ -183,6 +155,11 @@ export default function HackIIIT() {
           background: var(--black);
           color: #fff;
         }
+
+        // img {
+        //   max-width: 400px;
+        //   height: auto;
+        // }
 
         #cursor {
           width: 8px;
@@ -720,6 +697,226 @@ export default function HackIIIT() {
           }
         }
 
+        /* Winner Cards Section Styles */
+        .winner-card {
+          background: var(--glass);
+          border: 2px solid var(--border);
+          border-radius: 20px;
+          overflow: hidden;
+          margin-bottom: 60px;
+          backdrop-filter: blur(10px);
+          transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .winner-card:hover {
+          border-color: var(--pink);
+          transform: translateY(-5px);
+          box-shadow: 0 10px 40px rgba(234, 34, 100, 0.3);
+        }
+
+        .winner-card.first {
+          border-color: var(--peach);
+          background: rgba(247, 141, 96, 0.05);
+        }
+
+        .winner-card.first:hover {
+          border-color: var(--peach);
+          box-shadow: 0 10px 40px rgba(247, 141, 96, 0.4);
+        }
+
+        .winner-image-placeholder {
+          width: 100%;
+          height: 500px;
+          background: linear-gradient(135deg, rgba(100, 13, 95, 0.3), rgba(234, 34, 100, 0.2));
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #666;
+          font-family: "Space Mono";
+          font-size: 1.3rem;
+          border-bottom: 2px solid var(--border);
+          overflow: hidden;
+          position: relative;
+        }
+
+        .winner-image-placeholder img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+
+        .winner-content {
+          padding: 50px 45px;
+        }
+
+        .winner-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 25px;
+          flex-wrap: wrap;
+          gap: 20px;
+        }
+
+        .winner-rank-badge {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+        }
+
+        .winner-medal {
+          font-size: 4rem;
+        }
+
+        .winner-rank-text {
+          font-family: "Press Start 2P";
+          font-size: 1.8rem;
+          color: var(--pink);
+        }
+
+        .winner-card.first .winner-rank-text {
+          color: var(--peach);
+        }
+
+        .winner-prize {
+          font-family: "Space Mono";
+          font-size: 2.5rem;
+          font-weight: bold;
+          color: #fff;
+        }
+
+        .winner-team-name {
+          font-family: "Press Start 2P";
+          font-size: clamp(1.4rem, 3vw, 2.2rem);
+          color: #fff;
+          margin-bottom: 20px;
+        }
+
+        .winner-description {
+          color: #ccc;
+          font-size: 1.2rem;
+          line-height: 1.9;
+          margin-bottom: 25px;
+        }
+
+        .winner-tech {
+          color: #888;
+          font-family: "Space Mono";
+          font-size: 1rem;
+        }
+
+        /* Mentor Awards Section */
+        .mentor-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+          gap: 40px;
+          margin-top: 40px;
+        }
+
+        .mentor-card {
+          background: var(--glass);
+          border: 2px solid var(--border);
+          border-radius: 25px;
+          padding: 50px 40px;
+          text-align: center;
+          transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          backdrop-filter: blur(10px);
+        }
+
+        .mentor-card:hover {
+          border-color: var(--purple);
+          transform: translateY(-8px);
+          background: rgba(100, 13, 95, 0.2);
+          box-shadow: 0 10px 40px rgba(100, 13, 95, 0.3);
+        }
+
+        .mentor-icon {
+          font-size: 5rem;
+          margin-bottom: 25px;
+        }
+
+        .mentor-image {
+          width: 150px;
+          height: 150px;
+          border-radius: 50%;
+          object-fit: cover;
+          margin: 0 auto 25px;
+          border: 4px solid var(--border);
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .mentor-card:hover .mentor-image {
+          border-color: var(--purple);
+          box-shadow: 0 8px 30px rgba(100, 13, 95, 0.5);
+          transform: scale(1.05);
+        }
+
+        .mentor-name {
+          font-family: "Space Mono";
+          color: #fff;
+          font-size: 1.5rem;
+          font-weight: bold;
+          margin-bottom: 12px;
+        }
+
+        .mentor-prize {
+          font-family: "Space Mono";
+          color: var(--peach);
+          font-weight: bold;
+          font-size: 1.8rem;
+          margin-bottom: 12px;
+        }
+
+        .mentor-description {
+          color: #aaa;
+          font-size: 1.05rem;
+          line-height: 1.7;
+        }
+
+        @media (max-width: 768px) {
+          .winner-image-placeholder {
+            height: 300px;
+            font-size: 0.9rem;
+          }
+
+          .winner-content {
+            padding: 35px 30px;
+          }
+
+          .winner-header {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+
+          .winner-medal {
+            font-size: 2.5rem;
+          }
+
+          .winner-rank-text {
+            font-size: 1.2rem;
+          }
+
+          .winner-prize {
+            font-size: 1.8rem;
+          }
+
+          .winner-description {
+            font-size: 1rem;
+          }
+
+          .winner-tech {
+            font-size: 0.9rem;
+          }
+
+          .mentor-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
         /* Prizes Section Styles */
         .prize-grid {
           display: flex;
@@ -820,16 +1017,16 @@ export default function HackIIIT() {
 
         .awards-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-          gap: 20px;
+          grid-template-columns: 1fr;
+          gap: 30px;
           margin-top: 40px;
         }
 
         .award-item {
           background: var(--glass);
-          border: 1px solid var(--border);
-          border-radius: 15px;
-          padding: 30px;
+          border: 2px solid var(--border);
+          border-radius: 20px;
+          padding: 50px 35px;
           text-align: center;
           transition: 0.3s;
           backdrop-filter: blur(5px);
@@ -841,31 +1038,63 @@ export default function HackIIIT() {
           background: rgba(100, 13, 95, 0.15);
         }
 
+        .award-header {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 20px;
+          margin-bottom: 20px;
+        }
+
         .award-icon {
-          font-size: 2.5rem;
-          margin-bottom: 15px;
+          font-size: 4rem;
+        }
+
+        .award-image-wrapper {
+          width: 120px;
+          height: 120px;
+          border-radius: 15px;
+          overflow: hidden;
+          border: 2px solid var(--border);
+          background: var(--glass);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: 0.3s;
+        }
+
+        .award-item:hover .award-image-wrapper {
+          border-color: var(--purple);
+        }
+
+        .award-image-wrapper img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
 
         .award-amount {
           font-family: "Space Mono";
           color: var(--peach);
           font-weight: bold;
-          font-size: 1.2rem;
-          margin-bottom: 5px;
+          font-size: 1.6rem;
+          margin-bottom: 10px;
         }
 
         .award-title {
           color: #fff;
-          font-size: 1rem;
+          font-size: 1.15rem;
           font-family: "Plus Jakarta Sans", sans-serif;
           font-weight: 600;
+          margin-bottom: 8px;
         }
 
         .award-desc {
-          font-size: 0.8rem;
-          color: #888;
-          margin-top: 5px;
-          font-family: "Space Mono";
+          font-size: 0.95rem;
+          color: #999;
+          margin-top: 8px;
+          font-family: "Plus Jakarta Sans", sans-serif;
+          line-height: 1.7;
         }
 
         @media (max-width: 1024px) {
@@ -879,12 +1108,24 @@ export default function HackIIIT() {
 
         @media (max-width: 900px) {
           .award-desc {
-            font-size: 0.8rem;
-            color: #888;
-            margin-top: 5px;
-            font-family: "Space Mono";
-            visibility: hidden;
-            display: none;
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 10px;
+            font-family: "Plus Jakarta Sans", sans-serif;
+            line-height: 1.6;
+          }
+
+          .award-header {
+            gap: 15px;
+          }
+
+          .award-image-wrapper {
+            width: 80px;
+            height: 80px;
+          }
+
+          .award-icon {
+            font-size: 3rem;
           }
 
           .prize-grid {
@@ -941,35 +1182,6 @@ export default function HackIIIT() {
           }
         }
 
-        @media (max-width: 600px) {
-          .awards-grid {
-            grid-template-columns: 1fr; /* Stack awards on small mobile */
-          }
-
-          .award-item {
-            display: flex;
-            align-items: center;
-            text-align: left;
-            padding: 20px;
-            gap: 20px;
-          }
-
-          .award-icon {
-            margin-bottom: 0;
-            font-size: 2rem;
-          }
-
-          .award-info {
-            flex-grow: 1;
-          }
-
-          /* Need to wrap content in a div for flex layout in JS logic?
-              CSS-only fix: assume direct children.
-              But wait, the HTML structure is: icon, amount, title, desc.
-              Flexbox will put them in a row. We want icon + (stack of rest).
-           */
-        }
-
         /* Better Approach for Mobile Awards: Keep grid but center content or allow 2 cols on slightly larger mobile */
         @media (max-width: 480px) {
           .prize-card {
@@ -992,8 +1204,73 @@ export default function HackIIIT() {
             margin-bottom: 5px;
           }
 
-          .award-item {
-            padding: 20px;
+          .awards-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .award-image-placeholder {
+            height: 200px;
+            font-size: 0.8rem;
+          }
+
+          .award-content {
+            padding: 30px 25px;
+          }
+
+          .award-header {
+            flex-direction: column;
+            gap: 15px;
+          }
+
+          .award-icon {
+            font-size: 2.5rem;
+          }
+
+          .award-image-wrapper {
+            width: 100px;
+            height: 100px;
+          }
+
+          .award-amount {
+            font-size: 1.4rem;
+          }
+
+          .award-title {
+            font-size: 1.05rem;
+          }
+
+          .award-desc {
+            font-size: 0.85rem;
+            line-height: 1.6;
+          }
+
+          .mentor-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .mentor-card {
+            padding: 35px 30px;
+          }
+
+          .mentor-icon {
+            font-size: 3.5rem;
+          }
+
+          .mentor-image {
+            width: 120px;
+            height: 120px;
+          }
+
+          .mentor-name {
+            font-size: 1.2rem;
+          }
+
+          .mentor-prize {
+            font-size: 1.5rem;
+          }
+
+          .mentor-description {
+            font-size: 0.95rem;
           }
         }
       `}</style>
@@ -1031,7 +1308,7 @@ export default function HackIIIT() {
               fontSize: "clamp(0.7rem, 2vw, 1rem)",
             }}
           >
-            [ SESSION_OPEN ]
+            [ HALL_OF_FAME ]
           </p>
           <h1 className="hero-title reveal">
             {"HACKIIIT".split("").map((char, index) => (
@@ -1049,7 +1326,7 @@ export default function HackIIIT() {
               marginBottom: "10px",
             }}
           >
-            BUILD_THE_FUTURE_OF_CAMPUS
+            CELEBRATING_OUR_CHAMPIONS
           </p>
           <p
             className="reveal"
@@ -1057,32 +1334,251 @@ export default function HackIIIT() {
               color: "var(--peach)",
               fontFamily: "Space Mono",
               fontWeight: "bold",
-              fontSize: "clamp(1.1rem, 3.5vw, 1.5rem)",
+              fontSize: "clamp(1.1rem, 3vw, 1.5rem)",
             }}
           >
-            PRIZE POOL: ₹1,00,000
+            JAN 24-26, 2026 • ₹1,00,000 PRIZE POOL
           </p>
+        </div>
+      </section>
 
-          <div className="reveal">
-            {isProposalOpen ? (
-              <a
-                href="/hackiiit/proposals"
-                className="btn-cta hover-target"
-              >
-                Submit Proposal 🠞
-              </a>
-            ) : (
-              <button
-                disabled
-                className="btn-cta disabled cursor-not-allowed opacity-50"
-                style={{ pointerEvents: 'none' }}
-              >
-                Opens in {timeLeft}
-              </button>
-            )}
+
+      {/* 
+      <section className="section compact" id="memories">
+        <div className="container">
+          <h2
+            className="reveal"
+            style={{
+              fontFamily: "Press Start 2P",
+              fontSize: "clamp(0.7rem, 2vw, 1rem)",
+              textAlign: "center",
+              marginBottom: "50px",
+            }}
+          >
+            MEMORIES_HACKIIIT_2026
+          </h2>
+          <div className="carousel-container reveal">
+            <div className="carousel-track">
+              {[9, 8, 7, 6, 5, 4, 3, 2, 1].map((num) => (
+                <Image
+                  key={num}
+                  className="carousel-img"
+                  src={`/hackiiit/carousel${num}.JPG`}
+                  alt={`Carousel ${num}`}
+                  width={350}
+                  height={220}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section> 
+        */}
+
+      {/* Winners Section */}
+      <section className="section" id="winners">
+        <div className="container" style={{ maxWidth: "1000px" }}>
+          <h2
+            className="reveal"
+            style={{
+              fontFamily: "Space Mono",
+              fontSize: "clamp(1.5rem, 3vw, 2.5rem)",
+              margin: "0 0 80px",
+              color: "#e4c66bff",
+              textAlign: "center",
+              letterSpacing: "4px",
+            }}
+          >
+            [HALL_OF_FAME_2026]
+          </h2>
+
+          {/* 1st Place Winner */}
+          <div className="winner-card first reveal hover-target">
+            <div className="winner-image-placeholder">
+              <Image src="/hackiiit/1st.png" alt="1st Place" width={350} height={220} />
+            </div>
+            <div className="winner-content">
+              <div className="winner-header">
+                <div className="winner-rank-badge">
+                  <span className="winner-medal">🥇</span>
+                  <span className="winner-rank-text">1ST PLACE</span>
+                </div>
+                <div className="winner-prize">₹40,000</div>
+              </div>
+              <h3 className="winner-team-name">Nuxe Nalc</h3>
+              <p className="winner-description">
+                Created a system to convert institute policy into a formal system, where users query if actions are allowed; an SMT solver verifies statements with the rules in the policy, with a proof/disproof of your "theorem" (action) using the "axioms" (policies). It can also find mathematically proven loopholes/contradictions in policies.
+              </p>
+              <p className="winner-tech">
+                Vishesh Saraswat, Tejas Agarwal, Pratyush Vempati, Anirudh Vempati
+              </p>
+            </div>
+          </div>
+
+          {/* 2nd Place Winner */}
+          <div className="winner-card reveal hover-target">
+            <div className="winner-image-placeholder">
+              <Image src="/hackiiit/2nd.png" alt="2nd Place" width={350} height={220} />
+            </div>
+            <div className="winner-content">
+              <div className="winner-header">
+                <div className="winner-rank-badge">
+                  <span className="winner-medal">🥈</span>
+                  <span className="winner-rank-text">2ND PLACE</span>
+                </div>
+                <div className="winner-prize">₹25,000</div>
+              </div>
+              <h3 className="winner-team-name">Gommies</h3>
+              <p className="winner-description">
+                ResearchWeb is a unified platform enhancing student, professor and research centre collaboration through a version-controlled website editor, a project connection board, and ML-powered semantic research matching. It simplifies content updates, improves project discovery, and intelligently connects students with relevant labs, faculty, and publications.
+              </p>
+              <p className="winner-tech">
+                Dhruva Anand, Teja Pudie, Ayaansh Solanki, Jonathan Robin
+              </p>
+            </div>
+          </div>
+
+          {/* 3rd Place Winner */}
+          <div className="winner-card reveal hover-target">
+            <div className="winner-image-placeholder">
+              <Image src="/hackiiit/3rd.png" alt="3rd Place" width={350} height={220} />
+            </div>
+            <div className="winner-content">
+              <div className="winner-header">
+                <div className="winner-rank-badge">
+                  <span className="winner-medal">🥉</span>
+                  <span className="winner-rank-text">3RD PLACE</span>
+                </div>
+                <div className="winner-prize">₹15,000</div>
+              </div>
+              <h3 className="winner-team-name">Another Useless Group</h3>
+              <p className="winner-description">
+                Hadron - "Where Ideas Collide" An AI-powered social hub that turns dense papers into snackable slide-stories, conversational podcasts and crisp reels (aka brainrot for the fast-paced crowd). FastAPI backend, React frontend, open models-driven summaries, TTS podcasts, vibrant lab communities with threads and open discussions so that students read, listen, learn, connect and innovate across domains.
+              </p>
+              <p className="winner-tech">
+                Inesh Dheer, Shreyas Mehta, Aviral Gupta, Mohit Singh.
+              </p>
+            </div>
+          </div>
+
+          {/* Special Awards Section */}
+          <h3
+            className="reveal"
+            style={{
+              fontFamily: "Space Mono",
+              fontSize: "clamp(1rem, 2vw, 1.5rem)",
+              margin: "100px 0 50px",
+              color: "#fff",
+              textAlign: "center",
+              letterSpacing: "4px",
+            }}
+          >
+            [ SPECIAL_AWARDS ]
+          </h3>
+
+          <div className="awards-grid reveal">
+            <div className="award-item hover-target">
+              <div className="award-content">
+                <div className="award-header">
+                  <div className="award-icon">🎨</div>
+
+                </div>
+                <div className="award-amount">₹5,000</div>
+                <div className="award-title">Team ACE - MOST_CREATIVE</div>
+                <div className="award-desc">
+                  NoGradeDrop Never miss a biometric again.NoGradeDrop is a community-driven, AI-powered attendance notification ecosystem designed to save your grades and your sleep. We combine computer vision, crowdsourcing, and aggressive alarm systems to ensure that when the biometric machine enters the class, you are the first to know.
+                </div>
+              </div>
+            </div>
+            <div className="award-item hover-target">
+              <div className="award-content">
+                <div className="award-header">
+                  <div className="award-icon">✨</div>
+
+                </div>
+                <div className="award-amount">₹5,000</div>
+                <div className="award-title">odomos - BEST_UI/UX</div>
+                <div className="award-desc">
+                  UniGraph unifies your university experience. Use the Playground to explore a stunning, interactive graph connecting courses, topics, and resources. Switch to the Bureaucrat for instant, accurate answers on any campus policyâ€”from hostels to academicsâ€”featuring an intelligent agent that auto-drafts official emails to the exact relevant authority.
+                </div>
+              </div>
+            </div>
+            <div className="award-item hover-target">
+              <div className="award-content">
+                <div className="award-header">
+                  <div className="award-icon">🎁</div>
+
+                </div>
+                <div className="award-amount">₹5,000</div>
+                <div className="award-title">MEGALODON - MOST_IMPACTFUL</div>
+                <div className="award-desc">
+                  SmartMess is an intelligent mess management system for IIIT Hyderabad that reduces overcrowding through real-time crowd monitoring. It features a meal marketplace and data-driven analytics, helping users choose optimal messes and meal times while improving overall mess efficiency and transparency. By enabling meal redistribution and better demand prediction, it also helps reduce food wastage in messes.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Special Awards Section */}
+          <h3
+            className="reveal"
+            style={{
+              fontFamily: "Space Mono",
+              fontSize: "clamp(1rem, 2vw, 1.5rem)",
+              margin: "100px 0 50px",
+              color: "#fff",
+              textAlign: "center",
+              letterSpacing: "4px",
+            }}
+          >
+            [ SPECIAL_MENTION ]
+          </h3>
+
+          <div className="awards-grid reveal">
+
+            <div className="award-item hover-target">
+              <div className="award-content">
+                <div className="award-header">
+                  <div className="award-icon">🎁</div>
+
+                </div>
+                <div className="award-title">Santas And Their Elves - BEST_HARDWARE</div>
+                <div className="award-desc">
+                  Campus canteens have unpredictable availability and long wait times. Students waste trips and time. Our MVP combines a physical ON/OFF switch for real-time canteen status with app-based pre-ordering. Orders are accepted only when open, prepared in advance, and picked up instantly, reducing confusion, waiting, and crowding
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Best Mentor Awards */}
+          <h3
+            className="reveal"
+            style={{
+              fontFamily: "Space Mono",
+              fontSize: "clamp(1rem, 2vw, 1.5rem)",
+              margin: "100px 0 50px",
+              color: "#fff",
+              textAlign: "center",
+              letterSpacing: "4px",
+            }}
+          >
+            [BEST_MENTORS_AWARDS]
+          </h3>
+
+          <div className="mentor-grid reveal">
+            <div className="mentor-card hover-target">
+              <Image src="/hackiiit/advait.jpg" alt="Advait Dintakurti" width={150} height={150} className="mentor-image" />
+              <div className="mentor-name">Advait Dintakurti</div>
+
+            </div>
+            <div className="mentor-card hover-target">
+              <Image src="/hackiiit/kaushik.jpg" alt="Kaushik Yadla" width={150} height={150} className="mentor-image" />
+              <div className="mentor-name">Kaushik Yadla</div>
+
+            </div>
           </div>
         </div>
       </section>
+
 
       {/* Mission */}
       <section className="section" id="mission">
@@ -1120,8 +1616,8 @@ export default function HackIIIT() {
                   marginBottom: "25px",
                 }}
               >
-                We challenge you to take on a real campus problem and solve it
-                in the open.
+                HackIIIT 2026 challenged the brightest minds at IIIT Hyderabad
+                to build solutions for real campus problems—in the open.
                 <br />
                 Open source, always. No gates. No secrets. Just code that
                 matters.
@@ -1165,13 +1661,13 @@ export default function HackIIIT() {
                   fontSize: "clamp(0.9rem, 2vw, 1rem)",
                 }}
               >
-                <p style={{ color: "var(--pink)" }}>[ WHAT: 24H_HACK ]</p>
-                <p style={{ color: "var(--pink)" }}>[ WHEN: JAN_24-26 ]</p>
+                <p style={{ color: "var(--pink)" }}>[ EVENT: 24H_HACK ]</p>
+                <p style={{ color: "var(--pink)" }}>[ DATES: JAN_24-26_2026 ]</p>
                 <p style={{ color: "var(--pink)" }}>
-                  [ WHERE: IIIT Hyderabad ]
+                  [ LOCATION: IIIT Hyderabad ]
                 </p>
                 <p style={{ color: "var(--pink)" }}>
-                  [ WHY: BECAUSE_CODE_CHANGES_CAMPUS ]
+                  [ TOTAL_PRIZES: ₹1,00,000 ]
                 </p>
               </div>
             </div>
@@ -1179,119 +1675,6 @@ export default function HackIIIT() {
         </div>
       </section>
 
-      {/* Memories Carousel */}
-      <section className="section compact" id="memories">
-        <div className="container">
-          <h2
-            className="reveal"
-            style={{
-              fontFamily: "Press Start 2P",
-              fontSize: "clamp(0.7rem, 2vw, 1rem)",
-              textAlign: "center",
-              marginBottom: "50px",
-            }}
-          >
-            MEMORIES_HACKIIIT_2025
-          </h2>
-          <div className="carousel-container reveal">
-            <div className="carousel-track">
-              {[9, 8, 7, 6, 5, 4, 3, 2, 1].map((num) => (
-                <Image
-                  key={num}
-                  className="carousel-img"
-                  src={`/hackiiit/carousel${num}.JPG`}
-                  alt={`Carousel ${num}`}
-                  width={350}
-                  height={220}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Prizes Section */}
-      <section className="section" id="prizes">
-        <div className="container">
-          <h2
-            className="reveal"
-            style={{
-              fontFamily: "Space Mono",
-              fontSize: "clamp(1rem, 2vw, 1.5rem)",
-              margin: "100px 0 50px",
-              color: "#e4c66bff",
-              textAlign: "center",
-              letterSpacing: "4px",
-            }}
-          >
-            [ PRIZE_POOL_BREAKDOWN ]
-          </h2>
-
-          <div className="prize-grid reveal">
-            {/* 2nd Prize */}
-            <div className="prize-card second hover-target">
-              <span className="prize-crown">🥈</span>
-              <div className="prize-rank">2ND</div>
-              <div className="prize-amount">₹25,000</div>
-              <div className="prize-label">Runner Up</div>
-            </div>
-
-            {/* 1st Prize */}
-            <div className="prize-card first hover-target">
-              <span className="prize-crown">🥇</span>
-              <div className="prize-rank">1ST</div>
-              <div className="prize-amount">₹40,000</div>
-              <div className="prize-label">Winner</div>
-            </div>
-
-            {/* 3rd Prize */}
-            <div className="prize-card third hover-target">
-              <span className="prize-crown">🥉</span>
-              <div className="prize-rank">3RD</div>
-              <div className="prize-amount">₹15,000</div>
-              <div className="prize-label">2nd Runner Up</div>
-            </div>
-          </div>
-
-          <h3
-            className="reveal"
-            style={{
-              fontFamily: "Space Mono",
-              fontSize: "clamp(1rem, 2vw, 1.5rem)",
-              margin: "100px 0 50px",
-              color: "#fff",
-              textAlign: "center",
-              letterSpacing: "4px",
-            }}
-          >
-            [ ADDITIONAL_AWARDS ]
-          </h3>
-
-          <div className="awards-grid reveal">
-            <div className="award-item hover-target">
-              <div className="award-icon">🎨</div>
-              <div className="award-amount">₹5,000</div>
-              <div className="award-title">Most Creative Project</div>
-            </div>
-            <div className="award-item hover-target">
-              <div className="award-icon">👨‍🏫</div>
-              <div className="award-amount">₹5,000</div>
-              <div className="award-title">Best Mentor Award</div>
-            </div>
-            <div className="award-item hover-target">
-              <div className="award-icon">✨</div>
-              <div className="award-amount">₹5,000</div>
-              <div className="award-title">Best UI/UX</div>
-            </div>
-            <div className="award-item hover-target">
-              <div className="award-icon">🎁</div>
-              <div className="award-amount">₹5,000</div>
-              <div className="award-title">Special Prize</div>
-              <div className="award-desc">To be revealed soon</div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Jane Street Spotlight */}
       <section className="section compact">
@@ -1339,286 +1722,6 @@ export default function HackIIIT() {
         </div>
       </section>
 
-      {/* Timeline */}
-      <section className="section" id="timeline">
-        <div className="container" style={{ maxWidth: "800px" }}>
-          <h2
-            className="reveal"
-            style={{
-              fontFamily: "Press Start 2P",
-              fontSize: "clamp(0.8rem, 2vw, 1rem)",
-              marginBottom: "60px",
-              color: "var(--peach)",
-            }}
-          >
-            CHRONOLOGY_LOG
-          </h2>
-          <div className="timeline-item reveal hover-target">
-            <h3
-              style={{
-                color: "var(--pink)",
-                fontSize: "clamp(1rem, 2.5vw, 1.2rem)",
-              }}
-            >
-              REGISTRATIONS
-            </h3>
-            <p
-              style={{
-                color: "#666",
-                fontFamily: "Space Mono",
-                fontSize: "clamp(0.85rem, 2vw, 1rem)",
-              }}
-            >
-              DEADLINE | 17th JAN //
-              <br />
-              Assemble your team and start tinkering! Only a few projects will
-              be shortlisted based on proposal quality.
-            </p>
-          </div>
-          <div className="timeline-item reveal hover-target">
-            <h3 style={{ fontSize: "clamp(1rem, 2.5vw, 1.2rem)" }}>
-              THE KICKOFF
-            </h3>
-            <p
-              style={{
-                color: "#666",
-                fontFamily: "Space Mono",
-                fontSize: "clamp(0.85rem, 2vw, 1rem)",
-              }}
-            >
-              JAN 24 | 14:00 // EVENT OPENING
-              <br /> Keynote Adress by Prof. Karthik Vaidhyanathan. Proposal
-              submissions and evaluations.
-            </p>
-          </div>
-          <div className="timeline-item reveal hover-target">
-            <h3 style={{ fontSize: "clamp(1rem, 2.5vw, 1.2rem)" }}>
-              24H HACKING
-            </h3>
-            <p
-              style={{
-                color: "#666",
-                fontFamily: "Space Mono",
-                fontSize: "clamp(0.85rem, 2vw, 1rem)",
-              }}
-            >
-              JAN 24 | 17:00 // PURE HACKING BEGINS (24 HOURS)
-            </p>
-          </div>
-          <div className="timeline-item reveal hover-target">
-            <h3 style={{ fontSize: "clamp(1rem, 2.5vw, 1.2rem)" }}>
-              CODING & SNACKS
-            </h3>
-            <p
-              style={{
-                color: "#666",
-                fontFamily: "Space Mono",
-                fontSize: "clamp(0.85rem, 2vw, 1rem)",
-              }}
-            >
-              JAN 24 | We'll give some snacks somewhere. TBD
-            </p>
-          </div>
-          <div className="timeline-item reveal hover-target">
-            <h3 style={{ fontSize: "clamp(1rem, 2.5vw, 1.2rem)" }}>
-              FINAL SUBMISSION
-            </h3>
-            <p
-              style={{
-                color: "#666",
-                fontFamily: "Space Mono",
-                fontSize: "clamp(0.85rem, 2vw, 1rem)",
-              }}
-            >
-              JAN 25 | 17:00 // EVENT ENDS (5:00 PM)
-            </p>
-          </div>
-          <div className="timeline-item reveal hover-target">
-            <h3 style={{ fontSize: "clamp(1rem, 2.5vw, 1.2rem)" }}>
-              EVALS AND RESULTS
-            </h3>
-            <p
-              style={{
-                color: "#666",
-                fontFamily: "Space Mono",
-                fontSize: "clamp(0.85rem, 2vw, 1rem)",
-              }}
-            >
-              JAN 26 // Eval Slots will be announced, followed by winners
-              announcements.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* What Can You Build */}
-      <section className="section compact" id="what-can-you-build">
-        <div className="container" style={{ maxWidth: "900px" }}>
-          <h2
-            className="reveal"
-            style={{
-              fontFamily: "Press Start 2P",
-              fontSize: "clamp(0.8rem, 2vw, 1rem)",
-              marginBottom: "50px",
-              color: "var(--peach)",
-              textAlign: "center",
-            }}
-          >
-            WHAT_CAN_YOU_BUILD
-          </h2>
-
-          <div
-            className="glass-box reveal"
-            style={{ gridTemplateColumns: "1fr" }}
-          >
-            <p
-              style={{
-                color: "#ccc",
-                fontSize: "clamp(0.95rem, 2vw, 1.05rem)",
-                lineHeight: "1.7",
-                marginBottom: "25px",
-              }}
-            >
-              Build anything that improves life at IIIT Hyderabad. Tools,
-              platforms, automations, fixes, experiments, or ideas we did not
-              know we knew we needed.
-              <br />
-              <br />
-              Your project must be{" "}
-              <span style={{ color: "var(--peach)" }}>open source </span>
-              and meaningful to the campus community.
-            </p>
-
-            <p
-              style={{
-                color: "#bbb",
-                fontSize: "clamp(0.95rem, 2vw, 1.05rem)",
-                lineHeight: "1.7",
-                marginBottom: "25px",
-              }}
-            >
-              You are expected to start building{" "}
-              <strong>during the hackathon</strong>.
-              <br />
-              Using pre-existing code, libraries, or old projects is allowed,
-              <strong> but must be clearly disclosed</strong>.
-            </p>
-
-            <p
-              style={{
-                color: "#bbb",
-                fontSize: "clamp(0.95rem, 2vw, 1.05rem)",
-                lineHeight: "1.7",
-                marginBottom: "25px",
-              }}
-            >
-              If you build on top of something that already exists, your
-              submission must include <strong>significant new features</strong>{" "}
-              developed during the hackathon. These cases will be evaluated
-              individually. Please reach out to mentors{" "}
-              <strong> before hacking period </strong>to clearify what you'll be
-              working on improving.
-              <br />
-              <br />
-              OSDG reserves rights to disqualify participants found using
-              undisclosed previous work.
-            </p>
-
-            <p
-              style={{
-                color: "var(--pink)",
-                fontFamily: "Space Mono",
-                fontSize: "clamp(0.9rem, 2vw, 1rem)",
-                lineHeight: "1.7",
-              }}
-            >
-              [ FAIR_PLAY_NOTICE ]
-              <br />
-              If you believe a team has used undisclosed pre-existing work,
-              report it to the organizing team. All reports will be handled
-              discreetly and fairly.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="section" id="faq">
-        <div className="container" style={{ maxWidth: "900px" }}>
-          <h2
-            className="reveal"
-            style={{
-              fontFamily: "Press Start 2P",
-              fontSize: "clamp(0.8rem, 2vw, 1rem)",
-              marginBottom: "60px",
-              color: "var(--peach)",
-              textAlign: "center",
-            }}
-          >
-            FREQUENTLY_ASKED_QUESTIONS
-          </h2>
-
-          <div className="faq-item reveal">
-            <h3 className="faq-question">Who can participate?</h3>
-            <p className="faq-answer">
-              HackIIIT is open to all IIIT Hyderabad students. You must form
-              teams of 2 to 4 members to participate.
-            </p>
-          </div>
-
-          <div className="faq-item reveal">
-            <h3 className="faq-question">What should I build?</h3>
-            <p className="faq-answer">
-              Focus on solving real campus problems. Your solution must be open
-              source and should address an actual need within our community.
-            </p>
-          </div>
-
-          <div className="faq-item reveal">
-            <h3 className="faq-question">What is the proposal about???</h3>
-            <p className="faq-answer">
-              Give a summary of your solution & the problem you will be working on.
-              Submissions will open on 24th Jan, 2:00 PM.
-            </p>
-          </div>
-
-          <div className="faq-item reveal">
-            <h3 className="faq-question">Do I need to be experienced?</h3>
-            <p className="faq-answer">
-              No! HackIIIT welcomes all skill levels. Whether you&apos;re a
-              beginner or an experienced developer, there&apos;s a place for you
-              here.
-            </p>
-          </div>
-
-          <div className="faq-item reveal">
-            <h3 className="faq-question">
-              What&apos;s the prize pool distribution?
-            </h3>
-            <p className="faq-answer">
-              The total prize pool of ₹1,00,000 will be distributed among top
-              teams and a few top mentors. Exact distribution will be announced
-              closer to the event.
-            </p>
-          </div>
-
-          <div className="faq-item reveal">
-            <h3 className="faq-question">Will there be mentorship?</h3>
-            <p className="faq-answer">
-              Yes! Mentors will be available throughout the 24-hour period to
-              guide you and answer your questions.
-            </p>
-          </div>
-
-          <div className="faq-item reveal">
-            <h3 className="faq-question">What do I need to bring?</h3>
-            <p className="faq-answer">
-              Bring your laptop, charger, and enthusiasm! We&apos;ll provide
-              food, beverages, and a great hacking environment.
-            </p>
-          </div>
-        </div>
-      </section>
 
       {/* Scroll to Top Button */}
       <button
@@ -1630,66 +1733,7 @@ export default function HackIIIT() {
         ↑
       </button>
 
-      {/* Footer */}
-      <footer
-        style={{
-          padding: "100px 20px",
-          borderTop: "1px solid var(--border)",
-          background: "#000",
-        }}
-      >
-        <div className="container">
-          <div className="footer-logo-grid">
-            <div className="logo-wrapper reveal">
-              <Image
-                src="/hackiiit/OSDG-logo.png"
-                alt="OSDG"
-                className="logo-img"
-                width={150}
-                height={50}
-              />
-            </div>
-            <div className="logo-wrapper reveal">
-              <Image
-                src="/hackiiit/jane_street_logo_stacked.png"
-                alt="Jane Street"
-                className="logo-img"
-                width={150}
-                height={50}
-              />
-            </div>
-            <div className="logo-wrapper reveal">
-              <Image
-                src="/hackiiit/iiit-logo.png"
-                alt="IIIT"
-                className="logo-img"
-                width={150}
-                height={50}
-              />
-            </div>
-            <div className="logo-wrapper reveal">
-              <Image
-                src="/hackiiit/sponsor_2.png"
-                alt="Sponsor"
-                className="logo-img"
-                width={150}
-                height={50}
-              />
-            </div>
-          </div>
-          <p
-            style={{
-              textAlign: "center",
-              fontFamily: "Space Mono",
-              color: "#fff",
-              fontSize: "clamp(0.7rem, 1.5vw, 0.8rem)",
-              marginTop: "50px",
-            }}
-          >
-            Copyright (c) 2026 OSDG. All Rights Reserved.
-          </p>
-        </div>
-      </footer>
+
     </>
   );
 }
