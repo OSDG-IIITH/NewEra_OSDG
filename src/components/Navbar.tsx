@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import brandLogo from "@/assets/BrandLogo.png";
@@ -8,16 +8,32 @@ import AuthWidget from "@/components/AuthWidget";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isHackiiitDropdownOpen, setIsHackiiitDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsHackiiitDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const linkClass =
     "py-2 px-3 rounded-md font-medium text-lg transition-all duration-300 ease-in-out hover:bg-white/5 focus:bg-white/5 outline-none font-oxanium";
 
   return (
-  <nav className="sticky top-0 z-50 bg-transparent backdrop-blur-lg text-gray-200 pt-4" style={{boxShadow: '0 4px 32px 0 rgba(0,0,0,0.1)', WebkitBackdropFilter: 'blur(16px)', backdropFilter: 'blur(16px)'}}>
+    <nav className="sticky top-0 z-50 bg-transparent backdrop-blur-lg text-gray-200 pt-4" style={{ boxShadow: '0 4px 32px 0 rgba(0,0,0,0.1)', WebkitBackdropFilter: 'blur(16px)', backdropFilter: 'blur(16px)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -52,12 +68,37 @@ export default function Navbar() {
             >
               Team
             </Link>
-            <Link
-              className={linkClass}
-              href="/hackiiit"
-            >
-              HackIIIT
-            </Link>
+
+            {/* HackIIIT Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsHackiiitDropdownOpen(!isHackiiitDropdownOpen)}
+                className={`${linkClass} flex items-center gap-1`}
+              >
+                HackIIIT
+                <svg
+                  className={`w-4 h-4 transition-transform duration-200 ${isHackiiitDropdownOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {isHackiiitDropdownOpen && (
+                <div className="absolute top-full mt-2 w-48 bg-black/95 backdrop-blur-lg border border-gray-700 rounded-md shadow-lg py-2 z-50">
+                  <Link
+                    href="/hackiiit2026"
+                    className="block px-4 py-2 text-gray-200 hover:bg-white/5 transition-all duration-300"
+                    onClick={() => setIsHackiiitDropdownOpen(false)}
+                  >
+                    HackIIIT 2026
+                  </Link>
+                </div>
+              )}
+            </div>
+
             <AuthWidget className="ml-4" />
           </div>
 
@@ -141,12 +182,35 @@ export default function Navbar() {
             >
               Team
             </Link>
-            <Link
-              href="/hackiiit"
-              className="block px-3 py-2 text-base font-medium rounded-md hover:bg-[#3E4050] transition duration-300"
-            >
-              HackIIIT
-            </Link>
+
+            {/* Mobile HackIIIT Dropdown */}
+            <div>
+              <button
+                onClick={() => setIsHackiiitDropdownOpen(!isHackiiitDropdownOpen)}
+                className="w-full text-left px-3 py-2 text-base font-medium rounded-md hover:bg-[#3E4050] transition duration-300 flex items-center justify-between"
+              >
+                HackIIIT
+                <svg
+                  className={`w-4 h-4 transition-transform duration-200 ${isHackiiitDropdownOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {isHackiiitDropdownOpen && (
+                <div className="pl-6 py-1">
+                  <Link
+                    href="/hackiiit2026"
+                    className="block px-3 py-2 text-sm font-medium rounded-md hover:bg-[#3E4050] transition duration-300"
+                  >
+                    HackIIIT 2026
+                  </Link>
+                </div>
+              )}
+            </div>
+
             <div className="px-3 py-2">
               <AuthWidget />
             </div>

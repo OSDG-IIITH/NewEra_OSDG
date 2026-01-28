@@ -35,7 +35,7 @@ export default function AnnouncementBanner() {
       style={{ opacity: scrollOpacity }}
     >
       <a
-        href="/hackiiit"
+        href="/hackiiit2026"
         className="block bg-green-500/10 backdrop-blur-md border border-green-400/40 rounded-full px-6 py-3 shadow-lg shadow-green-500/20 hover:bg-green-500/15 hover:border-green-400/60 transition-all duration-300 group"
       >
         <div className="flex items-center justify-between gap-4">
@@ -44,7 +44,7 @@ export default function AnnouncementBanner() {
               <VetalGhost className="w-full h-full" />
             </div>
             <p className="text-sm md:text-base text-white font-oxanium font-semibold tracking-wide">
-              <span className="text-green-400">HackIIIT 2026:</span> <span className="text-gray-300 font-normal">Yes, IIIT is looking up to you to make it better. Don&apos;t disappoint.</span>
+              <span className="text-green-400">HackIIIT '26</span> <span className="text-gray-300 font-normal">is over and the winners are here!</span>
             </p>
           </div>
 
