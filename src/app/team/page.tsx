@@ -36,7 +36,7 @@ const TeamPage: React.FC = () => {
   };
 
   const coordinatorMembers = groupByTeam('Coordinators');
-  const techMembers = groupByTeam('Tech Team');
+  const techMembers = (groupByTeam('Tech Team')).concat(groupByTeam('Projects Team'));
   // Ensure tech members without profile pictures appear at the end.
   // Preserve alphabetical order otherwise.
   const techMembersSorted = techMembers.slice().sort((a, b) => {
