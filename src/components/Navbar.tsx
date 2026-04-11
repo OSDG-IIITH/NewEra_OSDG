@@ -53,9 +53,6 @@ export default function Navbar() {
             <Link className={linkClass} href="/">
               Home
             </Link>
-            <Link className={linkClass} href="/guide">
-              Guide
-            </Link>
             <Link className={linkClass} href="/list">
               Showcase
             </Link>
@@ -157,12 +154,6 @@ export default function Navbar() {
               className="block px-3 py-2 text-base font-medium rounded-md hover:bg-[#3E4050] transition duration-300"
             >
               Home
-            </Link>
-            <Link
-              href="/guide"
-              className="block px-3 py-2 text-base font-medium rounded-md hover:bg-[#3E4050] transition duration-300"
-            >
-              Guide
             </Link>
             <Link
               href="/list"
