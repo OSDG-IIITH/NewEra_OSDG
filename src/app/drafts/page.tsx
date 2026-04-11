@@ -69,7 +69,7 @@ export default function UpdatesPage() {
           
           {/* Newest Blog */}
           <BlogPost 
-            title="The question is whether you’ll understand it before someone uses it on you." 
+            title="Will you understand it before someone uses it on you? [Under Draft]" 
             author="Abhinav P V" 
             date="April 11, 2026"
           >
@@ -98,7 +98,7 @@ export default function UpdatesPage() {
             </div>
 
             <p className="text-base sm:text-lg leading-relaxed">
-              Case in point - For the eyes: tom cruise brad pitt fight scene – encode the video itself (this was a video released by ByteDance using their Seedance 2.0 (Video + Audio model) : This is precisely: convincing. (made in matter of mins)
+              Case in point - For the eyes: tom cruise brad pitt fight scene (this was a video released by ByteDance using their Seedance 2.0 (Video + Audio model) : This is precisely: convincing. (made in matter of mins)
             </p>
 
             {/* Video Integration strictly below */}
@@ -133,7 +133,7 @@ export default function UpdatesPage() {
               In the days to come, the tools will mature. The attacks will grow subtler & convincing. What must grow with them is our vigilance & responsibility towards each other. And most importantly stay grounded in the physical – in the trust built face to face & in the real conversations than just keep to the digital realm where things can be intercepted, fabricated & weaponised.
             </p>
 
-            <p className="text-lg sm:text-xl font-semibold text-cyan-400 mt-8 mb-6">
+            <p className="text-base sm:text-lg leading-relaxed">
               Stay aware & informed.<br />
               Welcome to Yesterday’s Tomorrow
             </p>
